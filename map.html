@@ -26,6 +26,18 @@
         .legend-item { display: flex; align-items: center; margin-bottom: 5px; }
         .legend-color { width: 20px; height: 4px; margin-right: 8px; }
         .station-label { font-size: 10px; font-weight: 500; text-shadow: 1px 1px 1px white; white-space: nowrap; }
+        .leaflet-tooltip.station-tooltip {
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid #aaa;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            background: rgba(255,255,255,0.95);
+            color: #222;
+            white-space: nowrap;
+        }
         .stats-panel {
             position: absolute;
             top: 10px;
@@ -56,12 +68,12 @@
         <div class="legend-item"><div class="legend-color" style="background: #00FFFF;"></div> Brescia-Edolo</div>
         <div class="legend-item"><div class="legend-color" style="background: #808000;"></div> Milano-Parma</div>
         <div class="legend-item"><div class="legend-color" style="background: #FF00FF;"></div> Torino-Venezia</div>
-        <div class="legend-item"><div class="legend-color" style="background: #008080;"></div> Bologna-Ravenna</div>
+        <!--<div class="legend-item"><div class="legend-color" style="background: #008080;"></div> Bologna-Ravenna</div>-->
         <div class="legend-item"><div class="legend-color" style="background: #000080;"></div> Parma-LaSpezia</div>
         <div class="legend-item"><div class="legend-color" style="background: #40E0D0;"></div> Genova-Firenze</div>
         <div class="legend-item"><div class="legend-color" style="background: #FF4500;"></div> Torino-Genova</div>
         <div class="legend-item"><div class="legend-color" style="background: #2E8B57;"></div> Milano-Como</div>
-        <div class="legend-item"><div class="legend-color" style="background: #DC143C;"></div> Bologna-Pesaro</div>
+        <div class="legend-item"><div class="legend-color" style="background: #DC143C;"></div> Bologna-Rimini (via Ravenna)</div>
         <div class="legend-item"><div class="legend-color" style="background: #9932CC;"></div> Bolzano-Merano</div>
         <div class="legend-item"><div class="legend-color" style="background: #FF8C00;"></div> Bressanone-San Candido</div>
         <div class="legend-item"><div class="legend-color" style="background: #C0C0C0;"></div> Milano-Tirano</div>
@@ -90,8 +102,8 @@
             { id: 8, nome: 'Ora', lat: 46.348, lon: 11.297 },
             { id: 9, nome: 'Egna-Termeno', lat: 46.320, lon: 11.270 },
             { id: 10, nome: 'Salorno', lat: 46.293, lon: 11.264 },
-            { id: 11, nome: 'Rovereto', lat: 45.886, lon: 11.041 },
-            { id: 12, nome: 'Trento', lat: 46.072, lon: 11.119 },
+            { id: 11, nome: 'Trento', lat: 46.072, lon: 11.119 },
+            { id: 12, nome: 'Rovereto', lat: 45.886, lon: 11.041 },
             { id: 13, nome: 'Verona Porta Nuova', lat: 45.429, lon: 10.982 },
             { id: 14, nome: 'Verona Porta Vescovo', lat: 45.433, lon: 11.004 },
             { id: 15, nome: 'San Martino Buon Albergo', lat: 45.421, lon: 11.082 },
@@ -282,15 +294,25 @@
             { id: 182, nome: 'Vercelli', lat: 45.325, lon: 8.423 },
             { id: 183, nome: 'Novara', lat: 45.450, lon: 8.625 },
             
-            // Bologna-Ravenna (190-198)
-            { id: 190, nome: 'Castelmaggiore', lat: 44.550, lon: 11.360 },
-            { id: 191, nome: 'Funo Centergross', lat: 44.570, lon: 11.370 },
-            { id: 192, nome: 'Coronella', lat: 44.800, lon: 11.560 },
-            { id: 193, nome: 'Ferrara Cona Ospedale', lat: 44.860, lon: 11.660 },
-            { id: 194, nome: 'Quarto di Ferrara', lat: 44.880, lon: 11.710 },
-            { id: 195, nome: 'Gaibanella', lat: 44.900, lon: 11.760 },
-            { id: 196, nome: 'Alberone', lat: 44.920, lon: 11.810 },
+            // Bologna-Ravenna via Imola-Lugo (190-197)
+            { id: 190, nome: 'Imola', lat: 44.354, lon: 11.714 },
+            { id: 191, nome: 'Castel Bolognese-Riolo Terme', lat: 44.322, lon: 11.800 },
+            { id: 192, nome: 'Solarolo', lat: 44.358, lon: 11.844 },
+            { id: 193, nome: 'Lugo', lat: 44.421, lon: 11.908 },
+            { id: 194, nome: 'Bagnacavallo', lat: 44.418, lon: 11.974 },
+            { id: 195, nome: 'Russi', lat: 44.372, lon: 12.034 },
+            { id: 196, nome: 'Godo', lat: 44.39288, lon: 12.07583 },
             { id: 197, nome: 'Ravenna', lat: 44.418, lon: 12.202 },
+            // Ravenna-Rimini costa (255-263)
+            { id: 255, nome: 'Classe', lat: 44.383, lon: 12.233 },
+            { id: 256, nome: 'Lido di Classe-Lido di Savio', lat: 44.320, lon: 12.313 },
+            { id: 257, nome: 'Cervia-Milano Marittima', lat: 44.262, lon: 12.354 },
+            { id: 258, nome: 'Cesenatico', lat: 44.199, lon: 12.395 },
+            { id: 259, nome: 'Gatteo a Mare', lat: 44.157, lon: 12.404 },
+            { id: 260, nome: 'Bellaria', lat: 44.145, lon: 12.453 },
+            { id: 261, nome: 'Igea Marina', lat: 44.138, lon: 12.462 },
+            { id: 262, nome: 'Rimini Torre Pedrera', lat: 44.108, lon: 12.472 },
+            { id: 263, nome: 'Rimini Viserba', lat: 44.086, lon: 12.447 },
             
             // Parma-LaSpezia (199-208)
             { id: 199, nome: 'Fornovo', lat: 44.690, lon: 10.110 },
@@ -346,9 +368,8 @@
             { id: 246, nome: 'Como Borghi', lat: 45.800, lon: 9.080 },
             { id: 247, nome: 'Como Lago', lat: 45.813, lon: 9.084 },
             
-            // Bologna-Pesaro (248-250) – tratte simboliche
+            // Rimini (terminus Bologna-Rimini via Ravenna)
             { id: 248, nome: 'Rimini', lat: 44.058, lon: 12.571 },
-            { id: 249, nome: 'Pesaro', lat: 43.910, lon: 12.912 },
             
             // Bolzano-Merano (250-252)
             { id: 250, nome: 'Merano', lat: 46.668, lon: 11.158 },
@@ -377,7 +398,7 @@
             'Genova-Firenze': '#40E0D0',
             'Torino-Genova': '#FF4500',
             'Milano-Como': '#2E8B57',
-            'Bologna-Pesaro': '#DC143C',
+            'Bologna-Rimini (via Ravenna)': '#DC143C',
             'Bolzano-Merano': '#9932CC',
             'Bressanone-San Candido': '#FF8C00',
             'Milano-Tirano': '#C0C0C0'
@@ -392,7 +413,7 @@
                 fillColor: '#3388ff',
                 fillOpacity: 0.8,
                 weight: 1
-            }).addTo(map).bindTooltip(s.nome, { permanent: false, direction: 'top', className: 'station-label' });
+            }).addTo(map).bindTooltip(s.nome, { permanent: false, direction: 'top', className: 'station-tooltip' });
             stationCount++;
         });
 
@@ -426,12 +447,12 @@
             { nome: 'Brescia-Edolo', ids: [70,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155] },
             { nome: 'Milano-Parma', ids: [156,157,158,159,160,161,162,163,164,165,94,166,167,168,169,170,171,172,173,174,175,176,177] },
             { nome: 'Torino-Venezia', ids: [178,179,180,181,182,183,54,70,13,21,48,24,75] },
-            { nome: 'Bologna-Ravenna', ids: [87,190,191,84,83,192,82,193,194,195,196,197] },
+            //{ nome: 'Bologna-Ravenna', ids: [87,190,191,192,193,194,195,196,197] },
             { nome: 'Parma-LaSpezia', ids: [177,199,200,201,202,203,204,205,206,207,208,209,210] },
             { nome: 'Genova-Firenze', ids: [104,211,212,213,214,215,216,217,218,219,220,221,222,210] },
             { nome: 'Torino-Genova', ids: [178,179,223,224,225,226,98,99,103,104] },
             { nome: 'Milano-Como', ids: [230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247] },
-            { nome: 'Bologna-Pesaro', ids: [87,197,248,249] },
+            { nome: 'Bologna-Rimini (via Ravenna)', ids: [87,190,191,192,193,194,195,196,197,255,256,257,258,259,260,261,262,263,248] },
             { nome: 'Bolzano-Merano', ids: [6,250] },
             { nome: 'Bressanone-San Candido', ids: [3,253] },
             { nome: 'Milano-Tirano', ids: [54,254] }
