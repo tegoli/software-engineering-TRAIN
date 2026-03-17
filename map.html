@@ -25,9 +25,9 @@
         .legend h4 { margin: 0 0 10px 0; color: #333; text-align: center; }
         .legend-item { display: flex; align-items: center; margin-bottom: 5px; }
         .legend-color { width: 20px; height: 4px; margin-right: 8px; }
-        .station-label { font-size: 10px; font-weight: 500; text-shadow: 1px 1px 1px white; white-space: nowrap; }
+        .station-label { font-size: 15px; font-weight: 500; text-shadow: 1px 1px 1px white; white-space: nowrap; }
         .leaflet-tooltip.station-tooltip {
-            font-size: 14px;
+            font-size: 20px;
             font-weight: 600;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 5px 10px;
@@ -431,7 +431,7 @@
                 }
             });
             if (punti.length > 1) {
-                L.polyline(punti, { color: colore, weight: 2, opacity: 0.7 }).addTo(map);
+                L.polyline(punti, { color: colore, weight: 4, opacity: 0.7 }).addTo(map);
             }
         }
 
