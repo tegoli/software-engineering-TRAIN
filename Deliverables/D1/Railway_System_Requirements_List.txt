@@ -13,6 +13,30 @@ O7 - Administer train operations
 O8 - Generate analytics and insights for management
 O9 - Validate tickets and monitor occupancy
 
+STAKEHOLDERS
+===============================================
+
+INTERNAL / HUMAN
+- Railway administration/management
+- Train controllers/inspectors
+- Administrative staff
+- Finance team
+
+INTERNAL / NON-HUMAN
+- Train management system
+- Track control system
+- Ticketing database
+- AI integration for delay prediction
+
+EXTERNAL / HUMAN
+- Passengers (registered and anonymous users)
+- Third-party service providers (APIs)
+- Loyalty program partners
+
+EXTERNAL / NON-HUMAN
+- Delay prediction API
+- Payment gateway API
+- Mapping/routing API
 
 FUNCTIONAL REQUIREMENTS
 ===============================================
@@ -109,27 +133,3 @@ PRODUCT REQUIREMENTS - REPORTING
 NFR 27 - Email notifications
 NFR 28 - Activity logging
 
-STAKEHOLDERS
-===============================================
-
-INTERNAL / HUMAN
-- Railway administration/management
-- Train controllers/inspectors
-- Administrative staff
-- Finance team
-
-INTERNAL / NON-HUMAN
-- Train management system
-- Track control system
-- Ticketing database
-- AI integration for delay prediction
-
-EXTERNAL / HUMAN
-- Passengers (registered and anonymous users)
-- Third-party service providers (APIs)
-- Loyalty program partners
-
-EXTERNAL / NON-HUMAN
-- Delay prediction API
-- Payment gateway API
-- Mapping/routing API
