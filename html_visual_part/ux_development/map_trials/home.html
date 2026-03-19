@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>104 Train Company</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="home.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>104 Train Company</h1>
+            <div class="search-controls">
+                <!-- Partenza con autocomplete -->
+                <div class="autocomplete">
+                    <label for="partenza">Partenza</label>
+                    <input type="text" id="partenza" placeholder="Città o stazione" autocomplete="off">
+                    <div class="suggestions" id="partenza-suggestions"></div>
+                </div>
+
+                <!-- Arrivo con autocomplete -->
+                <div class="autocomplete">
+                    <label for="arrivo">Arrivo</label>
+                    <input type="text" id="arrivo" placeholder="Città o stazione" autocomplete="off">
+                    <div class="suggestions" id="arrivo-suggestions"></div>
+                </div>
+
+                <!-- Passeggeri -->
+                <div class="counter">
+                    <label for="adulti">Adulti</label>
+                    <input type="number" id="adulti" min="1" max="10" value="1">
+                </div>
+                <div class="counter">
+                    <label for="bambini">Bambini</label>
+                    <input type="number" id="bambini" min="0" max="10" value="0">
+                </div>
+
+                <!-- Bagagli -->
+                <div class="select">
+                    <label for="bagagli">Bagagli</label>
+                    <select id="bagagli">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                </div>
+
+                <!-- Bici (select) -->
+                <div class="select">
+                    <label for="bici">Bici</label>
+                    <select id="bici">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                </div>
+
+                <!-- Bottone cerca -->
+                <button id="cerca">CERCA</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div id="map"></div>
+    </main>
+
+    <footer>
+        <p>developed by 104 Group Not Found - 2026</p>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Custom JS -->
+    <script src="home.js"></script>
+</body>
+</html>

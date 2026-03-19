@@ -1,0 +1,290 @@
+/* home.css - Versione super visibility */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-dark: #0a0f1e;
+    --surface-dark: #1a1f2f;
+    --primary-blue: #1e3a8a;
+    --accent-red: #b91c1c;
+    --text-light: #e0e0e0;
+    --text-muted: #a0a0a0;
+    --border-color: #2a2f3f;
+    --shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+    --input-bg: #0f1424;
+    --glow-yellow: #ffff00;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.5;
+}
+
+/* Header compatto */
+header {
+    background: var(--surface-dark);
+    border-bottom: 4px solid var(--accent-red);
+    padding: 0.8rem 2rem;
+    box-shadow: var(--shadow);
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header-content h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-red);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    text-shadow: 0 0 10px rgba(185, 28, 28, 0.5);
+}
+
+.search-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem;
+    flex: 1 1 auto;
+    justify-content: flex-end;
+}
+
+/* Stile per i vari input - migliorato */
+.autocomplete, .counter, .select {
+    position: relative;
+    min-width: 150px;
+}
+
+.autocomplete label, .counter label, .select label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.autocomplete input, .counter input, .select select {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    background: var(--input-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+}
+
+.autocomplete input:hover, .counter input:hover, .select select:hover {
+    border-color: var(--accent-red);
+}
+
+.autocomplete input:focus, .counter input:focus, .select select:focus {
+    outline: none;
+    border-color: var(--glow-yellow);
+    box-shadow: 0 0 0 4px rgba(255, 255, 0, 0.3);
+    background: #1a1f32;
+}
+
+/* Dropdown suggerimenti */
+.suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface-dark);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    margin-top: 5px;
+    box-shadow: var(--shadow);
+}
+
+.suggestions div {
+    padding: 0.8rem 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-light);
+    transition: background 0.2s;
+    font-weight: 500;
+}
+
+.suggestions div:hover {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.suggestions div:last-child {
+    border-bottom: none;
+}
+
+/* Counter (number) */
+.counter input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.counter input[type="number"]::-webkit-inner-spin-button {
+    opacity: 1;
+    height: 22px;
+    filter: invert(1);
+}
+
+/* Select bagagli e bici */
+.select select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23ffff00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 18px;
+    padding-right: 2.8rem;
+}
+
+/* Bottone cerca */
+#cerca {
+    background: var(--accent-red);
+    color: white;
+    border: none;
+    padding: 0.7rem 2.5rem;
+    border-radius: 40px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    border: 2px solid var(--glow-yellow);
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(185, 28, 28, 0.5);
+    height: fit-content;
+}
+
+#cerca:hover {
+    background: #7f1d1d;
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(185, 28, 28, 0.8);
+    border-color: white;
+}
+
+#cerca:active {
+    transform: scale(0.98);
+}
+
+/* Mappa */
+main {
+    flex: 1;
+    padding: 1.5rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+#map {
+    width: 100%;
+    height: 600px;
+    border-radius: 20px;
+    border: 3px solid var(--surface-dark);
+    box-shadow: var(--shadow);
+}
+
+/* Stile per i tooltip permanenti delle stazioni (super visibili) */
+.leaflet-tooltip.station-tooltip {
+    background: rgba(10, 15, 30, 0.98);
+    border: 3px solid var(--glow-yellow);
+    border-radius: 24px;
+    color: white;
+    font-weight: 800;
+    padding: 16px 24px;
+    font-size: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 255, 0, 0.5);
+    text-align: center;
+    line-height: 1.6;
+    backdrop-filter: blur(8px);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.leaflet-tooltip.station-tooltip small {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 1;
+    color: var(--glow-yellow);
+    margin-bottom: 6px;
+    text-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
+}
+
+.leaflet-tooltip.station-tooltip strong {
+    font-size: 28px;
+    display: block;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+/* Footer */
+footer {
+    background: var(--surface-dark);
+    color: var(--text-muted);
+    text-align: center;
+    padding: 1rem;
+    border-top: 2px solid var(--border-color);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .header-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .search-controls {
+        justify-content: center;
+    }
+    .leaflet-tooltip.station-tooltip {
+        font-size: 16px;
+        padding: 12px 18px;
+    }
+    .leaflet-tooltip.station-tooltip strong {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 700px) {
+    .search-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .autocomplete, .counter, .select {
+        width: 100%;
+    }
+    #cerca {
+        width: 100%;
+    }
+}
