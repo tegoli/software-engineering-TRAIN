@@ -109,23 +109,6 @@ PRODUCT REQUIREMENTS - REPORTING
 NFR 27 - Email notifications
 NFR 28 - Activity logging
 
-
-USER TYPE ACCESS MATRIX
-===============================================
-
-Anonymous User:
-- FR 5, 6, 8
-
-Registered User:
-- FR 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
-
-Controller:
-- FR 27, 28, 29, 30, 31
-
-Administrator:
-- FR 19, 20, 21, 22, 23, 24, 25, 26
-
-
 STAKEHOLDERS
 ===============================================
 
@@ -139,99 +122,14 @@ INTERNAL / NON-HUMAN
 - Train management system
 - Track control system
 - Ticketing database
-- Occupancy sensors
+- AI integration for delay prediction
 
 EXTERNAL / HUMAN
 - Passengers (registered and anonymous users)
-- Third-party service providers
+- Third-party service providers (APIs)
 - Loyalty program partners
 
 EXTERNAL / NON-HUMAN
 - Delay prediction API
-- Payment gateway
+- Payment gateway API
 - Mapping/routing API
-- Weather API
-
-
-PERFORMANCE METRICS
-===============================================
-
-Train search response time: 2 seconds
-Initial page load: 4 seconds
-Subsequent page navigation: 3 seconds
-Real-time data refresh: Every minute or faster
-Maximum concurrent users: 100,000
-System uptime: 99% (maximum 7.2 hours downtime per month)
-Session persistence: 24 hours of activity
-
-
-SCALABILITY TARGETS
-===============================================
-
-Registered users: 500,000 minimum, scaling to 2 million over 5 years
-Concurrent users: 100,000 without performance degradation
-Data storage: Growing volume support from booking history and analytics
-Traffic peaks: Automatic load balancing during rush hours and holidays
-
-
-SECURITY REQUIREMENTS
-===============================================
-
-Password minimum length: 8 characters
-Password complexity: 1 uppercase, 1 lowercase, 1 digit, 1 special character
-Data transmission: TLS 1.2 or higher
-Data at rest encryption: AES-256
-Payment compliance: PCI DSS standards
-Session timeout: 24 hours of inactivity
-
-
-BROWSER AND DEVICE SUPPORT
-===============================================
-
-Supported browsers: Chrome, Firefox, Safari, Edge (from 2022 onwards)
-Mobile support: Full responsive design for smartphones and tablets
-Desktop support: Full support for desktop computers
-
-
-COMPLIANCE AND REGULATIONS
-===============================================
-
-GDPR 2016/679 compliance required
-Articles 17, 19, 32 specifically required
-Data retention: 5 years for archived bookings, then automatic deletion
-Privacy policy required and must be accepted during registration
-Audit logging required for all administrative actions
-Email confirmations for sensitive operations
-
-
-ADDITIONAL FEATURES AND CONSTRAINTS
-===============================================
-
-Bike wagon specifications:
-- Reserved for non-folding bikes only
-- Limited to approximately 7 spaces per wagon
-- Subject to additional cost
-
-Ticket modification:
-- Extended changes allowed for delays > 15 minutes
-- Standard modifications have limitations
-
-Train delay prediction:
-- Integration with external ML service
-- Provides probability for each train option
-
-Analytics and reporting:
-- Revenue per route and per train run
-- Reservation count monitoring
-- Most frequently used route identification
-- Employee activity tracking
-
-Data updates:
-- Departure/arrival boards: Real-time (every minute)
-- Occupancy tracking: Real-time (every minute)
-- Capacity insights: Real-time (every minute)
-
-Accessibility:
-- WCAG 2.1 Level AA compliance required
-- Multiple language support: English, Italian, German, French
-- Appropriate localization for dates, currencies, formats
