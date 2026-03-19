@@ -1,4 +1,4 @@
-// home.js - Gestione mappa e autocomplete con marker super visibili
+// home.js - Gestione mappa, autocomplete e popup interattivi
 
 // ==================== DATABASE STAZIONI (COMPLETO) ====================
 const stazioni = [
@@ -264,7 +264,6 @@ const coloriLinee = {
     'Brescia-Edolo': '#00FFFF',
     'Milano-Parma': '#808000',
     'Torino-Venezia': '#FF00FF',
-    'Bologna-Ravenna': '#008080',
     'Parma-LaSpezia': '#000080',
     'Genova-Firenze': '#40E0D0',
     'Torino-Genova': '#FF4500',
@@ -282,15 +281,61 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
-// Aggiungi stazioni come cerchi piccoli (di base)
+// Variabili globali per tracciare le selezioni
+let selectedPartenzaId = null;
+let selectedArrivoId = null;
+let partenzaMarker = null;
+let arrivoMarker = null;
+
+// ==================== FUNZIONE PER CREARE POPUP CLICCABILE ====================
+function createStationPopup(stazione) {
+    const div = document.createElement('div');
+    div.className = 'station-popup';
+    div.innerHTML = `
+        <div class="station-name">${stazione.nome}</div>
+        <div class="button-group">
+            <button class="popup-departure" data-id="${stazione.id}">Partenza</button>
+            <button class="popup-arrival" data-id="${stazione.id}">Arrivo</button>
+        </div>
+    `;
+
+    // Evento per il pulsante Partenza
+    div.querySelector('.popup-departure').addEventListener('click', () => {
+        document.getElementById('partenza').value = stazione.nome;
+        selectedPartenzaId = stazione.id;
+        map.closePopup();
+    });
+
+    // Evento per il pulsante Arrivo
+    div.querySelector('.popup-arrival').addEventListener('click', () => {
+        document.getElementById('arrivo').value = stazione.nome;
+        selectedArrivoId = stazione.id;
+        map.closePopup();
+    });
+
+    return div;
+}
+
+// ==================== AGGIUNTA STAZIONI ALLA MAPPA ====================
 stazioni.forEach(s => {
-    L.circleMarker([s.lat, s.lon], {
+    const marker = L.circleMarker([s.lat, s.lon], {
         radius: 5,
         color: '#0066cc',
         fillColor: '#3388ff',
         fillOpacity: 0.8,
         weight: 1
-    }).addTo(map).bindTooltip(s.nome, { permanent: false, direction: 'top' });
+    }).addTo(map);
+
+    // Tooltip al passaggio del mouse
+    marker.bindTooltip(s.nome, { permanent: false, direction: 'top' });
+
+    // Click per aprire popup con scelta partenza/arrivo
+    marker.on('click', (e) => {
+        const popup = L.popup()
+            .setLatLng(e.latlng)
+            .setContent(createStationPopup(s))
+            .openOn(map);
+    });
 });
 
 // ==================== DISEGNA LINEE ====================
@@ -307,7 +352,6 @@ function disegnaLinea(stazioniIds, colore, nomeLinea) {
     }
 }
 
-// Definizione tratte
 const linee = [
     { nome: 'Brennero-Bologna', ids: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,87] },
     { nome: 'Trento-Bassano', ids: [12,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41] },
@@ -333,7 +377,6 @@ linee.forEach(linea => {
     disegnaLinea(linea.ids, coloriLinee[linea.nome], linea.nome);
 });
 
-// Adatta la mappa ai confini del Nord Italia
 map.fitBounds([
     [44.0, 6.5],
     [47.5, 13.5]
@@ -344,9 +387,6 @@ const partenzaInput = document.getElementById('partenza');
 const arrivoInput = document.getElementById('arrivo');
 const suggestionsPart = document.getElementById('partenza-suggestions');
 const suggestionsArr = document.getElementById('arrivo-suggestions');
-
-let selectedPartenzaId = null;
-let selectedArrivoId = null;
 
 function setupAutocomplete(input, suggestionsEl, callbackSelect) {
     input.addEventListener('input', function() {
@@ -386,15 +426,12 @@ function setupAutocomplete(input, suggestionsEl, callbackSelect) {
 setupAutocomplete(partenzaInput, suggestionsPart, (id) => selectedPartenzaId = id);
 setupAutocomplete(arrivoInput, suggestionsArr, (id) => selectedArrivoId = id);
 
-// ==================== EVIDENZIA STAZIONI CON TOOLTIP SUPER VISIBILI ====================
-let partenzaMarker = null;
-let arrivoMarker = null;
-
+// ==================== EVIDENZIA STAZIONI CON TOOLTIP PERMANENTI ====================
 function creaMarkerStazione(stazione, ruolo, colore) {
     // Cerchio principale grande
     const marker = L.circleMarker([stazione.lat, stazione.lon], {
         radius: 22,
-        color: '#ffff00',           // bordo giallo brillante
+        color: '#ffff00',
         fillColor: colore,
         fillOpacity: 0.95,
         weight: 5,
@@ -410,7 +447,7 @@ function creaMarkerStazione(stazione, ruolo, colore) {
         weight: 0
     }).addTo(map);
 
-    // Tooltip personalizzato con HTML (grande e leggibile)
+    // Tooltip personalizzato
     const tooltipContent = `
         <small>${ruolo}</small>
         <strong>${stazione.nome}</strong>
@@ -456,7 +493,7 @@ document.getElementById('cerca').addEventListener('click', function() {
         arrivoMarker = creaMarkerStazione(arrivoStazione, 'ARRIVO', '#ff0000');
     }
 
-    // Adatta la vista con padding generoso
+    // Adatta la vista
     if (partenzaStazione && arrivoStazione) {
         const bounds = L.latLngBounds(
             [partenzaStazione.lat, partenzaStazione.lon],

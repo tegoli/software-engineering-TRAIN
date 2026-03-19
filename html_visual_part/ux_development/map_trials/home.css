@@ -1,4 +1,4 @@
-/* home.css - Versione super visibility */
+/* home.css - Versione super visibility con popup interattivi */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
 
 * {
@@ -211,7 +211,7 @@ main {
     box-shadow: var(--shadow);
 }
 
-/* Stile per i tooltip permanenti delle stazioni (super visibili) */
+/* Stile per i tooltip permanenti delle stazioni (partenza/arrivo) */
 .leaflet-tooltip.station-tooltip {
     background: rgba(10, 15, 30, 0.98);
     border: 3px solid var(--glow-yellow);
@@ -245,6 +245,58 @@ main {
     display: block;
     color: #ffffff;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+/* Stile per i popup delle stazioni (cliccabili) */
+.station-popup {
+    text-align: center;
+    background: var(--surface-dark);
+    border-radius: 16px;
+    padding: 5px;
+}
+
+.station-popup .station-name {
+    font-weight: 800;
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: var(--glow-yellow);
+    text-shadow: 0 0 5px rgba(255,255,0,0.5);
+}
+
+.station-popup .button-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.station-popup button {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.station-popup button:hover {
+    transform: scale(1.05);
+    filter: brightness(1.2);
+}
+
+.station-popup .popup-departure {
+    background: #00cc00;
+    color: black;
+    border: 2px solid #ffff00;
+}
+
+.station-popup .popup-arrival {
+    background: #cc0000;
+    color: white;
+    border: 2px solid #ffff00;
 }
 
 /* Footer */
