@@ -1,0 +1,135 @@
+RAILWAY SYSTEM - REQUIREMENTS LIST
+===============================================
+
+PROJECT OBJECTIVES
+===============================================
+O1 - Create a user-friendly interface for purchasing and managing train tickets and subscriptions
+O2 - Plan and optimize journeys (delay prediction, intelligent search)
+O3 - Book additional travel services (lauggage, parking, bike wagon)
+O4 - Check real-time train information and updates (condition of occupancy, departure/arrival boards)
+O5 - Administer train operations
+O6 - Track travel history and loyalty
+O7 - Administer train operations
+O8 - Generate analytics and insights for management
+O9 - Validate tickets and monitor occupancy
+
+STAKEHOLDERS
+===============================================
+
+INTERNAL / HUMAN
+- Railway administration/management
+- Train controllers/inspectors
+- Administrative staff
+- Finance team
+
+INTERNAL / NON-HUMAN
+- Train management system
+- Track control system
+- Ticketing database
+- AI integration for delay prediction
+
+EXTERNAL / HUMAN
+- Passengers (registered and anonymous users)
+- Third-party service providers (APIs)
+- Loyalty program partners
+
+EXTERNAL / NON-HUMAN
+- Delay prediction API
+- Payment gateway API
+- Mapping/routing API
+
+FUNCTIONAL REQUIREMENTS
+===============================================
+
+USER TICKET AND SUBSCRIPTION MANAGEMENT
+
+FR 1 - Single ticket purchase
+FR 2 - Subscription purchase
+FR 3 - Ticket modification
+FR 4 - Delay prediction integration
+FR 5 - Train search with intelligent filters
+FR 6 - Departure/arrival boards
+FR 7 - Seat selection
+FR 8 - Travel class selection (if available)
+FR 9 - Luggage storage reservation (only on train)
+FR 10 - Bike wagon reservation
+FR 13 - Booking history
+FR 14 - Active subscriptions view
+FR 15 - Loyalty points collection
+FR 16 - Loyalty points balance
+
+ADMINISTRATOR OPERATIONS MANAGEMENT
+
+FR 17 - Train cancellation
+FR 18 - Add extraordinary train runs
+FR 19 - Revenue analytics
+FR 20 - Route frequency analytics
+FR 21 - Employee activity monitoring
+FR 22 - Collision control
+FR 23 - Track capacity verification
+
+CONTROLLER VALIDATION AND MONITORING
+
+FR 24 - Ticket validation
+FR 25 - Subscription validation
+FR 26 - Shift schedule display
+FR 27 - Occupancy tracking
+
+NON-FUNCTIONAL REQUIREMENTS
+===============================================
+
+EXTERNAL REQUIREMENTS - INTEROPERABILITY
+
+NFR 1 - Integration with train management system
+NFR 2 - Integration with track control system
+NFR 3 - Login, security and maps API
+
+ORGANIZATIONAL REQUIREMENTS - IMPLEMENTATION
+
+NFR 4 - Web-based implementation
+NFR 5 - Cross-browser compatibility
+NFR 6 - Mobile responsiveness
+
+PRODUCT REQUIREMENTS - PERFORMANCE
+
+NFR 7 - Train search performance
+NFR 8 - Page load time
+NFR 9 - Real-time data updates
+NFR 10 - Concurrent user capacity
+
+PRODUCT REQUIREMENTS - SCALABILITY
+
+NFR 11 - User scalability
+NFR 12 - Data storage scalability
+NFR 13 - Traffic scalability
+
+PRODUCT REQUIREMENTS - RELIABILITY
+
+NFR 14 - System availability
+NFR 15 - Data backup
+NFR 16 - Session persistence
+
+PRODUCT REQUIREMENTS - SECURITY
+
+NFR 17 - Secure password requirements
+NFR 18 - Encryption standards
+NFR 19 - Payment security
+NFR 20 - Authentication security
+
+PRODUCT REQUIREMENTS - USABILITY
+
+NFR 21 - User intuitiveness
+NFR 22 - Accessibility
+NFR 23 - Multi-language support
+
+EXTERNAL REQUIREMENTS - REGULATORY AND PRIVACY
+
+NFR 24 - GDPR compliance
+NFR 25 - Data retention policies
+NFR 26 - Privacy policy transparency
+
+PRODUCT REQUIREMENTS - REPORTING
+
+NFR 27 - Email notifications
+NFR 28 - Activity logging
+
