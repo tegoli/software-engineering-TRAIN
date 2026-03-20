@@ -1617,18 +1617,7 @@
         ];
 
         var stationCount = 0;
-                stazioni.forEach(s => {
-                    L.circleMarker([s.lat, s.lon], {
-                        radius: 5,
-                        color: '#0066cc',
-                        fillColor: '#3388ff',
-                        fillOpacity: 0.8,
-                        weight: 1
-                    }).addTo(map).bindTooltip(s.nome, { permanent: false, direction: 'top', className: 'station-tooltip' });
-                    stationCount++;
-                });
 
-                document.getElementById('station-count').innerHTML = '🚉 Stazioni: ' + stationCount;
 
 // Loop through the array and add a marker for each station
 stazioni.forEach(function(stazione) {
