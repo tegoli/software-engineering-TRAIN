@@ -1,44 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mappa Ferroviaria Completa Nord Italia</title>
+    <title>Mappa Stazioni Ferroviarie Nord Italia</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<link rel="stylesheet" href="map.css">
-
-
+    <link rel="stylesheet" href="map.css">
 </head>
 <body>
     <div id="map"></div>
     <div class="stats-panel" id="station-count">Caricamento stazioni...</div>
     <div class="legend" id="legend">
-        <h4>🚂 Linee Ferroviarie</h4>
-        <div class="legend-item"><div class="legend-color" style="background: #FF0000;"></div> Brennero-Bologna</div>
-        <div class="legend-item"><div class="legend-color" style="background: #00AA00;"></div> Trento-Bassano</div>
-        <div class="legend-item"><div class="legend-color" style="background: #0000FF;"></div> Bassano-Padova</div>
-        <div class="legend-item"><div class="legend-color" style="background: #FFA500;"></div> Venezia-Milano</div>
-        <div class="legend-item"><div class="legend-color" style="background: #800080;"></div> Venezia-Bologna</div>
-        <div class="legend-item"><div class="legend-color" style="background: #FFC0CB;"></div> Milano-Genova</div>
-        <div class="legend-item"><div class="legend-color" style="background: #964B00;"></div> Trento-Malé</div>
-        <div class="legend-item"><div class="legend-color" style="background: #00FFFF;"></div> Brescia-Edolo</div>
-        <div class="legend-item"><div class="legend-color" style="background: #808000;"></div> Milano-Parma</div>
-        <div class="legend-item"><div class="legend-color" style="background: #FF00FF;"></div> Torino-Venezia</div>
-        <!--<div class="legend-item"><div class="legend-color" style="background: #008080;"></div> Bologna-Ravenna</div>-->
-        <div class="legend-item"><div class="legend-color" style="background: #000080;"></div> Parma-LaSpezia</div>
-        <div class="legend-item"><div class="legend-color" style="background: #40E0D0;"></div> Genova-Firenze</div>
-        <div class="legend-item"><div class="legend-color" style="background: #FF4500;"></div> Torino-Genova</div>
-        <div class="legend-item"><div class="legend-color" style="background: #2E8B57;"></div> Milano-Como</div>
-        <div class="legend-item"><div class="legend-color" style="background: #DC143C;"></div> Bologna-Rimini (via Ravenna)</div>
-        <div class="legend-item"><div class="legend-color" style="background: #9932CC;"></div> Bolzano-Merano</div>
-        <div class="legend-item"><div class="legend-color" style="background: #FF8C00;"></div> Bressanone-San Candido</div>
-        <div class="legend-item"><div class="legend-color" style="background: #C0C0C0;"></div> Milano-Tirano</div>
-        <hr>
-        <div class="legend-item">🟦 Stazioni (aggiornamento in corso)</div>
+        <h4>🚉 Stazioni Ferroviarie</h4>
+        <div class="legend-item">
+            <div style="width:12px; height:12px; border-radius:50%; background:#3388ff; border:1.5px solid #0066cc; margin-right:8px; flex-shrink:0;"></div>
+            Stazione
+        </div>
     </div>
+    <!-- 1) Stazioni (definisce anche la variabile `map`) -->
+    <script src="map_stations.js"></script>
 
-       <script src="map_stations.js"></script>
- 
+    <!-- 2) Linee ferroviarie da Overpass API (usa `map` già definita) -->
+    <script src="map_lines.js"></script>
 </body>
 </html>
