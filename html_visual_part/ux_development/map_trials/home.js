@@ -1,5 +1,3 @@
-// home.js - Gestione mappa, autocomplete e popup interattivi
-
 // ==================== DATABASE STAZIONI (COMPLETO) ====================
 const stazioni = [
     { id: 1, nome: 'Brennero', lat: 47.006, lon: 11.505 },
@@ -275,11 +273,11 @@ const coloriLinee = {
 };
 
 // ==================== INIZIALIZZAZIONE MAPPA ====================
-const map = L.map('map').setView([45.2, 10.5], 7);
+//const map = L.map('map').setView([45.2, 10.5], 7);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-}).addTo(map);
+//L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+//    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+//}).addTo(map);
 
 // Variabili globali per tracciare le selezioni
 let selectedPartenzaId = null;

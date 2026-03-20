@@ -1629,3 +1629,14 @@
                 });
 
                 document.getElementById('station-count').innerHTML = '🚉 Stazioni: ' + stationCount;
+
+// Loop through the array and add a marker for each station
+stazioni.forEach(function(stazione) {
+    var marker = L.marker([stazione.lat, stazione.lon]).addTo(map);
+    
+    // Optional: Add a popup with the station name
+    marker.bindPopup("<b>" + stazione.nome + "</b>");
+});
+
+// Update the counter in the stats panel
+document.getElementById('station-count').innerHTML = "Stazioni caricate: " + stazioni.length;
