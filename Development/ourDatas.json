@@ -1,0 +1,732 @@
+{
+  "_comment": "Database per l'applicazione di ticketing ferroviario - Progetto 'Team Not Found' - Università di Trento",
+  "stations": [
+    { "stationId": 1, "name": "Trento", "city": "Trento", "code": "TN", "region": "Trentino-Alto Adige", "latitude": 46.0667, "longitude": 11.1167 },
+    { "stationId": 2, "name": "Rovereto", "city": "Rovereto", "code": "ROV", "region": "Trentino-Alto Adige", "latitude": 45.8833, "longitude": 11.0333 },
+    { "stationId": 3, "name": "Borgo Valsugana", "city": "Borgo Valsugana", "code": "BOR", "region": "Trentino-Alto Adige", "latitude": 46.0500, "longitude": 11.4667 },
+    { "stationId": 4, "name": "Levico Terme", "city": "Levico Terme", "code": "LEV", "region": "Trentino-Alto Adige", "latitude": 46.0167, "longitude": 11.3000 },
+    { "stationId": 5, "name": "Bassano del Grappa", "city": "Bassano del Grappa", "code": "BAS", "region": "Veneto", "latitude": 45.7667, "longitude": 11.7333 },
+    { "stationId": 6, "name": "Bolzano", "city": "Bolzano", "code": "BZ", "region": "Trentino-Alto Adige", "latitude": 46.5000, "longitude": 11.3500 },
+    { "stationId": 7, "name": "Merano", "city": "Merano", "code": "MER", "region": "Trentino-Alto Adige", "latitude": 46.6667, "longitude": 11.1500 },
+    { "stationId": 8, "name": "Bressanone", "city": "Bressanone", "code": "BRI", "region": "Trentino-Alto Adige", "latitude": 46.7167, "longitude": 11.6500 },
+    { "stationId": 9, "name": "Verona Porta Nuova", "city": "Verona", "code": "VR", "region": "Veneto", "latitude": 45.4298, "longitude": 10.9824 },
+    { "stationId": 10, "name": "Padova", "city": "Padova", "code": "PD", "region": "Veneto", "latitude": 45.4064, "longitude": 11.8768 },
+    { "stationId": 11, "name": "Venezia Santa Lucia", "city": "Venezia", "code": "VE", "region": "Veneto", "latitude": 45.4408, "longitude": 12.3215 },
+    { "stationId": 12, "name": "Udine", "city": "Udine", "code": "UD", "region": "Friuli-Venezia Giulia", "latitude": 46.0667, "longitude": 13.2333 },
+    { "stationId": 13, "name": "Trieste Centrale", "city": "Trieste", "code": "TS", "region": "Friuli-Venezia Giulia", "latitude": 45.6500, "longitude": 13.7667 },
+    { "stationId": 14, "name": "Pordenone", "city": "Pordenone", "code": "PN", "region": "Friuli-Venezia Giulia", "latitude": 45.9500, "longitude": 12.6500 },
+    { "stationId": 15, "name": "Bologna Centrale", "city": "Bologna", "code": "BO", "region": "Emilia-Romagna", "latitude": 44.5059, "longitude": 11.3426 },
+    { "stationId": 16, "name": "Modena", "city": "Modena", "code": "MO", "region": "Emilia-Romagna", "latitude": 44.6471, "longitude": 10.9252 },
+    { "stationId": 17, "name": "Reggio Emilia", "city": "Reggio Emilia", "code": "RE", "region": "Emilia-Romagna", "latitude": 44.7000, "longitude": 10.6333 },
+    { "stationId": 18, "name": "Parma", "city": "Parma", "code": "PR", "region": "Emilia-Romagna", "latitude": 44.8015, "longitude": 10.3280 },
+    { "stationId": 19, "name": "Piacenza", "city": "Piacenza", "code": "PC", "region": "Emilia-Romagna", "latitude": 45.0500, "longitude": 9.7000 },
+    { "stationId": 20, "name": "Milano Centrale", "city": "Milano", "code": "MI", "region": "Lombardia", "latitude": 45.4856, "longitude": 9.2036 },
+    { "stationId": 21, "name": "Como San Giovanni", "city": "Como", "code": "CO", "region": "Lombardia", "latitude": 45.8167, "longitude": 9.0833 },
+    { "stationId": 22, "name": "Brescia", "city": "Brescia", "code": "BS", "region": "Lombardia", "latitude": 45.5333, "longitude": 10.2167 },
+    { "stationId": 23, "name": "Bergamo", "city": "Bergamo", "code": "BG", "region": "Lombardia", "latitude": 45.7000, "longitude": 9.6667 },
+    { "stationId": 24, "name": "Torino Porta Nuova", "city": "Torino", "code": "TO", "region": "Piemonte", "latitude": 45.0629, "longitude": 7.6783 },
+    { "stationId": 25, "name": "Genova Brignole", "city": "Genova", "code": "GE", "region": "Liguria", "latitude": 44.4056, "longitude": 8.9463 },
+    { "stationId": 26, "name": "La Spezia Centrale", "city": "La Spezia", "code": "SP", "region": "Liguria", "latitude": 44.1067, "longitude": 9.8211 },
+    { "stationId": 27, "name": "Aosta", "city": "Aosta", "code": "AO", "region": "Valle d'Aosta", "latitude": 45.7375, "longitude": 7.3156 },
+    { "stationId": 28, "name": "Châtillon Saint-Vincent", "city": "Châtillon", "code": "CHA", "region": "Valle d'Aosta", "latitude": 45.7500, "longitude": 7.6000 },
+    { "stationId": 29, "name": "Cuneo", "city": "Cuneo", "code": "CN", "region": "Piemonte", "latitude": 44.3833, "longitude": 7.5500 },
+    { "stationId": 30, "name": "Novara", "city": "Novara", "code": "NO", "region": "Piemonte", "latitude": 45.4500, "longitude": 8.6167 },
+    { "stationId": 31, "name": "Belluno", "city": "Belluno", "code": "BL", "region": "Veneto", "latitude": 46.1333, "longitude": 12.2167 }
+  ],
+  "routes": [
+    {
+      "routeId": 1,
+      "routeName": "Ferrovia della Valsugana (Trento - Bassano)",
+      "stops": [
+        { "stopOrder": 1, "stationId": 1, "scheduledArrival": null, "scheduledDeparture": "06:00", "trackNumber": 2 },
+        { "stopOrder": 2, "stationId": 4, "scheduledArrival": "06:40", "scheduledDeparture": "06:42", "trackNumber": 1 },
+        { "stopOrder": 3, "stationId": 3, "scheduledArrival": "07:10", "scheduledDeparture": "07:12", "trackNumber": 1 },
+        { "stopOrder": 4, "stationId": 5, "scheduledArrival": "07:55", "scheduledDeparture": null, "trackNumber": 3 }
+      ]
+    },
+    {
+      "routeId": 2,
+      "routeName": "Trento - Bolzano - Merano",
+      "stops": [
+        { "stopOrder": 1, "stationId": 1, "scheduledArrival": null, "scheduledDeparture": "08:00", "trackNumber": 1 },
+        { "stopOrder": 2, "stationId": 6, "scheduledArrival": "09:10", "scheduledDeparture": "09:15", "trackNumber": 4 },
+        { "stopOrder": 3, "stationId": 8, "scheduledArrival": "09:50", "scheduledDeparture": "09:52", "trackNumber": 2 },
+        { "stopOrder": 4, "stationId": 7, "scheduledArrival": "10:30", "scheduledDeparture": null, "trackNumber": 1 }
+      ]
+    },
+    {
+      "routeId": 3,
+      "routeName": "Milano - Verona - Venezia",
+      "stops": [
+        { "stopOrder": 1, "stationId": 20, "scheduledArrival": null, "scheduledDeparture": "07:00", "trackNumber": 6 },
+        { "stopOrder": 2, "stationId": 22, "scheduledArrival": "07:50", "scheduledDeparture": "07:52", "trackNumber": 3 },
+        { "stopOrder": 3, "stationId": 9, "scheduledArrival": "08:40", "scheduledDeparture": "08:45", "trackNumber": 2 },
+        { "stopOrder": 4, "stationId": 10, "scheduledArrival": "09:20", "scheduledDeparture": "09:22", "trackNumber": 5 },
+        { "stopOrder": 5, "stationId": 11, "scheduledArrival": "10:00", "scheduledDeparture": null, "trackNumber": 1 }
+      ]
+    },
+    {
+      "routeId": 4,
+      "routeName": "Torino - Milano - Bologna",
+      "stops": [
+        { "stopOrder": 1, "stationId": 24, "scheduledArrival": null, "scheduledDeparture": "06:30", "trackNumber": 1 },
+        { "stopOrder": 2, "stationId": 30, "scheduledArrival": "07:15", "scheduledDeparture": "07:17", "trackNumber": 2 },
+        { "stopOrder": 3, "stationId": 20, "scheduledArrival": "08:05", "scheduledDeparture": "08:15", "trackNumber": 4 },
+        { "stopOrder": 4, "stationId": 19, "scheduledArrival": "09:00", "scheduledDeparture": "09:02", "trackNumber": 2 },
+        { "stopOrder": 5, "stationId": 18, "scheduledArrival": "09:35", "scheduledDeparture": "09:37", "trackNumber": 3 },
+        { "stopOrder": 6, "stationId": 15, "scheduledArrival": "10:30", "scheduledDeparture": null, "trackNumber": 1 }
+      ]
+    },
+    {
+      "routeId": 5,
+      "routeName": "Genova - Milano",
+      "stops": [
+        { "stopOrder": 1, "stationId": 25, "scheduledArrival": null, "scheduledDeparture": "07:30", "trackNumber": 2 },
+        { "stopOrder": 2, "stationId": 20, "scheduledArrival": "09:15", "scheduledDeparture": null, "trackNumber": 5 }
+      ]
+    },
+    {
+      "routeId": 6,
+      "routeName": "Udine - Trieste",
+      "stops": [
+        { "stopOrder": 1, "stationId": 12, "scheduledArrival": null, "scheduledDeparture": "08:00", "trackNumber": 1 },
+        { "stopOrder": 2, "stationId": 14, "scheduledArrival": "08:45", "scheduledDeparture": "08:47", "trackNumber": 2 },
+        { "stopOrder": 3, "stationId": 13, "scheduledArrival": "09:30", "scheduledDeparture": null, "trackNumber": 3 }
+      ]
+    },
+    {
+      "routeId": 7,
+      "routeName": "Bologna - Rimini (via Adriatica)",
+      "stops": [
+        { "stopOrder": 1, "stationId": 15, "scheduledArrival": null, "scheduledDeparture": "09:00", "trackNumber": 8 },
+        { "stopOrder": 2, "stationId": 31, "scheduledArrival": "09:45", "scheduledDeparture": "09:47", "trackNumber": 2 }
+      ]
+    }
+  ],
+  "trains": [
+    {
+      "trainId": 1,
+      "trainCode": "RV101",
+      "trainType": "Regionale Veloce",
+      "serviceClasses": ["standard"],
+      "coaches": [
+        { "coachNumber": 1, "coachClass": "standard", "totalSeats": 60, "bikeCapacity": 4, "luggageRacks": false },
+        { "coachNumber": 2, "coachClass": "standard", "totalSeats": 60, "bikeCapacity": 0, "luggageRacks": true },
+        { "coachNumber": 3, "coachClass": "standard", "totalSeats": 55, "bikeCapacity": 2, "luggageRacks": false }
+      ]
+    },
+    {
+      "trainId": 2,
+      "trainCode": "IC550",
+      "trainType": "Intercity",
+      "serviceClasses": ["standard", "business"],
+      "coaches": [
+        { "coachNumber": 1, "coachClass": "business", "totalSeats": 30, "bikeCapacity": 0, "luggageRacks": true },
+        { "coachNumber": 2, "coachClass": "standard", "totalSeats": 70, "bikeCapacity": 0, "luggageRacks": true },
+        { "coachNumber": 3, "coachClass": "standard", "totalSeats": 70, "bikeCapacity": 6, "luggageRacks": false }
+      ]
+    },
+    {
+      "trainId": 3,
+      "trainCode": "FR9500",
+      "trainType": "Frecciarossa",
+      "serviceClasses": ["standard", "business"],
+      "coaches": [
+        { "coachNumber": 1, "coachClass": "business", "totalSeats": 20, "bikeCapacity": 0, "luggageRacks": true },
+        { "coachNumber": 2, "coachClass": "standard", "totalSeats": 45, "bikeCapacity": 0, "luggageRacks": true },
+        { "coachNumber": 3, "coachClass": "standard", "totalSeats": 45, "bikeCapacity": 4, "luggageRacks": true }
+      ]
+    },
+    {
+      "trainId": 4,
+      "trainCode": "REG402",
+      "trainType": "Regionale",
+      "serviceClasses": ["standard"],
+      "coaches": [
+        { "coachNumber": 1, "coachClass": "standard", "totalSeats": 80, "bikeCapacity": 10, "luggageRacks": false }
+      ]
+    }
+  ],
+  "trainRuns": [
+    {
+      "runId": 101,
+      "trainId": 1,
+      "routeId": 1,
+      "departureDateTime": "2026-06-01T06:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 102,
+      "trainId": 2,
+      "routeId": 3,
+      "departureDateTime": "2026-06-01T07:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 10,
+      "actualDeparture": "2026-06-01T07:10:00",
+      "actualArrival": null
+    },
+    {
+      "runId": 103,
+      "trainId": 3,
+      "routeId": 4,
+      "departureDateTime": "2026-06-01T06:30:00",
+      "status": "completed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": "2026-06-01T06:35:00",
+      "actualArrival": "2026-06-01T10:35:00"
+    },
+    {
+      "runId": 104,
+      "trainId": 4,
+      "routeId": 2,
+      "departureDateTime": "2026-06-02T08:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 105,
+      "trainId": 1,
+      "routeId": 1,
+      "departureDateTime": "2026-06-02T14:00:00",
+      "status": "cancelled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 106,
+      "trainId": 2,
+      "routeId": 6,
+      "departureDateTime": "2026-06-03T08:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    }
+  ],
+  "users": [
+    {
+      "userId": 1001,
+      "name": "Matteo",
+      "surname": "Golinelli",
+      "email": "matteo.golinelli@studenti.unitn.it",
+      "passwordHash": "hash_matteo",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 320,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 1002,
+      "name": "Caterina",
+      "surname": "Alessi",
+      "email": "caterina.alessi@studenti.unitn.it",
+      "passwordHash": "hash_caterina",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 245,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 1003,
+      "name": "Robin",
+      "surname": "Bertolini",
+      "email": "robin.bertolini@studenti.unitn.it",
+      "passwordHash": "hash_robin",
+      "role": "passenger",
+      "preferredLanguage": "en",
+      "loyaltyPoints": 187,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 1004,
+      "name": "Virginia",
+      "surname": "Ancora",
+      "email": "virginia.ancora@studenti.unitn.it",
+      "passwordHash": "hash_virginia",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 502,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 2001,
+      "name": "Luca",
+      "surname": "Bianchi",
+      "email": "luca.bianchi@example.com",
+      "passwordHash": "hash_luca",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 89,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 2002,
+      "name": "Giulia",
+      "surname": "Rossi",
+      "email": "giulia.rossi@example.com",
+      "passwordHash": "hash_giulia",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 12,
+      "failedLoginAttempts": 2,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 3001,
+      "name": "Marco",
+      "surname": "Verdi",
+      "email": "marco.verdi@trenitalia.it",
+      "passwordHash": "hash_marco",
+      "role": "inspector",
+      "preferredLanguage": "it",
+      "inspectorCode": "INSP-001",
+      "accountStatus": "active"
+    },
+    {
+      "userId": 3002,
+      "name": "Elena",
+      "surname": "Neri",
+      "email": "elena.neri@trenitalia.it",
+      "passwordHash": "hash_elena",
+      "role": "customer_support",
+      "preferredLanguage": "it",
+      "staffCode": "CS-045",
+      "accountStatus": "active"
+    },
+    {
+      "userId": 4001,
+      "name": "Admin",
+      "surname": "Railway",
+      "email": "admin@railway.it",
+      "passwordHash": "hash_admin",
+      "role": "administrator",
+      "preferredLanguage": "en",
+      "adminCode": "ADMIN-001",
+      "accountStatus": "active"
+    }
+  ],
+  "tickets": [
+    {
+      "ticketId": 5001,
+      "ticketCode": "TKT-1001-001",
+      "userId": 1001,
+      "runId": 101,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "12B",
+      "class": "standard",
+      "price": 12.50,
+      "status": "active",
+      "purchaseDate": "2026-05-28T10:15:00",
+      "qrCode": "QR5001ABC"
+    },
+    {
+      "ticketId": 5002,
+      "ticketCode": "TKT-1002-002",
+      "userId": 1002,
+      "runId": 102,
+      "fromStopOrder": 1,
+      "toStopOrder": 5,
+      "passengerType": "adult",
+      "seatNumber": "45A",
+      "class": "business",
+      "price": 89.90,
+      "status": "used",
+      "purchaseDate": "2026-05-20T14:30:00",
+      "qrCode": "QR5002DEF"
+    },
+    {
+      "ticketId": 5003,
+      "ticketCode": "TKT-1003-003",
+      "userId": 1003,
+      "runId": 103,
+      "fromStopOrder": 1,
+      "toStopOrder": 6,
+      "passengerType": "adult",
+      "seatNumber": "8C",
+      "class": "standard",
+      "price": 55.00,
+      "status": "used",
+      "purchaseDate": "2026-05-18T09:45:00",
+      "qrCode": "QR5003GHI"
+    },
+    {
+      "ticketId": 5004,
+      "ticketCode": "TKT-1004-004",
+      "userId": 1004,
+      "runId": 104,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "22F",
+      "class": "standard",
+      "price": 18.00,
+      "status": "active",
+      "purchaseDate": "2026-06-01T16:20:00",
+      "qrCode": "QR5004JKL"
+    },
+    {
+      "ticketId": 5005,
+      "ticketCode": "TKT-1001-005",
+      "userId": 1001,
+      "runId": 106,
+      "fromStopOrder": 1,
+      "toStopOrder": 3,
+      "passengerType": "adult",
+      "seatNumber": "5D",
+      "class": "standard",
+      "price": 22.30,
+      "status": "active",
+      "purchaseDate": "2026-06-02T08:00:00",
+      "qrCode": "QR5005MNO"
+    }
+  ],
+  "subscriptions": [
+    {
+      "subscriptionId": 2001,
+      "userId": 1004,
+      "fromStationId": 1,
+      "toStationId": 6,
+      "startDate": "2026-05-01",
+      "endDate": "2026-07-31",
+      "class": "standard",
+      "price": 180.00,
+      "status": "active"
+    },
+    {
+      "subscriptionId": 2002,
+      "userId": 2001,
+      "fromStationId": 20,
+      "toStationId": 15,
+      "startDate": "2026-06-01",
+      "endDate": "2026-08-31",
+      "class": "business",
+      "price": 450.00,
+      "status": "active"
+    }
+  ],
+  "additionalReservations": [
+    {
+      "reservationId": 3001,
+      "ticketId": 5001,
+      "type": "bike",
+      "status": "confirmed",
+      "price": 5.00
+    },
+    {
+      "reservationId": 3002,
+      "ticketId": 5002,
+      "type": "luggage",
+      "status": "confirmed",
+      "price": 8.00
+    },
+    {
+      "reservationId": 3003,
+      "ticketId": 5004,
+      "type": "luggage",
+      "status": "confirmed",
+      "price": 4.00
+    }
+  ],
+  "payments": [
+    {
+      "paymentId": 4001,
+      "userId": 1001,
+      "ticketId": 5001,
+      "subscriptionId": null,
+      "amount": 17.50,
+      "paymentDate": "2026-05-28T10:18:00",
+      "paymentMethod": "Visa",
+      "transactionId": "TXN1001",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4002,
+      "userId": 1002,
+      "ticketId": 5002,
+      "subscriptionId": null,
+      "amount": 89.90,
+      "paymentDate": "2026-05-20T14:32:00",
+      "paymentMethod": "PayPal",
+      "transactionId": "TXN1002",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4003,
+      "userId": 1003,
+      "ticketId": 5003,
+      "subscriptionId": null,
+      "amount": 55.00,
+      "paymentDate": "2026-05-18T09:48:00",
+      "paymentMethod": "Mastercard",
+      "transactionId": "TXN1003",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4004,
+      "userId": 1004,
+      "ticketId": 5004,
+      "subscriptionId": null,
+      "amount": 22.00,
+      "paymentDate": "2026-06-01T16:23:00",
+      "paymentMethod": "Apple Pay",
+      "transactionId": "TXN1004",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4005,
+      "userId": 1004,
+      "ticketId": null,
+      "subscriptionId": 2001,
+      "amount": 180.00,
+      "paymentDate": "2026-04-28T11:00:00",
+      "paymentMethod": "Google Pay",
+      "transactionId": "TXN1005",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4006,
+      "userId": 1001,
+      "ticketId": 5005,
+      "subscriptionId": null,
+      "amount": 22.30,
+      "paymentDate": "2026-06-02T08:03:00",
+      "paymentMethod": "Visa",
+      "transactionId": "TXN1006",
+      "status": "completed"
+    }
+  ],
+  "supportRequests": [
+    {
+      "requestId": 6001,
+      "userId": 1003,
+      "requestType": "refund",
+      "description": "Il treno IC550 era in ritardo di 30 minuti, ho perso la coincidenza",
+      "status": "open",
+      "creationDate": "2026-06-01T09:20:00",
+      "resolution": null
+    },
+    {
+      "requestId": 6002,
+      "userId": 2002,
+      "requestType": "information",
+      "description": "Come posso cambiare la data del mio biglietto?",
+      "status": "closed",
+      "creationDate": "2026-05-25T14:10:00",
+      "resolution": "Spiegata procedura di modifica tramite area personale"
+    }
+  ],
+  "notifications": [
+    {
+      "notificationId": 7001,
+      "userId": 1001,
+      "message": "Il treno RV101 (run 101) è in orario.",
+      "type": "info",
+      "date": "2026-06-01T05:45:00",
+      "read": false
+    },
+    {
+      "notificationId": 7002,
+      "userId": 1002,
+      "message": "Il treno IC550 (run 102) ha un ritardo di 10 minuti.",
+      "type": "delay_alert",
+      "date": "2026-06-01T06:50:00",
+      "read": true
+    },
+    {
+      "notificationId": 7003,
+      "userId": 1004,
+      "message": "Promozione: 20% di sconto sui prossimi acquisti con i tuoi punti fedeltà!",
+      "type": "promo",
+      "date": "2026-06-01T10:00:00",
+      "read": false
+    },
+    {
+      "notificationId": 7004,
+      "userId": 1001,
+      "message": "Il tuo biglietto TKT-1001-005 è stato acquistato con successo.",
+      "type": "purchase_confirmation",
+      "date": "2026-06-02T08:03:00",
+      "read": true
+    }
+  ],
+  "shiftSchedules": [
+    {
+      "shiftId": 8001,
+      "staffId": 3001,
+      "date": "2026-06-01",
+      "startTime": "05:30",
+      "endTime": "14:00",
+      "trainRunId": 101,
+      "assignedRoute": "Trento - Bassano del Grappa",
+      "startingPlace": "Trento"
+    },
+    {
+      "shiftId": 8002,
+      "staffId": 3001,
+      "date": "2026-06-02",
+      "startTime": "13:30",
+      "endTime": "22:00",
+      "trainRunId": 104,
+      "assignedRoute": "Trento - Merano",
+      "startingPlace": "Trento"
+    },
+    {
+      "shiftId": 8003,
+      "staffId": 3002,
+      "date": "2026-06-01",
+      "startTime": "08:00",
+      "endTime": "17:00",
+      "trainRunId": null,
+      "assignedRoute": "Customer Support Desk",
+      "startingPlace": "Ufficio di Bologna"
+    }
+  ],
+  "loyaltyTransactions": [
+    {
+      "transactionId": 9001,
+      "userId": 1001,
+      "points": 17,
+      "reason": "Acquisto biglietto #5001",
+      "date": "2026-05-28T10:18:00"
+    },
+    {
+      "transactionId": 9002,
+      "userId": 1002,
+      "points": 89,
+      "reason": "Acquisto biglietto #5002",
+      "date": "2026-05-20T14:32:00"
+    },
+    {
+      "transactionId": 9003,
+      "userId": 1003,
+      "points": 55,
+      "reason": "Acquisto biglietto #5003",
+      "date": "2026-05-18T09:48:00"
+    },
+    {
+      "transactionId": 9004,
+      "userId": 1004,
+      "points": 22,
+      "reason": "Acquisto biglietto #5004",
+      "date": "2026-06-01T16:23:00"
+    },
+    {
+      "transactionId": 9005,
+      "userId": 1004,
+      "points": 180,
+      "reason": "Acquisto abbonamento #2001",
+      "date": "2026-04-28T11:00:00"
+    },
+    {
+      "transactionId": 9006,
+      "userId": 1001,
+      "points": 22,
+      "reason": "Acquisto biglietto #5005",
+      "date": "2026-06-02T08:03:00"
+    }
+  ],
+  "seatReservations": [
+    {
+      "runId": 101,
+      "coachNumber": 1,
+      "seatNumber": "12B",
+      "ticketId": 5001,
+      "status": "reserved"
+    },
+    {
+      "runId": 102,
+      "coachNumber": 1,
+      "seatNumber": "45A",
+      "ticketId": 5002,
+      "status": "occupied"
+    },
+    {
+      "runId": 103,
+      "coachNumber": 2,
+      "seatNumber": "8C",
+      "ticketId": 5003,
+      "status": "occupied"
+    },
+    {
+      "runId": 104,
+      "coachNumber": 1,
+      "seatNumber": "22F",
+      "ticketId": 5004,
+      "status": "reserved"
+    },
+    {
+      "runId": 106,
+      "coachNumber": 1,
+      "seatNumber": "5D",
+      "ticketId": 5005,
+      "status": "reserved"
+    }
+  ],
+  "occupancySnapshots": [
+    {
+      "runId": 102,
+      "coachNumber": 1,
+      "timestamp": "2026-06-01T08:30:00",
+      "occupiedSeats": 28,
+      "lastUpdateBy": 3001
+    },
+    {
+      "runId": 102,
+      "coachNumber": 2,
+      "timestamp": "2026-06-01T08:30:00",
+      "occupiedSeats": 55,
+      "lastUpdateBy": 3001
+    },
+    {
+      "runId": 103,
+      "coachNumber": 3,
+      "timestamp": "2026-06-01T07:15:00",
+      "occupiedSeats": 18,
+      "lastUpdateBy": 3001
+    }
+  ],
+  "delayPredictions": [
+    {
+      "runId": 102,
+      "predictionTime": "2026-06-01T06:00:00",
+      "predictedDelayMinutes": 12,
+      "confidence": 0.88
+    },
+    {
+      "runId": 102,
+      "predictionTime": "2026-06-01T06:45:00",
+      "predictedDelayMinutes": 10,
+      "confidence": 0.95
+    },
+    {
+      "runId": 103,
+      "predictionTime": "2026-06-01T05:30:00",
+      "predictedDelayMinutes": 5,
+      "confidence": 0.92
+    }
+  ],
+  "travelClasses": ["standard", "business"],
+  "trainTypes": ["Regionale", "Regionale Veloce", "Intercity", "Frecciarossa"],
+  "passengerTypes": ["adult", "child"],
+  "ticketStatuses": ["active", "used", "expired", "cancelled"],
+  "subscriptionStatuses": ["active", "expired", "cancelled"],
+  "reservationStatuses": ["confirmed", "cancelled"],
+  "paymentStatuses": ["pending", "completed", "failed", "refunded"],
+  "supportRequestTypes": ["refund", "information", "complaint", "other"],
+  "notificationTypes": ["delay_alert", "info", "promo", "purchase_confirmation", "route_change"],
+  "accountStatuses": ["active", "blocked", "deleted"],
+  "roles": ["passenger", "inspector", "customer_support", "administrator"]
+}
