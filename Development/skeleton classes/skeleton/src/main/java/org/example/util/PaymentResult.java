@@ -6,7 +6,7 @@ public class PaymentResult {
     private String transactionCode;
     private String message;
 
-    // getter/setter
+
     public boolean isAuthorized() { return authorized; }
     public void setAuthorized(boolean authorized) { this.authorized = authorized; }
     public String getTransactionCode() { return transactionCode; }

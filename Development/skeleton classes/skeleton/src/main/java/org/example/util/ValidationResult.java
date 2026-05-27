@@ -6,7 +6,6 @@ public class ValidationResult {
     private boolean alreadyValidated;
     private String message;
 
-    // getter/setter
     public boolean isValid() { return valid; }
     public void setValid(boolean valid) { this.valid = valid; }
     public boolean isAlreadyValidated() { return alreadyValidated; }

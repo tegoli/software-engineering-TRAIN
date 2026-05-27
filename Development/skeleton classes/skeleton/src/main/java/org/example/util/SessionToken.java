@@ -11,7 +11,7 @@ public class SessionToken {
         return currentTime.isAfter(expirationTime);
     }
 
-    // getter/setter
+
     public String getTokenValue() { return tokenValue; }
     public void setTokenValue(String tokenValue) { this.tokenValue = tokenValue; }
     public LocalDateTime getExpirationTime() { return expirationTime; }

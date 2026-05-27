@@ -2,6 +2,8 @@ package org.example.model;
 
 
 import org.example.enums.PassengerType;
+import org.example.util.TicketChangeRequest;
+
 import java.time.LocalDateTime;
 
 public class Ticket extends TravelDocument {

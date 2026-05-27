@@ -8,7 +8,7 @@ public class StatisticsFilter {
     private String trainLine;
     private String type;
 
-    // getter/setter
+
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }
     public String getTrainLine() { return trainLine; }

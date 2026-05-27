@@ -13,10 +13,7 @@ public class PaymentDetails {
         this.tokenizedReference = tokenizedReference;
     }
 
-    /**
-     * Controlla che i dati di pagamento siano completi.
-     * @return true se validi, false altrimenti
-     */
+
     public boolean validate() {
         return paymentMethod != null && !paymentMethod.isEmpty()
                 && tokenizedReference != null && !tokenizedReference.isEmpty();

@@ -32,7 +32,6 @@ public class TicketChangeRequest {
         return true;
     }
 
-    // getter e setter
     public LocalDate getNewDate() { return newDate; }
     public void setNewDate(LocalDate newDate) { this.newDate = newDate; }
     public LocalTime getNewTime() { return newTime; }
