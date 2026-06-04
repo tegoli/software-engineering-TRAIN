@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train App - Login</title>
+    <style>
+        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
+        body { background: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: 40px auto; background: white; border-radius: 24px; padding: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1e3c72; }
+        input { width: 100%; padding: 12px; margin: 8px 0 16px; border: 1px solid #ccc; border-radius: 8px; }
+        button { width: 100%; padding: 12px; background: #0066cc; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #004d99; }
+        .toggle { text-align: center; margin-top: 20px; color: #0066cc; cursor: pointer; }
+        .error { color: #d32f2f; background: #ffebee; padding: 8px; border-radius: 8px; margin-bottom: 15px; }
+        .success { color: #2e7d32; background: #e8f5e9; padding: 8px; border-radius: 8px; margin-bottom: 15px; }
+        nav a { text-decoration: none; color: #0066cc; margin-right: 15px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav><a href="index.html">← Home</a> <a href="dashboard.html">Dashboard</a></nav>
+    <h2>🔐 Accesso / Registrazione</h2>
+    <div id="message"></div>
+
+    <div id="loginForm">
+        <h3>Login</h3>
+        <input type="email" id="loginEmail" placeholder="Email" value="prova@test.com">
+        <input type="password" id="loginPassword" placeholder="Password" value="12345678">
+        <button id="doLogin">Accedi</button>
+    </div>
+
+    <div class="toggle" id="showRegister">➡️ Non hai un account? Registrati</div>
+
+    <div id="registerForm" style="display: none;">
+        <h3>Registrazione</h3>
+        <input type="text" id="regName" placeholder="Nome">
+        <input type="text" id="regSurname" placeholder="Cognome">
+        <input type="email" id="regEmail" placeholder="Email">
+        <input type="password" id="regPassword" placeholder="Password (min 8 caratteri)">
+        <button id="doRegister">Registrati</button>
+    </div>
+</div>
+
+<script>
+    const msgDiv = document.getElementById('message');
+    document.getElementById('doLogin').onclick = async () => {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (data.success) {
+                localStorage.setItem('userEmail', email);
+                msgDiv.innerHTML = `<div class="success">✅ Login effettuato! <a href="dashboard.html">Vai alla dashboard</a></div>`;
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
+            } else {
+                msgDiv.innerHTML = `<div class="error">${data.message || 'Credenziali errate'}</div>`;
+            }
+        } catch (err) {
+            msgDiv.innerHTML = `<div class="error">Errore: ${err.message}</div>`;
+        }
+    };
+
+    document.getElementById('doRegister').onclick = async () => {
+        const name = document.getElementById('regName').value;
+        const surname = document.getElementById('regSurname').value;
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const res = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, surname, email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+            msgDiv.innerHTML = `<div class="success">Registrazione OK! Ora puoi fare login.</div>`;
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        } else {
+            msgDiv.innerHTML = `<div class="error">${data.message || 'Errore registrazione'}</div>`;
+        }
+    };
+
+    document.getElementById('showRegister').onclick = () => {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'block';
+        document.getElementById('showRegister').style.display = 'none';
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+export const TrainRunStatus = {
+    SCHEDULED: 'SCHEDULED',
+    DELAYED: 'DELAYED',
+    COMPLETED: 'COMPLETED',
+    CANCELLED: 'CANCELLED'
+};

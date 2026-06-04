@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head><title>Test API</title></head>
+<body>
+<h2>Test chiamate API</h2>
+<button onclick="testLogin()">Test Login</button>
+<button onclick="testSearch()">Test Search</button>
+<button onclick="testPurchase()">Test Purchase</button>
+<pre id="output"></pre>
+<script>
+    const out = document.getElementById('output');
+    async function testLogin() {
+        const res = await fetch('/api/login', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email:'a@b.com',password:'123'}) });
+        const data = await res.json();
+        out.innerText = JSON.stringify(data, null, 2);
+    }
+    async function testSearch() {
+        const res = await fetch('/api/search', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({from:'MI',to:'RO'}) });
+        const data = await res.json();
+        out.innerText = JSON.stringify(data, null, 2);
+    }
+    async function testPurchase() {
+        const res = await fetch('/api/purchase', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ticketId:999}) });
+        const data = await res.json();
+        out.innerText = JSON.stringify(data, null, 2);
+    }
+</script>
+</body>
+</html>

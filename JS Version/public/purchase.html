@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Acquisto biglietto</title>
+    <style>
+        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
+        body { background: #f0f2f5; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; border-radius: 24px; padding: 28px; }
+        select, input, button { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; }
+        button { background: #0066cc; color: white; font-weight: bold; border: none; cursor: pointer; }
+        .extra { background: #f8f9fa; padding: 12px; border-radius: 12px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>🎫 Completa l'acquisto</h2>
+    <div id="trainInfo">Treno selezionato: ID <span id="trainId">-</span></div>
+
+    <div class="extra">
+        <label><input type="checkbox" id="seatSelect"> Seleziona posto (+2€)</label>
+        <label><input type="checkbox" id="luggage"> Bagaglio grande (+5€)</label>
+        <label><input type="checkbox" id="bike"> Posto bici (+3€)</label>
+    </div>
+
+    <div>Prezzo base: 29,90 €</div>
+    <div id="total">Totale: 29,90 €</div>
+
+    <button id="payBtn">Procedi al pagamento</button>
+    <div id="result"></div>
+</div>
+<script>
+    const trainId = localStorage.getItem('selectedTrain') || '123';
+    document.getElementById('trainId').innerText = trainId;
+
+    function updateTotal() {
+        let total = 29.90;
+        if (document.getElementById('seatSelect').checked) total += 2;
+        if (document.getElementById('luggage').checked) total += 5;
+        if (document.getElementById('bike').checked) total += 3;
+        document.getElementById('total').innerText = `Totale: ${total.toFixed(2)} €`;
+    }
+    document.getElementById('seatSelect').onchange = updateTotal;
+    document.getElementById('luggage').onchange = updateTotal;
+    document.getElementById('bike').onchange = updateTotal;
+
+    document.getElementById('payBtn').onclick = async () => {
+        const res = await fetch('/api/purchase', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ trainId, extras: { seat: seatSelect.checked, luggage: luggage.checked, bike: bike.checked } })
+        });
+        const data = await res.json();
+        document.getElementById('result').innerHTML = data.success ? `✅ Acquisto completato! Biglietto #${data.ticketId}` : '❌ Pagamento fallito';
+        if (data.success) localStorage.removeItem('selectedTrain');
+    };
+    updateTotal();
+</script>
+</body>
+</html>

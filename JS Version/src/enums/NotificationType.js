@@ -1,0 +1,7 @@
+export const NotificationType = {
+    DELAY_ALERT: 'DELAY_ALERT',
+    INFO: 'INFO',
+    PROMO: 'PROMO',
+    PURCHASE_CONFIRMATION: 'PURCHASE_CONFIRMATION',
+    ROUTE_CHANGE: 'ROUTE_CHANGE'
+};

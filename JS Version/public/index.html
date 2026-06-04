@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train App - Home</title>
+    <style>
+        * { box-sizing: border-box; font-family: system-ui, 'Segoe UI', sans-serif; }
+        body { background: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        nav { display: flex; gap: 20px; margin-bottom: 30px; border-bottom: 1px solid #ddd; padding-bottom: 12px; }
+        nav a { text-decoration: none; color: #0066cc; font-weight: 500; }
+        nav a:hover { text-decoration: underline; }
+        h1 { color: #1e3c72; margin-top: 0; }
+        .search-form { background: #e9ecef; padding: 20px; border-radius: 16px; margin-bottom: 30px; }
+        .form-row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; align-items: flex-end; }
+        .form-group { flex: 1; min-width: 150px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
+        input, select, button { padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; width: 100%; }
+        button { background: #0066cc; color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #004d99; }
+        .results { margin-top: 20px; }
+        .train-card { background: white; border: 1px solid #ddd; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .train-card h3 { margin: 0 0 8px; }
+        .train-details { font-size: 0.9rem; color: #555; }
+        hr { margin: 20px 0; }
+        .error { color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 8px; margin-top: 10px; }
+        .success { color: #2e7d32; background: #e8f5e9; padding: 10px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav>
+        <a href="index.html">🏠 Cerca treni</a>
+        <a href="login.html">🔐 Login / Registrati</a>
+        <a href="dashboard.html">📋 Dashboard</a>
+        <a href="purchase.html">🎫 Acquista biglietto</a>
+        <a href="inspector.html">👮 Area Ispettore</a>
+        <a href="admin.html">📊 Area Admin</a>
+        <a href="support.html">💬 Supporto</a>
+    </nav>
+
+    <h1>🚆 Cerca il tuo treno</h1>
+    <div class="search-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Partenza</label>
+                <input type="text" id="from" placeholder="Milano Centrale" value="Milano">
+            </div>
+            <div class="form-group">
+                <label>Arrivo</label>
+                <input type="text" id="to" placeholder="Roma Termini" value="Roma">
+            </div>
+            <div class="form-group">
+                <label>Data</label>
+                <input type="date" id="date">
+            </div>
+            <div class="form-group">
+                <label>Classe</label>
+                <select id="class">
+                    <option value="STANDARD">Standard</option>
+                    <option value="BUSINESS">Business</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button id="searchBtn">Cerca</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="results" class="results">
+        <p>🔍 I risultati appariranno qui...</p>
+    </div>
+</div>
+
+<script>
+    document.getElementById('searchBtn').addEventListener('click', async () => {
+        const from = document.getElementById('from').value;
+        const to = document.getElementById('to').value;
+        const date = document.getElementById('date').value;
+        const travelClass = document.getElementById('class').value;
+        const criteria = { departureStationName: from, arrivalStationName: to, date, travelClass, passengerCount: 1 };
+
+        try {
+            const res = await fetch('/api/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(criteria)
+            });
+            const data = await res.json();
+            const resultsDiv = document.getElementById('results');
+            if (data.trains && data.trains.length) {
+                resultsDiv.innerHTML = `<h3>✈️ Trovati ${data.trains.length} treni:</h3>` + data.trains.map(t => `
+                    <div class="train-card">
+                        <h3>🚄 Treno ${t.id} - ${t.from} → ${t.to}</h3>
+                        <div class="train-details">Partenza: ${t.time} | Durata: ${t.duration || '2h 30m'} | Classe: ${travelClass}</div>
+                        <button onclick="selectTrain(${t.id})">Seleziona e prosegui</button>
+                    </div>
+                `).join('');
+            } else {
+                resultsDiv.innerHTML = '<div class="error">Nessun treno trovato per questa tratta.</div>';
+            }
+        } catch (err) {
+            document.getElementById('results').innerHTML = `<div class="error">Errore di rete: ${err.message}</div>`;
+        }
+    });
+
+    function selectTrain(trainId) {
+        localStorage.setItem('selectedTrain', trainId);
+        window.location.href = 'purchase.html';
+    }
+
+    // Imposta data odierna come default
+    document.getElementById('date').valueAsDate = new Date();
+</script>
+</body>
+</html>
