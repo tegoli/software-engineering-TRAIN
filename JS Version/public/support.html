@@ -2,42 +2,86 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Supporto</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supporto Clienti</title>
     <style>
-        body { font-family: system-ui; background: #f0f2f5; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
-        textarea, select, input, button { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; }
+        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
+        body { background: #f0f2f5; padding: 20px; }
+        .container { max-width: 700px; margin: auto; background: white; border-radius: 24px; padding: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h2 { color: #1e3c72; }
+        label { font-weight: 600; display: block; margin-top: 16px; }
+        select, textarea, input, button { width: 100%; padding: 12px; margin: 6px 0 12px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; }
         button { background: #0066cc; color: white; font-weight: bold; border: none; cursor: pointer; }
+        .success { background: #e8f5e9; color: #2e7d32; padding: 12px; border-radius: 12px; margin-top: 16px; }
+        .error { background: #ffebee; color: #d32f2f; padding: 12px; border-radius: 12px; margin-top: 16px; }
+        a { color: #0066cc; text-decoration: none; }
     </style>
 </head>
 <body>
 <div class="container">
     <h2>📞 Contatta il supporto</h2>
-    <select id="type">
-        <option value="refund">Rimborso</option>
-        <option value="information">Informazioni</option>
-        <option value="complaint">Reclamo</option>
+    <p>Compila il modulo per richiedere informazioni, un rimborso o segnalare un problema.</p>
+
+    <label>Tipo di richiesta</label>
+    <select id="requestType">
+        <option value="refund">💰 Rimborso</option>
+        <option value="information">ℹ️ Informazioni</option>
+        <option value="complaint">⚠️ Reclamo</option>
+        <option value="other">📝 Altro</option>
     </select>
-    <input id="ticketRef" placeholder="Numero biglietto (opzionale)">
-    <textarea id="desc" rows="4" placeholder="Descrivi il problema..."></textarea>
-    <button id="send">Invia richiesta</button>
+
+    <label>Numero biglietto (opzionale)</label>
+    <input type="text" id="ticketRef" placeholder="es. TKT-1001-001">
+
+    <label>Descrizione del problema / richiesta</label>
+    <textarea id="description" rows="5" placeholder="Descrivi in dettaglio..."></textarea>
+
+    <button id="submitBtn">Invia richiesta</button>
     <div id="result"></div>
+    <p style="margin-top: 20px;"><a href="index.html">← Torna alla home</a></p>
 </div>
+
 <script>
-    const userId = localStorage.getItem('userId') || 1001;
-    document.getElementById('send').onclick = async () => {
-        const res = await fetch('/api/support', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userId: parseInt(userId),
-                requestType: document.getElementById('type').value,
-                ticketRef: document.getElementById('ticketRef').value,
-                description: document.getElementById('desc').value
-            })
-        });
-        const data = await res.json();
-        document.getElementById('result').innerHTML = data.success ? '✅ Richiesta inviata' : '❌ Errore';
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Devi essere loggato per contattare il supporto');
+        window.location.href = 'login.html';
+    }
+
+    document.getElementById('submitBtn').onclick = async () => {
+        const requestType = document.getElementById('requestType').value;
+        const ticketRef = document.getElementById('ticketRef').value;
+        const description = document.getElementById('description').value;
+
+        if (!description.trim()) {
+            document.getElementById('result').innerHTML = '<div class="error">Per favore, descrivi la tua richiesta.</div>';
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/support', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    requestType: requestType,
+                    ticketRef: ticketRef,
+                    description: description
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('result').innerHTML = '<div class="success">✅ Richiesta inviata con successo. Riceverai risposta via email entro 48 ore.</div>';
+                document.getElementById('description').value = '';
+                document.getElementById('ticketRef').value = '';
+            } else {
+                document.getElementById('result').innerHTML = `<div class="error">❌ Errore: ${data.message || 'Impossibile inviare la richiesta'}</div>`;
+            }
+        } catch (err) {
+            document.getElementById('result').innerHTML = `<div class="error">Errore di rete: ${err.message}</div>`;
+        }
     };
 </script>
 </body>

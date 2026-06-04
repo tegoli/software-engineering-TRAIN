@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrazione - Train App</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Roboto', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f2f5 0%, #e0e5ec 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            padding: 32px 28px;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        h2 {
+            color: #1e3c72;
+            margin-top: 0;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+
+        .sub {
+            text-align: center;
+            color: #5a6874;
+            margin-bottom: 28px;
+            font-size: 0.9rem;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 6px;
+            color: #1e3c72;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: 0.2s;
+            background: #f9fafb;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2);
+            background: white;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #0066cc;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            border: none;
+            border-radius: 40px;
+            margin-top: 28px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background: #004d99;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 16px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.9rem;
+        }
+
+        .login-link a {
+            color: #0066cc;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        hr {
+            margin: 24px 0 16px;
+            border: none;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .info-note {
+            font-size: 0.75rem;
+            color: #6c757d;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>🚆 Crea un account</h2>
+    <div class="sub">Accedi a tutti i servizi di prenotazione</div>
+
+    <div>
+        <label>Nome</label>
+        <input type="text" id="name" placeholder="Mario" autocomplete="given-name">
+
+        <label>Cognome</label>
+        <input type="text" id="surname" placeholder="Rossi" autocomplete="family-name">
+
+        <label>Email</label>
+        <input type="email" id="email" placeholder="mario.rossi@example.com" autocomplete="email">
+
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Almeno 8 caratteri" autocomplete="new-password">
+
+        <label>Conferma password</label>
+        <input type="password" id="confirmPassword" placeholder="Ripeti la password" autocomplete="off">
+
+        <button id="registerBtn">📝 Registrati</button>
+        <div id="message"></div>
+    </div>
+
+    <hr>
+    <div class="login-link">
+        Hai già un account? <a href="login.html">Accedi qui</a>
+    </div>
+    <div class="info-note">
+        La registrazione è gratuita. I tuoi dati saranno trattati in conformità al GDPR.
+    </div>
+</div>
+
+<script>
+    const registerBtn = document.getElementById('registerBtn');
+    const messageDiv = document.getElementById('message');
+
+    function showMessage(text, isError = true) {
+        messageDiv.innerHTML = `<div class="${isError ? 'error' : 'success'}">${text}</div>`;
+        setTimeout(() => {
+            if (!isError) {
+                // Se successo, dopo 2 secondi reindirizza al login
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            }
+        }, 100);
+    }
+
+    async function registerUser(name, surname, email, password) {
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, surname, email, password })
+            });
+            const data = await response.json();
+            if (data.success) {
+                showMessage('✅ Registrazione completata! Redirezione al login...', false);
+            } else {
+                showMessage('❌ ' + (data.message || 'Errore durante la registrazione.'));
+            }
+        } catch (err) {
+            showMessage('❌ Errore di rete: ' + err.message);
+        }
+    }
+
+    registerBtn.addEventListener('click', () => {
+        // Reset messaggio
+        messageDiv.innerHTML = '';
+
+        // Prendi valori
+        const name = document.getElementById('name').value.trim();
+        const surname = document.getElementById('surname').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const confirm = document.getElementById('confirmPassword').value;
+
+        // Validazioni semplici
+        if (!name || !surname || !email || !password) {
+            showMessage('⚠️ Tutti i campi sono obbligatori.');
+            return;
+        }
+        if (password.length < 8) {
+            showMessage('⚠️ La password deve essere lunga almeno 8 caratteri.');
+            return;
+        }
+        if (password !== confirm) {
+            showMessage('⚠️ Le password non coincidono.');
+            return;
+        }
+        if (!email.includes('@') || !email.includes('.')) {
+            showMessage('⚠️ Inserisci un indirizzo email valido.');
+            return;
+        }
+
+        // Disabilita bottone per evitare doppia submit
+        registerBtn.disabled = true;
+        registerBtn.textContent = 'Registrazione in corso...';
+
+        registerUser(name, surname, email, password)
+            .finally(() => {
+                registerBtn.disabled = false;
+                registerBtn.textContent = '📝 Registrati';
+            });
+    });
+</script>
+</body>
+</html>

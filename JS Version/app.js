@@ -11,54 +11,263 @@ const PORT = 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// -------------------- Helper per leggere/scrivere DB --------------------
+// ============================================================================
+//  DATABASE HELPERS
+// ============================================================================
+
+/**
+ * Percorso del file JSON che funge da database.
+ * @constant {string}
+ */
 const DB_PATH = path.join(__dirname, 'database', 'database.json');
 
+/**
+ * Legge il database dal file JSON.
+ * @returns {object} Contenuto del database.
+ */
 function readDB() {
-    const data = fs.readFileSync(DB_PATH, 'utf8');
-    return JSON.parse(data);
+    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
 }
 
+/**
+ * Scrive il database sul file JSON.
+ * @param {object} data - Dati da salvare.
+ */
 function writeDB(data) {
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
 }
 
-// -------------------- Utility --------------------
+// ============================================================================
+//  SESSION MANAGEMENT
+// ============================================================================
+
+/** Mappa token di sessione → { userId, role } */
+const sessions = new Map();
+
+/**
+ * Genera un token di sessione casuale.
+ * @returns {string} Token esadecimale a 64 caratteri.
+ */
+function generateToken() {
+    return crypto.randomBytes(32).toString('hex');
+}
+
+/**
+ * Middleware di autenticazione: verifica il token Bearer.
+ * @param {object} req - Richiesta Express.
+ * @param {object} res - Risposta Express.
+ * @param {Function} next - Chiamata successiva.
+ */
+function authenticate(req, res, next) {
+    const auth = req.headers.authorization;
+    if (!auth || !auth.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Unauthorized: missing token' });
+    }
+    const token = auth.slice(7);
+    const session = sessions.get(token);
+    if (!session) {
+        return res.status(401).json({ error: 'Unauthorized: invalid token' });
+    }
+    req.user = session;
+    next();
+}
+
+/**
+ * Middleware per richiedere un ruolo specifico.
+ * @param {string} role - Ruolo richiesto (admin, inspector, passenger).
+ * @returns {Function} Middleware Express.
+ */
+function requireRole(role) {
+    return (req, res, next) => {
+        if (req.user.role !== role) {
+            return res.status(403).json({ error: `Forbidden: ${role} role required` });
+        }
+        next();
+    };
+}
+
+// ============================================================================
+//  UTILITY FUNCTIONS
+// ============================================================================
+
+/**
+ * Calcola l'hash SHA256 di una password.
+ * @param {string} pwd - Password in chiaro.
+ * @returns {string} Hash esadecimale.
+ */
 function hashPassword(pwd) {
     return crypto.createHash('sha256').update(pwd).digest('hex');
 }
 
-// Calcolo prezzo approssimativo (km * 0.15 €) - per demo
-function calculatePrice(stationA, stationB, travelClass) {
-    const coordA = { lat: stationA.latitude, lon: stationA.longitude };
-    const coordB = { lat: stationB.latitude, lon: stationB.longitude };
-    const R = 6371;
-    const dLat = (coordB.lat - coordA.lat) * Math.PI / 180;
-    const dLon = (coordB.lon - coordA.lon) * Math.PI / 180;
-    const a = Math.sin(dLat/2)**2 + Math.cos(coordA.lat * Math.PI/180) * Math.cos(coordB.lat * Math.PI/180) * Math.sin(dLon/2)**2;
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+/**
+ * Calcola il prezzo di un biglietto in base alla distanza geografica approssimativa.
+ * @param {object} fromStation - Stazione di partenza (con latitude, longitude).
+ * @param {object} toStation - Stazione di arrivo.
+ * @param {string} travelClass - 'standard' o 'business'.
+ * @returns {number} Prezzo in euro (arrotondato a 2 decimali).
+ */
+function calculatePrice(fromStation, toStation, travelClass) {
+    const R = 6371; // raggio Terra in km
+    const dLat = (toStation.latitude - fromStation.latitude) * Math.PI / 180;
+    const dLon = (toStation.longitude - fromStation.longitude) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 +
+              Math.cos(fromStation.latitude * Math.PI / 180) *
+              Math.cos(toStation.latitude * Math.PI / 180) *
+              Math.sin(dLon / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const km = R * c;
     let price = km * 0.15;
     if (travelClass === 'business') price *= 1.8;
     return Math.round(price * 100) / 100;
 }
 
-// -------------------- API ROUTES --------------------
+/**
+ * Inizializza il database con utenti di default se non esistono.
+ * Utenti creati:
+ * - admin@railway.it / admin (ruolo administrator)
+ * - test@example.com / password (ruolo passenger)
+ */
+function seedDefaultUsers() {
+    const db = readDB();
+    let changed = false;
 
-// 1. Ottieni tutte le stazioni (per mappa e select)
+    const adminExists = db.users.some(u => u.email === 'admin@railway.it');
+    if (!adminExists) {
+        const newId = Math.max(...db.users.map(u => u.userId)) + 1;
+        db.users.push({
+            userId: newId,
+            name: 'Admin',
+            surname: 'Railway',
+            email: 'admin@railway.it',
+            passwordHash: hashPassword('admin'),
+            role: 'administrator',
+            preferredLanguage: 'en',
+            loyaltyPoints: 0,
+            failedLoginAttempts: 0,
+            accountStatus: 'active',
+            adminCode: 'ADMIN-001'
+        });
+        changed = true;
+        console.log('✅ Utente admin creato (admin@railway.it / admin)');
+    }
+
+    const testExists = db.users.some(u => u.email === 'test@example.com');
+    if (!testExists) {
+        const newId = Math.max(...db.users.map(u => u.userId)) + 1;
+        db.users.push({
+            userId: newId,
+            name: 'Test',
+            surname: 'User',
+            email: 'test@example.com',
+            passwordHash: hashPassword('password'),
+            role: 'passenger',
+            preferredLanguage: 'it',
+            loyaltyPoints: 50,
+            failedLoginAttempts: 0,
+            accountStatus: 'active'
+        });
+        changed = true;
+        console.log('✅ Utente test creato (test@example.com / password)');
+    }
+
+    if (changed) writeDB(db);
+}
+
+// Esegui il seeding all'avvio
+try {
+    seedDefaultUsers();
+} catch (err) {
+    console.error('Errore durante il seeding:', err);
+}
+
+// ============================================================================
+//  API PUBLICHE (non richiedono autenticazione)
+// ============================================================================
+
+/**
+ * GET /api/stations
+ * Restituisce l'elenco di tutte le stazioni.
+ */
 app.get('/api/stations', (req, res) => {
     const db = readDB();
     res.json(db.stations);
 });
 
-// 2. Ricerca treni
+/**
+ * POST /api/login
+ * Autentica un utente e restituisce un token di sessione.
+ * Body: { email, password }
+ */
+app.post('/api/login', (req, res) => {
+    const { email, password } = req.body;
+    const db = readDB();
+    const user = db.users.find(u => u.email === email);
+
+    if (!user || user.passwordHash !== hashPassword(password)) {
+        return res.status(401).json({ success: false, message: 'Credenziali errate' });
+    }
+    if (user.accountStatus !== 'active') {
+        return res.status(401).json({ success: false, message: 'Account non attivo' });
+    }
+
+    const token = generateToken();
+    sessions.set(token, { userId: user.userId, role: user.role });
+    res.json({
+        success: true,
+        token,
+        user: { id: user.userId, name: user.name, role: user.role }
+    });
+});
+
+/**
+ * POST /api/register
+ * Registra un nuovo utente (ruolo passenger).
+ * Body: { name, surname, email, password }
+ */
+app.post('/api/register', (req, res) => {
+    const { name, surname, email, password } = req.body;
+    const db = readDB();
+
+    if (db.users.find(u => u.email === email)) {
+        return res.json({ success: false, message: 'Email già registrata' });
+    }
+    if (!password || password.length < 8) {
+        return res.json({ success: false, message: 'La password deve essere lunga almeno 8 caratteri' });
+    }
+
+    const newId = Math.max(...db.users.map(u => u.userId)) + 1;
+    const newUser = {
+        userId: newId,
+        name,
+        surname,
+        email,
+        passwordHash: hashPassword(password),
+        role: 'passenger',
+        preferredLanguage: 'it',
+        loyaltyPoints: 0,
+        failedLoginAttempts: 0,
+        accountStatus: 'active'
+    };
+    db.users.push(newUser);
+    writeDB(db);
+    res.json({ success: true, message: 'Registrazione completata' });
+});
+
+/**
+ * POST /api/search
+ * Cerca treni in base a partenza, arrivo, data e classe.
+ * Body: { departureStationName, arrivalStationName, date, travelClass }
+ */
 app.post('/api/search', (req, res) => {
     const { departureStationName, arrivalStationName, date, travelClass } = req.body;
     const db = readDB();
 
     const fromStation = db.stations.find(s => s.name.toLowerCase() === departureStationName.toLowerCase());
     const toStation = db.stations.find(s => s.name.toLowerCase() === arrivalStationName.toLowerCase());
-    if (!fromStation || !toStation) return res.json({ trains: [] });
+
+    if (!fromStation || !toStation) {
+        return res.json({ trains: [] }); // stazione non esistente
+    }
 
     const searchDate = new Date(date);
     const results = [];
@@ -78,21 +287,18 @@ app.post('/api/search', (req, res) => {
         const train = db.trains.find(t => t.trainId === run.trainId);
         if (!train.serviceClasses.includes(travelClass)) continue;
 
-        // Calcola orario di partenza dalla fermata di origine
-        const departureTimeStr = fromStop.scheduledDeparture;
-        const [depHour, depMin] = departureTimeStr.split(':');
+        // Orari di partenza e arrivo dalla fermata specifica
         const departureDateTime = new Date(runDate);
+        const [depHour, depMin] = fromStop.scheduledDeparture.split(':');
         departureDateTime.setHours(parseInt(depHour), parseInt(depMin), 0);
 
-        const arrivalTimeStr = toStop.scheduledArrival;
-        const [arrHour, arrMin] = arrivalTimeStr.split(':');
         const arrivalDateTime = new Date(runDate);
+        const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
         arrivalDateTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
         if (arrivalDateTime < departureDateTime) arrivalDateTime.setDate(arrivalDateTime.getDate() + 1);
 
         const durationMs = arrivalDateTime - departureDateTime;
         const durationMinutes = Math.round(durationMs / 60000);
-
         const price = calculatePrice(fromStation, toStation, travelClass);
 
         results.push({
@@ -101,61 +307,47 @@ app.post('/api/search', (req, res) => {
             to: toStation.name,
             departureTime: departureDateTime.toISOString(),
             arrivalTime: arrivalDateTime.toISOString(),
-            duration: `${Math.floor(durationMinutes/60)}h ${durationMinutes%60}m`,
-            price: price,
+            duration: `${Math.floor(durationMinutes / 60)}h ${durationMinutes % 60}m`,
+            price,
             trainType: train.trainType,
             trainCode: train.trainCode,
-            travelClass: travelClass
+            travelClass
         });
     }
     res.json({ trains: results });
 });
 
-// 3. Login
-app.post('/api/login', (req, res) => {
-    const { email, password } = req.body;
+// ============================================================================
+//  API PROTETTE (richiedono autenticazione)
+// ============================================================================
+
+/**
+ * GET /api/me
+ * Restituisce i dati dell'utente autenticato.
+ */
+app.get('/api/me', authenticate, (req, res) => {
     const db = readDB();
-    const user = db.users.find(u => u.email === email);
-    if (!user || user.passwordHash !== hashPassword(password)) {
-        return res.json({ success: false, message: 'Credenziali errate' });
-    }
-    if (user.accountStatus !== 'active') {
-        return res.json({ success: false, message: 'Account non attivo' });
-    }
-    res.json({ success: true, user: { id: user.userId, name: user.name, role: user.role } });
+    const user = db.users.find(u => u.userId === req.user.userId);
+    if (!user) return res.status(404).json({ error: 'Utente non trovato' });
+    res.json({ id: user.userId, name: user.name, role: user.role });
 });
 
-// 4. Registrazione
-app.post('/api/register', (req, res) => {
-    const { name, surname, email, password } = req.body;
-    const db = readDB();
-    if (db.users.find(u => u.email === email)) {
-        return res.json({ success: false, message: 'Email già registrata' });
+/**
+ * GET /api/user/dashboard/:userId
+ * Restituisce dashboard del passeggero (biglietti attivi, storico, punti fedeltà).
+ * Solo l'utente stesso o un amministratore può accedere.
+ */
+app.get('/api/user/dashboard/:userId', authenticate, (req, res) => {
+    const targetUserId = parseInt(req.params.userId);
+    if (req.user.userId !== targetUserId && req.user.role !== 'administrator') {
+        return res.status(403).json({ error: 'Accesso negato' });
     }
-    const newId = Math.max(...db.users.map(u => u.userId)) + 1;
-    const newUser = {
-        userId: newId,
-        name, surname, email,
-        passwordHash: hashPassword(password),
-        role: 'passenger',
-        preferredLanguage: 'it',
-        loyaltyPoints: 0,
-        failedLoginAttempts: 0,
-        accountStatus: 'active'
-    };
-    db.users.push(newUser);
-    writeDB(db);
-    res.json({ success: true });
-});
 
-// 5. Dashboard utente (biglietti attivi, storico, punti)
-app.get('/api/user/dashboard/:userId', (req, res) => {
-    const userId = parseInt(req.params.userId);
     const db = readDB();
-    const user = db.users.find(u => u.userId === userId);
+    const user = db.users.find(u => u.userId === targetUserId);
     if (!user) return res.status(404).json({ error: 'Utente non trovato' });
 
-    const tickets = db.tickets.filter(t => t.userId === userId);
+    const tickets = db.tickets.filter(t => t.userId === targetUserId);
     const activeTickets = tickets.filter(t => t.status === 'active');
     const history = tickets.filter(t => t.status !== 'active').map(t => {
         const run = db.trainRuns.find(r => r.runId === t.runId);
@@ -197,21 +389,25 @@ app.get('/api/user/dashboard/:userId', (req, res) => {
     });
 });
 
-// 6. Acquisto biglietto
-app.post('/api/purchase', (req, res) => {
-    const { userId, runId, fromStopOrder, toStopOrder, passengerType, travelClass, seatNumber, extras, totalPrice } = req.body;
+/**
+ * POST /api/purchase
+ * Acquista un biglietto per l'utente autenticato.
+ * Body: { runId, fromStopOrder, toStopOrder, passengerType, travelClass, seatNumber, extras, totalPrice }
+ */
+app.post('/api/purchase', authenticate, (req, res) => {
+    const userId = req.user.userId;
+    const { runId, fromStopOrder, toStopOrder, passengerType, travelClass, seatNumber, extras, totalPrice } = req.body;
     const db = readDB();
 
     const user = db.users.find(u => u.userId === userId);
     if (!user) return res.status(400).json({ success: false, message: 'Utente non valido' });
 
+    // Crea nuovo biglietto
     const newTicketId = Math.max(...db.tickets.map(t => t.ticketId)) + 1;
-    const ticketCode = `TKT-${userId}-${newTicketId}`;
     const now = new Date().toISOString();
-
     const newTicket = {
         ticketId: newTicketId,
-        ticketCode,
+        ticketCode: `TKT-${userId}-${newTicketId}`,
         userId,
         runId,
         fromStopOrder,
@@ -257,14 +453,14 @@ app.post('/api/purchase', (req, res) => {
     // Prenotazione posto
     db.seatReservations.push({
         runId,
-        coachNumber: 1, // Semplificato
+        coachNumber: 1, // Semplificato; in realtà andrebbe calcolato
         seatNumber,
         ticketId: newTicketId,
         status: 'reserved'
     });
 
-    // Servizi extra
-    if (extras) {
+    // Servizi extra (bagaglio, bici, ...)
+    if (extras && extras.length) {
         for (const extra of extras) {
             const newResId = Math.max(...db.additionalReservations.map(r => r.reservationId)) + 1;
             db.additionalReservations.push({
@@ -281,16 +477,24 @@ app.post('/api/purchase', (req, res) => {
     res.json({ success: true, ticketId: newTicketId });
 });
 
-// 7. Validazione biglietto (inspector)
-app.post('/api/validate', (req, res) => {
+/**
+ * POST /api/validate
+ * Valida un biglietto (solo ispettori).
+ * Body: { ticketId }
+ */
+app.post('/api/validate', authenticate, requireRole('inspector'), (req, res) => {
     const { ticketId } = req.body;
     const db = readDB();
     const ticket = db.tickets.find(t => t.ticketId === ticketId);
-    if (!ticket) return res.json({ valid: false, message: 'Biglietto non trovato' });
-    if (ticket.status !== 'active') return res.json({ valid: false, message: 'Biglietto già utilizzato o scaduto' });
+
+    if (!ticket) {
+        return res.json({ valid: false, message: 'Biglietto non trovato' });
+    }
+    if (ticket.status !== 'active') {
+        return res.json({ valid: false, message: 'Biglietto già utilizzato o scaduto' });
+    }
 
     ticket.status = 'used';
-    // Aggiorna stato posto
     const seatRes = db.seatReservations.find(sr => sr.ticketId === ticketId);
     if (seatRes) seatRes.status = 'occupied';
 
@@ -298,9 +502,15 @@ app.post('/api/validate', (req, res) => {
     res.json({ valid: true, message: 'Biglietto valido e marcato come utilizzato' });
 });
 
-// 8. Turni ispettore
-app.get('/api/inspector/schedule/:inspectorId', (req, res) => {
+/**
+ * GET /api/inspector/schedule/:inspectorId
+ * Restituisce i turni di un ispettore (solo l'ispettore stesso).
+ */
+app.get('/api/inspector/schedule/:inspectorId', authenticate, requireRole('inspector'), (req, res) => {
     const inspectorId = parseInt(req.params.inspectorId);
+    if (req.user.userId !== inspectorId) {
+        return res.status(403).json({ error: 'Accesso negato' });
+    }
     const db = readDB();
     const shifts = db.shiftSchedules.filter(s => s.staffId === inspectorId);
     const enriched = shifts.map(s => {
@@ -319,8 +529,11 @@ app.get('/api/inspector/schedule/:inspectorId', (req, res) => {
     res.json({ shifts: enriched });
 });
 
-// 9. Statistiche admin
-app.get('/api/admin/stats', (req, res) => {
+/**
+ * GET /api/admin/stats
+ * Restituisce statistiche di sistema (solo amministratori).
+ */
+app.get('/api/admin/stats', authenticate, requireRole('administrator'), (req, res) => {
     const db = readDB();
     const totalRevenue = db.payments.reduce((sum, p) => sum + p.amount, 0);
     const totalBookings = db.tickets.length;
@@ -334,14 +547,18 @@ app.get('/api/admin/stats', (req, res) => {
     });
 });
 
-// 10. Supporto
-app.post('/api/support', (req, res) => {
-    const { userId, requestType, ticketRef, description } = req.body;
+/**
+ * POST /api/support
+ * Invia una richiesta di supporto (utente autenticato).
+ * Body: { requestType, ticketRef, description }
+ */
+app.post('/api/support', authenticate, (req, res) => {
+    const { requestType, ticketRef, description } = req.body;
     const db = readDB();
     const newId = Math.max(...db.supportRequests.map(r => r.requestId)) + 1;
     db.supportRequests.push({
         requestId: newId,
-        userId,
+        userId: req.user.userId,
         requestType,
         description,
         status: 'open',
@@ -352,8 +569,13 @@ app.post('/api/support', (req, res) => {
     res.json({ success: true, message: 'Richiesta inviata' });
 });
 
-// 11. Mappa: stazioni con coordinate (già esiste /api/stations)
+// ============================================================================
+//  AVVIO DEL SERVER
+// ============================================================================
 
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`🚆 Server running on http://localhost:${PORT}`);
+    console.log(`📁 Database: ${DB_PATH}`);
+    console.log(`🔐 Admin: admin@railway.it / admin`);
+    console.log(`👤 Test user: test@example.com / password`);
 });

@@ -2,74 +2,119 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acquisto biglietto</title>
     <style>
-        * { box-sizing: border-box; font-family: system-ui; }
+        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
         body { background: #f0f2f5; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
-        input, select, button { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; }
-        button { background: #0066cc; color: white; border: none; font-weight: bold; cursor: pointer; }
+        .container { max-width: 700px; margin: auto; background: white; border-radius: 24px; padding: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h2 { color: #1e3c72; }
+        .trip-summary { background: #e9ecef; padding: 16px; border-radius: 16px; margin-bottom: 20px; }
+        label { font-weight: 600; display: block; margin-top: 12px; }
+        input, select, button { width: 100%; padding: 10px; margin: 6px 0 12px; border-radius: 8px; border: 1px solid #ccc; }
+        button { background: #0066cc; color: white; font-weight: bold; border: none; cursor: pointer; }
+        .extra { background: #f8f9fa; padding: 12px; border-radius: 12px; margin: 16px 0; }
+        .error { color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 8px; }
+        .success { color: #2e7d32; background: #e8f5e9; padding: 10px; border-radius: 8px; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>🎫 Completa acquisto</h2>
-    <div id="details"></div>
-    <label>Numero posto (es. 12A): <input id="seat" value="1A"></label>
+    <h2>🎫 Completa l'acquisto</h2>
+    <div id="tripInfo" class="trip-summary">Caricamento viaggio selezionato...</div>
+
+    <label>Numero posto (es. 12A)</label>
+    <input type="text" id="seatNumber" placeholder="es. 14C" value="1A">
+
     <div class="extra">
-        <label><input type="checkbox" id="bike"> Posto bici (+5€)</label>
-        <label><input type="checkbox" id="luggage"> Bagaglio grande (+8€)</label>
+        <label><input type="checkbox" id="bike"> 🚲 Posto bici (+5€)</label>
+        <label><input type="checkbox" id="luggage"> 🧳 Bagaglio grande (+8€)</label>
     </div>
-    <div>Totale: <span id="totalPrice"></span> €</div>
+
+    <div><strong>Totale: € <span id="totalPrice">0.00</span></strong></div>
     <button id="buyBtn">Conferma pagamento</button>
     <div id="result"></div>
+    <p style="margin-top: 20px;"><a href="index.html">← Torna alla ricerca</a></p>
 </div>
-<script>
-    const runData = JSON.parse(localStorage.getItem('selectedRun'));
-    if (!runData) window.location.href = 'index.html';
-    const userId = localStorage.getItem('userId');
-    if (!userId) window.location.href = 'login.html';
 
-    let basePrice = runData.price;
-    document.getElementById('details').innerHTML = `<p>${runData.from} → ${runData.to} | ${runData.travelClass} | Prezzo base: ${basePrice} €</p>`;
-    document.getElementById('totalPrice').innerText = basePrice;
+<script>
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Devi effettuare il login per acquistare');
+        window.location.href = 'login.html';
+    }
+
+    const runDataRaw = localStorage.getItem('selectedRun');
+    if (!runDataRaw) {
+        document.getElementById('tripInfo').innerHTML = '<div class="error">Nessun viaggio selezionato. Torna alla ricerca.</div>';
+        document.getElementById('buyBtn').disabled = true;
+    } else {
+        const runData = JSON.parse(runDataRaw);
+        document.getElementById('tripInfo').innerHTML = `
+            <strong>${runData.from} → ${runData.to}</strong><br>
+            Treno: ${runData.trainCode || '---'} (${runData.travelClass})<br>
+            Prezzo base: € ${runData.price.toFixed(2)}
+        `;
+        window.runData = runData;
+        updateTotal();
+    }
 
     function updateTotal() {
-        let total = basePrice;
-        if (document.getElementById('bike').checked) total += 5;
-        if (document.getElementById('luggage').checked) total += 8;
-        document.getElementById('totalPrice').innerText = total;
+        let total = window.runData ? window.runData.price : 0;
+        if (document.getElementById('bike')?.checked) total += 5;
+        if (document.getElementById('luggage')?.checked) total += 8;
+        document.getElementById('totalPrice').innerText = total.toFixed(2);
     }
-    document.getElementById('bike').onchange = updateTotal;
-    document.getElementById('luggage').onchange = updateTotal;
+    document.getElementById('bike')?.addEventListener('change', updateTotal);
+    document.getElementById('luggage')?.addEventListener('change', updateTotal);
 
     document.getElementById('buyBtn').onclick = async () => {
-        const seat = document.getElementById('seat').value;
+        if (!window.runData) {
+            document.getElementById('result').innerHTML = '<div class="error">Errore: nessun viaggio selezionato</div>';
+            return;
+        }
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            alert('Utente non autenticato');
+            window.location.href = 'login.html';
+            return;
+        }
+
         const extras = [];
         if (document.getElementById('bike').checked) extras.push({ type: 'bike', price: 5 });
         if (document.getElementById('luggage').checked) extras.push({ type: 'luggage', price: 8 });
 
-        const res = await fetch('/api/purchase', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userId: parseInt(userId),
-                runId: runData.runId,
-                fromStopOrder: 1, // Semplificato: nella realtà bisognerebbe derivare dai stop, ma per demo ok
-                toStopOrder: 4,
-                passengerType: 'adult',
-                travelClass: runData.travelClass,
-                seatNumber: seat,
-                extras: extras,
-                totalPrice: parseFloat(document.getElementById('totalPrice').innerText)
-            })
-        });
-        const data = await res.json();
-        if (data.success) {
-            document.getElementById('result').innerHTML = `<div style="color:green">✅ Acquisto completato! Biglietto #${data.ticketId}</div>`;
-            localStorage.removeItem('selectedRun');
-        } else {
-            document.getElementById('result').innerHTML = `<div style="color:red">❌ Errore: ${data.message}</div>`;
+        const payload = {
+            userId: parseInt(userId),
+            runId: window.runData.runId,
+            fromStopOrder: 1,       // In un'app reale andrebbero calcolati, per demo usiamo 1 e 4
+            toStopOrder: 4,
+            passengerType: 'adult',
+            travelClass: window.runData.travelClass,
+            seatNumber: document.getElementById('seatNumber').value,
+            extras: extras,
+            totalPrice: parseFloat(document.getElementById('totalPrice').innerText)
+        };
+
+        try {
+            const res = await fetch('/api/purchase', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('result').innerHTML = `<div class="success">✅ Acquisto riuscito! Il tuo biglietto #${data.ticketId} è disponibile in dashboard.</div>`;
+                localStorage.removeItem('selectedRun');
+                setTimeout(() => window.location.href = 'dashboard.html', 3000);
+            } else {
+                document.getElementById('result').innerHTML = `<div class="error">❌ Errore: ${data.message || 'Transazione fallita'}</div>`;
+            }
+        } catch (err) {
+            document.getElementById('result').innerHTML = `<div class="error">Errore di rete: ${err.message}</div>`;
         }
     };
 </script>
