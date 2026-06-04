@@ -2,70 +2,37 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Passeggero</title>
+    <title>Dashboard passeggero</title>
     <style>
-        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
-        body { background: #f0f2f5; margin: 0; padding: 20px; }
+        * { box-sizing: border-box; font-family: system-ui; }
+        body { background: #f0f2f5; padding: 20px; }
         .container { max-width: 1000px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
-        nav a { margin-right: 15px; text-decoration: none; color: #0066cc; }
-        h2 { color: #1e3c72; }
-        .card { background: #e9ecef; padding: 15px; border-radius: 16px; margin-bottom: 20px; }
-        .card h3 { margin-top: 0; }
+        .card { background: #e9ecef; padding: 16px; border-radius: 16px; margin-bottom: 20px; }
         button { background: #0066cc; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
-        .badge { background: #ffc107; padding: 4px 8px; border-radius: 20px; font-size: 0.8rem; }
-        hr { margin: 20px 0; }
     </style>
 </head>
 <body>
 <div class="container">
-    <nav><a href="index.html">🏠 Home</a> <a href="login.html">🔐 Login</a> <a href="purchase.html">🎫 Acquista</a> <a href="support.html">💬 Supporto</a></nav>
-    <h2>📋 Benvenuto, <span id="userName">Utente</span></h2>
-
-    <div class="card">
-        <h3>🎟️ Biglietti attivi</h3>
-        <div id="activeTickets">Caricamento...</div>
-    </div>
-
-    <div class="card">
-        <h3>📜 Cronologia viaggi</h3>
-        <div id="history">Nessun viaggio precedente</div>
-    </div>
-
-    <div class="card">
-        <h3>⭐ Punti fedeltà</h3>
-        <div id="loyalty">0 punti</div>
-    </div>
-
-    <div class="card">
-        <h3>✏️ Modifica biglietto</h3>
-        <label>ID biglietto: <input type="text" id="ticketId" placeholder="es. 12345"></label>
-        <button id="modifyBtn">Richiedi modifica</button>
-        <div id="modifyResult"></div>
-    </div>
+    <h2>📋 Ciao, <span id="userName"></span></h2>
+    <div class="card"><h3>🎟️ Biglietti attivi</h3><div id="activeTickets"></div></div>
+    <div class="card"><h3>📜 Storico viaggi</h3><div id="history"></div></div>
+    <div class="card"><h3>⭐ Punti fedeltà</h3><div id="loyalty"></div></div>
 </div>
 <script>
-    const userEmail = localStorage.getItem('userEmail') || 'test@example.com';
-    document.getElementById('userName').innerText = userEmail.split('@')[0];
-
-    // Dati fittizi per demo (in realtà chiamate API)
-    document.getElementById('activeTickets').innerHTML = `
-        <p>✔️ Biglietto #12345 - Milano → Roma (10/06/2026) <button class="badge">Valido</button></p>
-        <p>✔️ Abbonamento regionale - Milano - Monza (scade 31/12/2026)</p>
-    `;
-    document.getElementById('history').innerHTML = `<p>📅 01/05/2026: Bologna → Firenze</p><p>📅 15/04/2026: Venezia → Padova</p>`;
-    document.getElementById('loyalty').innerHTML = `🏆 245 punti (puoi riscattare uno sconto del 5%)`;
-
-    document.getElementById('modifyBtn').onclick = async () => {
-        const ticketId = document.getElementById('ticketId').value;
-        if (!ticketId) return;
-        const res = await fetch('/api/modify-ticket', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ticketId, newDate: '2026-07-01', newTime: '14:00' })
+    const userId = localStorage.getItem('userId');
+    if (!userId) window.location.href = 'login.html';
+    fetch(`/api/user/dashboard/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('userName').innerText = data.name;
+            document.getElementById('loyalty').innerText = data.loyaltyPoints + ' punti';
+            document.getElementById('activeTickets').innerHTML = data.activeTickets.map(t => `
+                <p>✔️ ${t.from} → ${t.to}, partenza ${t.departureTime}, posto ${t.seatNumber}, prezzo ${t.price} €</p>
+            `).join('');
+            document.getElementById('history').innerHTML = data.history.map(h => `
+                <p>📅 ${h.date.slice(0,10)}: ${h.from} → ${h.to} (${h.price} €) - ${h.status}</p>
+            `).join('');
         });
-        const data = await res.json();
-        document.getElementById('modifyResult').innerHTML = data.success ? '✅ Modifica richiesta con successo' : '❌ Errore modifica';
-    };
 </script>
 </body>
 </html>

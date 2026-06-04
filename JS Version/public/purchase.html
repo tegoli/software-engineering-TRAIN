@@ -4,57 +4,74 @@
     <meta charset="UTF-8">
     <title>Acquisto biglietto</title>
     <style>
-        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
+        * { box-sizing: border-box; font-family: system-ui; }
         body { background: #f0f2f5; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: white; border-radius: 24px; padding: 28px; }
-        select, input, button { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; }
-        button { background: #0066cc; color: white; font-weight: bold; border: none; cursor: pointer; }
-        .extra { background: #f8f9fa; padding: 12px; border-radius: 12px; margin: 15px 0; }
+        .container { max-width: 600px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
+        input, select, button { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; }
+        button { background: #0066cc; color: white; border: none; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>🎫 Completa l'acquisto</h2>
-    <div id="trainInfo">Treno selezionato: ID <span id="trainId">-</span></div>
-
+    <h2>🎫 Completa acquisto</h2>
+    <div id="details"></div>
+    <label>Numero posto (es. 12A): <input id="seat" value="1A"></label>
     <div class="extra">
-        <label><input type="checkbox" id="seatSelect"> Seleziona posto (+2€)</label>
-        <label><input type="checkbox" id="luggage"> Bagaglio grande (+5€)</label>
-        <label><input type="checkbox" id="bike"> Posto bici (+3€)</label>
+        <label><input type="checkbox" id="bike"> Posto bici (+5€)</label>
+        <label><input type="checkbox" id="luggage"> Bagaglio grande (+8€)</label>
     </div>
-
-    <div>Prezzo base: 29,90 €</div>
-    <div id="total">Totale: 29,90 €</div>
-
-    <button id="payBtn">Procedi al pagamento</button>
+    <div>Totale: <span id="totalPrice"></span> €</div>
+    <button id="buyBtn">Conferma pagamento</button>
     <div id="result"></div>
 </div>
 <script>
-    const trainId = localStorage.getItem('selectedTrain') || '123';
-    document.getElementById('trainId').innerText = trainId;
+    const runData = JSON.parse(localStorage.getItem('selectedRun'));
+    if (!runData) window.location.href = 'index.html';
+    const userId = localStorage.getItem('userId');
+    if (!userId) window.location.href = 'login.html';
+
+    let basePrice = runData.price;
+    document.getElementById('details').innerHTML = `<p>${runData.from} → ${runData.to} | ${runData.travelClass} | Prezzo base: ${basePrice} €</p>`;
+    document.getElementById('totalPrice').innerText = basePrice;
 
     function updateTotal() {
-        let total = 29.90;
-        if (document.getElementById('seatSelect').checked) total += 2;
-        if (document.getElementById('luggage').checked) total += 5;
-        if (document.getElementById('bike').checked) total += 3;
-        document.getElementById('total').innerText = `Totale: ${total.toFixed(2)} €`;
+        let total = basePrice;
+        if (document.getElementById('bike').checked) total += 5;
+        if (document.getElementById('luggage').checked) total += 8;
+        document.getElementById('totalPrice').innerText = total;
     }
-    document.getElementById('seatSelect').onchange = updateTotal;
-    document.getElementById('luggage').onchange = updateTotal;
     document.getElementById('bike').onchange = updateTotal;
+    document.getElementById('luggage').onchange = updateTotal;
 
-    document.getElementById('payBtn').onclick = async () => {
+    document.getElementById('buyBtn').onclick = async () => {
+        const seat = document.getElementById('seat').value;
+        const extras = [];
+        if (document.getElementById('bike').checked) extras.push({ type: 'bike', price: 5 });
+        if (document.getElementById('luggage').checked) extras.push({ type: 'luggage', price: 8 });
+
         const res = await fetch('/api/purchase', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ trainId, extras: { seat: seatSelect.checked, luggage: luggage.checked, bike: bike.checked } })
+            body: JSON.stringify({
+                userId: parseInt(userId),
+                runId: runData.runId,
+                fromStopOrder: 1, // Semplificato: nella realtà bisognerebbe derivare dai stop, ma per demo ok
+                toStopOrder: 4,
+                passengerType: 'adult',
+                travelClass: runData.travelClass,
+                seatNumber: seat,
+                extras: extras,
+                totalPrice: parseFloat(document.getElementById('totalPrice').innerText)
+            })
         });
         const data = await res.json();
-        document.getElementById('result').innerHTML = data.success ? `✅ Acquisto completato! Biglietto #${data.ticketId}` : '❌ Pagamento fallito';
-        if (data.success) localStorage.removeItem('selectedTrain');
+        if (data.success) {
+            document.getElementById('result').innerHTML = `<div style="color:green">✅ Acquisto completato! Biglietto #${data.ticketId}</div>`;
+            localStorage.removeItem('selectedRun');
+        } else {
+            document.getElementById('result').innerHTML = `<div style="color:red">❌ Errore: ${data.message}</div>`;
+        }
     };
-    updateTotal();
 </script>
 </body>
 </html>

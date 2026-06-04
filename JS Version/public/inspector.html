@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <title>Area Ispettore</title>
     <style>
-        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
-        body { background: #f0f2f5; padding: 20px; }
+        body { font-family: system-ui; padding: 20px; background: #f0f2f5; }
         .container { max-width: 700px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
-        button, input { padding: 10px; border-radius: 8px; margin: 5px; }
+        button, input { padding: 10px; margin: 5px; border-radius: 8px; }
         button { background: #0066cc; color: white; border: none; cursor: pointer; }
         .card { background: #e9ecef; padding: 16px; border-radius: 16px; margin-bottom: 20px; }
     </style>
@@ -17,45 +16,31 @@
     <h2>👮 Pannello Ispettore</h2>
     <div class="card">
         <h3>✅ Validazione biglietto</h3>
-        <input type="text" id="ticketCode" placeholder="Codice biglietto o QR">
+        <input type="number" id="ticketId" placeholder="ID biglietto">
         <button id="validateBtn">Valida</button>
         <div id="validationResult"></div>
     </div>
-
     <div class="card">
-        <h3>🚉 Aggiorna occupazione</h3>
-        <input type="number" id="coach" placeholder="Numero carrozza">
-        <input type="number" id="passengers" placeholder="Passeggeri a bordo">
-        <button id="occupyBtn">Invia occupazione</button>
-    </div>
-
-    <div class="card">
-        <h3>📅 Turni di lavoro</h3>
+        <h3>📅 Turni (ID ispettore 3001)</h3>
         <button id="scheduleBtn">Visualizza turni</button>
         <div id="scheduleResult"></div>
     </div>
 </div>
 <script>
     document.getElementById('validateBtn').onclick = async () => {
-        const ticketId = document.getElementById('ticketCode').value;
+        const ticketId = document.getElementById('ticketId').value;
         const res = await fetch('/api/validate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ticketId })
+            body: JSON.stringify({ ticketId: parseInt(ticketId) })
         });
         const data = await res.json();
-        document.getElementById('validationResult').innerHTML = data.valid ? '✅ Biglietto valido' : '❌ Biglietto non valido o già utilizzato';
+        document.getElementById('validationResult').innerHTML = data.valid ? '✅ Biglietto valido' : '❌ ' + data.message;
     };
-
-    document.getElementById('occupyBtn').onclick = async () => {
-        await fetch('/api/notify-delay', { method: 'POST', body: JSON.stringify({ trainId: 1, delayTime: 0 }) }); // mock
-        alert('Occupazione aggiornata (mock)');
-    };
-
     document.getElementById('scheduleBtn').onclick = async () => {
-        const res = await fetch('/api/schedule/1');
+        const res = await fetch('/api/inspector/schedule/3001');
         const data = await res.json();
-        document.getElementById('scheduleResult').innerHTML = data.shifts.map(s => `<p>🚆 Treno ${s.train} alle ${s.time}</p>`).join('');
+        document.getElementById('scheduleResult').innerHTML = data.shifts.map(s => `<p>📅 ${s.date} ${s.startTime}-${s.endTime} - ${s.route} (${s.trainCode})</p>`).join('');
     };
 </script>
 </body>

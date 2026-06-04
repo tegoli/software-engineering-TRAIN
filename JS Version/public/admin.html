@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
     <style>
-        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
-        body { background: #f0f2f5; padding: 20px; }
+        body { font-family: system-ui; background: #f0f2f5; padding: 20px; }
         .container { max-width: 900px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
         .stats-grid { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
         .stat-card { background: #1e3c72; color: white; padding: 20px; border-radius: 16px; flex: 1; text-align: center; }
@@ -14,27 +13,23 @@
 </head>
 <body>
 <div class="container">
-    <h2>📊 Amministrazione - Statistiche</h2>
-    <button id="loadStats">Aggiorna dati</button>
-    <div class="stats-grid" id="statsContainer">
-        <div class="stat-card">📈 Ricavi: -- €</div>
-        <div class="stat-card">🎟️ Biglietti venduti: --</div>
-        <div class="stat-card">🚆 Treni in ritardo: --</div>
-    </div>
-    <div id="chartPlaceholder" style="margin-top: 30px; background: #e9ecef; height: 200px; border-radius: 16px; display: flex; align-items: center; justify-content: center;">📉 Grafico revenue (mock)</div>
+    <h2>📊 Statistiche Amministratore</h2>
+    <button id="refresh">Aggiorna</button>
+    <div class="stats-grid" id="stats"></div>
 </div>
 <script>
-    async function fetchStats() {
-        const res = await fetch('/api/stats');
+    async function loadStats() {
+        const res = await fetch('/api/admin/stats');
         const data = await res.json();
-        document.getElementById('statsContainer').innerHTML = `
-            <div class="stat-card">📈 Ricavi: ${data.revenue} €</div>
-            <div class="stat-card">🎟️ Biglietti: ${data.bookings}</div>
-            <div class="stat-card">🚆 Ritardi medi: 12 min</div>
+        document.getElementById('stats').innerHTML = `
+            <div class="stat-card">💰 Ricavi: ${data.revenue} €</div>
+            <div class="stat-card">🎟️ Biglietti venduti: ${data.bookings}</div>
+            <div class="stat-card">🚆 Treni in ritardo: ${data.delayedTrains}</div>
+            <div class="stat-card">👥 Utenti attivi: ${data.activeUsers}</div>
         `;
     }
-    document.getElementById('loadStats').onclick = fetchStats;
-    fetchStats();
+    document.getElementById('refresh').onclick = loadStats;
+    loadStats();
 </script>
 </body>
 </html>

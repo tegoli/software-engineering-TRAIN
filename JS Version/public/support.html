@@ -2,11 +2,10 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Supporto Clienti</title>
+    <title>Supporto</title>
     <style>
-        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
-        body { background: #f0f2f5; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: white; border-radius: 24px; padding: 28px; }
+        body { font-family: system-ui; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
         textarea, select, input, button { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; }
         button { background: #0066cc; color: white; font-weight: bold; border: none; cursor: pointer; }
     </style>
@@ -14,28 +13,31 @@
 <body>
 <div class="container">
     <h2>📞 Contatta il supporto</h2>
-    <select id="requestType">
-        <option value="REFUND">Richiesta rimborso</option>
-        <option value="INFORMATION">Informazioni</option>
-        <option value="COMPLAINT">Reclamo</option>
+    <select id="type">
+        <option value="refund">Rimborso</option>
+        <option value="information">Informazioni</option>
+        <option value="complaint">Reclamo</option>
     </select>
-    <input type="text" id="ticketRef" placeholder="Numero biglietto (se pertinente)">
-    <textarea id="message" rows="4" placeholder="Descrivi il problema..."></textarea>
-    <button id="submitSupport">Invia richiesta</button>
-    <div id="supportResult"></div>
+    <input id="ticketRef" placeholder="Numero biglietto (opzionale)">
+    <textarea id="desc" rows="4" placeholder="Descrivi il problema..."></textarea>
+    <button id="send">Invia richiesta</button>
+    <div id="result"></div>
 </div>
 <script>
-    document.getElementById('submitSupport').onclick = async () => {
-        const requestType = document.getElementById('requestType').value;
-        const ticketRef = document.getElementById('ticketRef').value;
-        const description = document.getElementById('message').value;
-        const res = await fetch('/api/support', {  // endpoint non implementato nel backend di base, ma aggiungiamo mock
+    const userId = localStorage.getItem('userId') || 1001;
+    document.getElementById('send').onclick = async () => {
+        const res = await fetch('/api/support', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ requestType, ticketRef, description })
+            body: JSON.stringify({
+                userId: parseInt(userId),
+                requestType: document.getElementById('type').value,
+                ticketRef: document.getElementById('ticketRef').value,
+                description: document.getElementById('desc').value
+            })
         });
-        // Mock di risposta perché l'API /api/support non esiste ancora, simuliamo successo
-        document.getElementById('supportResult').innerHTML = '<div class="success">✅ Richiesta inviata. Riceverai risposta via email entro 48h.</div>';
+        const data = await res.json();
+        document.getElementById('result').innerHTML = data.success ? '✅ Richiesta inviata' : '❌ Errore';
     };
 </script>
 </body>
