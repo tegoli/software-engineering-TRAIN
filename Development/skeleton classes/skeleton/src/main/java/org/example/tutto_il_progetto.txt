@@ -1,0 +1,1437 @@
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\Main.java --- 
+package org.example;
+
+//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
+// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+public class Main {
+    public static void main(String[] args) {
+        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
+        // to see how IntelliJ IDEA suggests fixing it.
+        System.out.printf("Hello and welcome!");
+
+        for (int i = 1; i <= 5; i++) {
+            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
+            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
+            System.out.println("i = " + i);
+        }
+    }
+} 
+
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\controller\AccountController.java --- 
+package org.example.controller;
+
+
+public class AccountController {
+    // UC10 – Account Management
+    public void changePassword(String oldPass, String newPass) { /* TODO */ }
+    public boolean checkActiveBookings(int userId) { return false; }
+    public void confirmDeletion() { /* TODO */ }
+    public void hardDelete(int userId) { /* TODO */ }
+    public void requestPasswordRecovery() { /* TODO */ }
+    public boolean verifyIdentity(int userId) { return false; }
+    public void sendResetLink(String email) { /* TODO */ }
+    public void noData() { /* TODO */ }
+    public void showErrorMessage() { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\controller\ApplicationInterface.java --- 
+package org.example.controller;
+
+import org.example.enums.Language;
+import org.example.model.StatisticsReport;
+import org.example.util.StatisticsFilter;
+
+public class ApplicationInterface {
+//    inserire qui attributi mancanti (da Robin)
+   public void displayDashboard(StatisticsReport stats) { /* TODO */ }
+    public void displayData(StatisticsReport data, StatisticsFilter filters) { /* TODO */ }
+    public void showError(String message) { /* TODO */ }
+    public boolean showConfirmation(String message) { return false; }
+    public void updatedUI(Language lang) { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\controller\AuthController.java --- 
+package org.example.controller;
+
+
+import org.example.model.UserProfile;
+import org.example.util.SessionToken;
+
+public class AuthController {
+    public void register(String name, String email, String password) { /* TODO */ }
+    public boolean checkEmailUnique(String email) { return false; }
+    public void createAccount(UserProfile userData) { /* TODO */ }
+    public void login(String email, String password) { /* TODO */ }
+    public boolean validateCredentials(String email, String password) { return false; }
+    public void createSession(String email) { /* TODO */ }
+    public void incrementFailedAttempts(String email) { /* TODO */ }
+    public int checkFailCount(String email) { return 0; }
+    public void lockAccount(String email) { /* TODO */ }
+    public void logout() { /* TODO */ }
+    public void terminateSession(SessionToken token) { /* TODO */ }
+    public boolean validateChange(String oldPass, String newPass) { return false; }
+    public boolean verifyComplexity(String password) { return false; }
+    public void updateCredentials(int userId, String newPass) { /* TODO */ }
+    public void triggerResetLink(String email) { /* TODO */ }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\controller\LanguageController.java --- 
+package org.example.controller;
+
+
+import org.example.enums.Language;
+
+public class LanguageController {
+    // UC15 – Change Language
+    public void changeLanguage() { /* TODO */ }
+    public String requestLanguage() { return "ITA"; }
+    public void selectLanguage(Language lang) { /* TODO */ }
+    public void revertToOriginal(Language lang) { /* TODO */ }
+    public void updateLanguage(Language lang) { /* TODO */ }
+    public void savePreference(Language lang) { /* TODO */ }
+    public boolean noData() { return false; }
+    public void showErrorMessage(String message) { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\controller\NotificationController.java --- 
+package org.example.controller;
+
+
+public class NotificationController {
+    // UC7 – Receive Notifications
+    public void reportDelay(int trainId, int delayTime) { /* TODO */ }
+    public void getAffectedUsers(int trainId) { /* TODO */ }
+    public void pushInAppAlert(int userId, String message) { /* TODO */ }
+    public void sendEmailNotification(String email, String message) { /* TODO */ }
+    public void manualInput(int ticketId) { /* TODO */ }
+    public void validateDocument(int documentId) { /* TODO */ }
+    public boolean alreadyValid(int ticketId) { return false; }
+    public void invalid(int ticketId) { /* TODO */ }
+    public void updateOccupancy(int nCoach, int nPassengers) { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\controller\ScheduleController.java --- 
+package org.example.controller;
+
+public class ScheduleController {
+    // UC13 – Shift Schedule Visualization
+    public void viewSchedule(int inspId) { /* TODO */ }
+    public void getSchedule(int inspId) { /* TODO */ }
+    public void displaySchedule(int inspId) { /* TODO */ }
+    public void showNoShift() { /* TODO */ }
+    public void refreshView() { /* TODO */ }
+    public void refresh(int inspId) { /* TODO */ }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\controller\StatisticsController.java --- 
+package org.example.controller;
+
+
+import org.example.util.StatisticsFilter;
+
+public class StatisticsController {
+    // UC14 – Statistics Visualization
+    public void viewStatistics() { /* TODO */ }
+    public void requestType() { /* TODO */ }
+    public void selectType(String type) { /* TODO */ }
+    public void retrieveData(String type, StatisticsFilter filters) { /* TODO */ }
+    public void requestFilters() { /* TODO */ }
+    public void applyFilters() { /* TODO */ }
+    public boolean noData() { return false; }
+    public void showErrorMessage(String message) { /* TODO */ }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\controller\TicketManagementController.java --- 
+package org.example.controller;
+
+
+import org.example.util.TicketChangeRequest;
+
+public class TicketManagementController {
+    public void selectTicketModify(int ticketId) { /* TODO */ }
+    public void requestModification(int ticketId) { /* TODO */ }
+    public void getTicketDetails(int ticketId) { /* TODO */ }
+    public long calculateTimeRemaining(java.time.LocalDateTime departureTime) { return 0; }
+    public boolean allowFullModification() { return false; }
+    public void restrictToTimeOnly() { /* TODO */ }
+    public void confirmChange(TicketChangeRequest newDetails) { /* TODO */ }
+    public void updateTicket(int ticketId, TicketChangeRequest newDetails) { /* TODO */ }
+    public void showErrorMessage(String message) { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\controller\TicketPurchaseController.java --- 
+package org.example.controller;
+
+import org.example.model.TrainOption;
+import org.example.util.PaymentDetails;
+
+public class TicketPurchaseController {
+    // UC4 – Purchase
+    public void selectTrainOptions() { /* TODO */ }
+    public boolean checkAvailability(TrainOption option) { return false; }
+    public double displayTotal() { return 0.0; }
+    public void confirmPayment(PaymentDetails details) { /* TODO */ }
+    public void authorize(double amount) { /* TODO */ }
+    public void saveTicket(Object data) { /* TODO */ }
+    public void showConfirmation() { /* TODO */ }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\controller\TrainSearchController.java --- 
+package org.example.controller;
+
+
+import org.example.util.SearchCriteria;
+import org.example.util.Location;
+import java.time.LocalDateTime;
+
+public class TrainSearchController {
+    public void search(SearchCriteria criteria, boolean mapOpt) { /* TODO */ }
+    public void resolve(Location coords) { /* TODO */ }
+    public void queryTrains(String stationCodes, LocalDateTime date, String travelClass) { /* TODO */ }
+    public void getDelayPredictions(String trainIds) { /* TODO */ }
+    public void displayResults(Object trainList, Object predictions) { /* TODO */ }
+    public void requestLiveBoard(String stationName) { /* TODO */ }
+    public void refreshData() { /* TODO */ }
+    public void requestTrainStatus(int trainId) { /* TODO */ }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\controller\ValidationController.java --- 
+package org.example.controller;
+
+public class ValidationController {
+    // UC12 – Inspector Operations
+    public void accessSystem() { /* TODO */ }
+    public void selectValidation() { /* TODO */ }
+    public void requestData(int ticketId) { /* TODO */ }
+    public void ticketData(int ticketId) { /* TODO */ }
+    public void manualInput(int ticketId) { /* TODO */ }
+    public void validateDocument(int documentId) { /* TODO */ }
+    public boolean alreadyValid(int ticketId) { return false; }
+    public boolean valid(int ticketId) { return false; }
+    public void invalid(int ticketId) { /* TODO */ }
+    public void updateOccupancy() { /* TODO */ }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\database\TicketDatabase.java --- 
+package org.example.database;
+
+
+import org.example.util.TicketChangeRequest;
+
+public class TicketDatabase {
+    public void saveTicket(Object data) { /* TODO */ }
+    public void getTicketDetails(int ticketId) { /* TODO */ }
+    public void updateTicket(int ticketId, TicketChangeRequest newDetails) { /* TODO */ }
+    public void getAffectedUsers(int trainId) { /* TODO */ }
+    public void retrieveData(String type) { /* TODO */ }
+    public void requestFilters() { /* TODO */ }
+    public void applyFilters(Object filters) { /* TODO */ }
+    public boolean noData() { return false; }
+    public void showErrorMessage(String message) { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\database\TrainDatabase.java --- 
+package org.example.database;
+
+
+import org.example.model.TrainOption;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+public class TrainDatabase {
+    // UC4, UC1
+    public boolean checkAvailability(TrainOption option) { return false; }
+    public void queryTrainStations(String stationCodes, LocalDate date, LocalTime time, String travelClass) { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\database\UserDatabase.java --- 
+package org.example.database;
+
+
+import org.example.model.UserProfile;
+import org.example.util.StatisticsFilter;
+
+public class UserDatabase {
+    // UC2, UC10, UC15, UC14
+    public void createAccount(UserProfile userData) { /* TODO */ }
+    public void updateCredentials(int userId, String newPass) { /* TODO */ }
+    public void hardDelete(int userId) { /* TODO */ }
+    public void savePreference(int userId, String lang) { /* TODO */ }
+    public void retrieveData(String type) { /* TODO */ }
+    public void requestFilters() { /* TODO */ }
+    public void applyFilters(StatisticsFilter filters) { /* TODO */ }
+    public boolean noData() { return false; }
+    public void showErrorMessage() { /* TODO */ }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\AccountStatus.java --- 
+package org.example.enums;
+public enum AccountStatus {
+    ACTIVE, BLOCKED, DELETED
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\BoardEntryStatus.java --- 
+package org.example.enums;
+
+public enum BoardEntryStatus {
+    ON_TIME, DELAYED, CANCELLED, DEPARTED, ARRIVED
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\BoardType.java --- 
+package org.example.enums;
+
+
+public enum BoardType {
+    DEPARTURES, ARRIVALS
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\ChangeType.java --- 
+package org.example.enums;
+
+
+public enum ChangeType {
+    FULL_MODIFICATION, TIME_ONLY
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\DocumentStatus.java --- 
+package org.example.enums;
+
+public enum DocumentStatus {
+    ACTIVE, USED, EXPIRED, CANCELLED
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\Language.java --- 
+package org.example.enums;
+public enum Language {
+    ITALIAN, ENGLISH, GERMAN
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\NotificationType.java --- 
+package org.example.enums;
+
+public enum NotificationType {
+    DELAY_ALERT, INFO, PROMO, PURCHASE_CONFIRMATION, ROUTE_CHANGE
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\PassengerType.java --- 
+package org.example.enums;
+public enum PassengerType {
+    ADULT, CHILD
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\PaymentStatus.java --- 
+package org.example.enums;
+
+
+public enum PaymentStatus {
+    PENDING, COMPLETED, FAILED, REFUNDED
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\ReservationStatus.java --- 
+package org.example.enums;
+
+public enum ReservationStatus {
+    CONFIRMED, CANCELLED
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\SeatStatus.java --- 
+package org.example.enums;
+
+public enum SeatStatus {
+    FREE, RESERVED, OCCUPIED
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\SupportRequestStatus.java --- 
+package org.example.enums;
+
+
+public enum SupportRequestStatus {
+    OPEN, IN_PROGRESS, CLOSED
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\SupportRequestType.java --- 
+package org.example.enums;
+
+public enum SupportRequestType {
+    REFUND, INFORMATION, COMPLAINT, OTHER
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\TrainRunStatus.java --- 
+package org.example.enums;
+
+public enum TrainRunStatus {
+    SCHEDULED, DELAYED, COMPLETED, CANCELLED
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\TrainType.java --- 
+package org.example.enums;
+
+public enum TrainType {
+    REGIONALE, REGIONALE_VELOCE, INTERCITY, FRECCIAROSSA
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\enums\TravelClass.java --- 
+package org.example.enums;
+
+public enum TravelClass {
+    STANDARD, BUSINESS
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\external\LoginAPI.java --- 
+package org.example.external;
+
+
+public class LoginAPI {
+    public boolean checkEmailUnique(String email) { return false; }
+    public boolean validateCredentials(String email, String password) { return false; }
+    public void createSession(Object userData) { /* TODO */ }
+    public void terminateSession(Object token) { /* TODO */ }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\external\MappingAPI.java --- 
+package org.example.external;
+
+import org.example.util.Location;
+
+public class MappingAPI {
+    public void resolve(Location coords) { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\external\PaymentGatewayAPI.java --- 
+package org.example.external;
+
+
+public class PaymentGatewayAPI {
+    public boolean authorize(double amount) { return true; }  // mock
+    public void refund(double amount) { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\AdditionalReservation.java --- 
+package org.example.model;
+
+
+import org.example.enums.ReservationStatus;
+
+public abstract class AdditionalReservation {
+    protected int reservationId;
+    protected ReservationStatus status;
+    protected double price;
+
+    // UC4 – Purchase
+    public void confirmReservation() { /* TODO */ }
+
+    // UC9 – Ticket Management
+    public void cancelReservation() { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\AnonymousUser.java --- 
+package org.example.model;
+
+import org.example.util.SearchCriteria;
+
+public class AnonymousUser extends User {
+    // Use Case: UC1 – Search Train (FR1, FR11)
+    public void search(SearchCriteria criteria, boolean mapOpt) { /* TODO */ }
+    public void selectStation(String stationName) { /* TODO */ }
+
+    // Use Case: UC2 – Authentication (FR12)
+    public void register(String name, String surname, String email, String password) { /* TODO */ }
+
+
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\BoardEntry.java --- 
+package org.example.model;
+
+import org.example.enums.BoardEntryStatus;
+import java.time.LocalDateTime;
+
+public class BoardEntry {
+    private LocalDateTime scheduledTime;
+    private LocalDateTime estimatedTime;
+    private String platform;
+    private BoardEntryStatus entryStatus;
+
+    public LocalDateTime getScheduledTime() {
+        return scheduledTime;
+    }
+
+    public void setScheduledTime(LocalDateTime scheduledTime) {
+        this.scheduledTime = scheduledTime;
+    }
+
+    public LocalDateTime getEstimatedTime() {
+        return estimatedTime;
+    }
+
+    public void setEstimatedTime(LocalDateTime estimatedTime) {
+        this.estimatedTime = estimatedTime;
+    }
+
+    public String getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(String platform) {
+        this.platform = platform;
+    }
+
+    public BoardEntryStatus getEntryStatus() {
+        return entryStatus;
+    }
+
+    public void setEntryStatus(BoardEntryStatus entryStatus) {
+        this.entryStatus = entryStatus;
+    }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\BookingHistory.java --- 
+package org.example.model;
+
+
+public class BookingHistory {
+    private int historyId;
+
+    public int getHistoryId() {
+        return historyId;
+    }
+
+    public void setHistoryId(int historyId) {
+        this.historyId = historyId;
+    }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\Coach.java --- 
+package org.example.model;
+
+
+import org.example.enums.TravelClass;
+
+public class Coach {
+    private int coachNumber;
+    private TravelClass coachClass;
+    private int maxPassengers;
+    private int currentPassengers;
+
+    // UC12 – Inspector Operations
+    public void updateOccupancy(int nPassengers) { this.currentPassengers = nPassengers; }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\CustomerSupportAgent.java --- 
+package org.example.model;
+
+
+
+public class CustomerSupportAgent extends RegisteredUser {
+    private String staffCode;
+
+    // UC11 – Customer Support
+    public void viewUserProfile(int userId) { /* TODO */ }
+    public void manageSupportRequest(int requestId) { /* TODO */ }
+    public void viewLoyaltyPointsBalance(int userId) { /* TODO */ }
+
+    // UC13 – Shift Schedule
+    public void viewSchedule(int staffId) { /* TODO */ }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\Dashboard.java --- 
+package org.example.model;
+
+
+public class Dashboard {
+    private int dashboardId;
+    private String title;
+
+    public Dashboard(int dashboardId, String title) {
+        this.dashboardId = dashboardId;
+        this.title = title;
+    }
+
+    public int getDashboardId() {
+        return dashboardId;
+    }
+
+    public void setDashboardId(int dashboardId) {
+        this.dashboardId = dashboardId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\DelayEstimate.java --- 
+package org.example.model;
+
+
+public class DelayEstimate {
+    private int estimateId;
+    private int delayMinutes;
+    private double confidence;
+
+    // UC5 – Check Train Status
+    public int getDelayPrediction(int trainId) { return this.delayMinutes; }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\Notification.java --- 
+package org.example.model;
+
+
+import org.example.enums.NotificationType;
+import java.time.LocalDateTime;
+
+public class Notification {
+    private int notificationId;
+    private String message;
+    private LocalDateTime notificationDate;
+    private NotificationType notificationType;
+
+    // UC7 – Receive Notifications
+    public void pushInAppAlert() { /* TODO */ }
+    public void sendEmailNotification() { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\OccupacyPanel.java --- 
+package org.example.model;
+
+public class OccupacyPanel {
+    private int panelId;
+
+    public OccupacyPanel(int panelId) {
+        this.panelId = panelId;
+    }
+
+    public int getPanelId() {
+        return panelId;
+    }
+
+    public void setPanelId(int panelId) {
+        this.panelId = panelId;
+    }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\Passenger.java --- 
+package org.example.model;
+
+
+import org.example.util.SearchCriteria;
+import org.example.util.PaymentDetails;
+import org.example.util.TicketChangeRequest;
+
+public class Passenger extends RegisteredUser {
+    private int loyaltyPoints;
+
+    // UC4 – Purchase
+    public void selectTrainOptions(SearchCriteria criteria) { /* TODO */ }
+    public void confirmPayment(PaymentDetails details) { /* TODO */ }
+
+    // UC9 – Ticket Management
+    public void selectTicketModify(int ticketId) { /* TODO */ }
+    public void confirmChange(TicketChangeRequest newDetails) { /* TODO */ }
+
+    // UC5 – Check Train Status
+    public void requestTrainStatus(int trainId) { /* TODO */ }
+
+    // UC11 – Customer Support
+    public void contactCustomerService(String text) { /* TODO */ }
+
+    // UC8 – Dashboard
+    public void viewBookingHistory() { /* TODO */ }
+    public void viewLoyaltyPointsBalance() { /* TODO */ }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\PaymentTransaction.java --- 
+package org.example.model;
+
+
+import org.example.enums.PaymentStatus;
+import java.time.LocalDateTime;
+
+public class PaymentTransaction {
+    private int paymentId;
+    private double amount;
+    private LocalDateTime paymentDate;
+    private PaymentStatus paymentStatus;
+
+    // UC4 – Purchase
+    public void authorize(double amount) { /* TODO */ }
+
+    // UC11 – Customer Support
+    public void refund(double amount) { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\PredictionSystem.java --- 
+package org.example.model;
+
+
+public class PredictionSystem {
+    // UC1 – Search Train
+    public String getDelayPrediction(String trainIds) { return null; }
+
+    // UC5 – Check Train Status
+    public int getDelayEstimate(int trainId) { return 0; }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\RailwayAdministrator.java --- 
+package org.example.model;
+
+
+import java.time.LocalDate;
+
+public class RailwayAdministrator extends RegisteredUser {
+    private String adminCode;
+
+    // UC3 – Admin Area Access
+    public void requestAdminArea() { /* TODO */ }
+
+    // UC14 – Statistics Visualization
+    public void loadStatistics() { /* TODO */ }
+    public void applyFilters(LocalDate date, String trainLine) { /* TODO */ }
+    public void viewStatistics() { /* TODO */ }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\RegisteredUser.java --- 
+package org.example.model;
+
+import org.example.enums.AccountStatus;
+
+
+public class RegisteredUser extends User {
+    protected String passwordHash;
+    protected AccountStatus accountStatus;
+    protected int failedLoginAttempts;
+
+    // UC2 – Authentication
+    public void login(String email, String password) { /* TODO */ }
+    public void logout() { /* TODO */ }
+
+    // UC10 – Account Management
+    public void changePassword(String oldPass, String newPass) { /* TODO */ }
+    public void requestPasswordRecovery(String email) { /* TODO */ }
+    public void eliminateAccount() { /* TODO */ }
+
+    // UC8 / UC9 – Dashboard / Ticket Management
+    public void viewActiveDocuments() { /* TODO */ }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\Route.java --- 
+package org.example.model;
+
+public class Route {
+    private int routeId;
+    private String routeName;
+
+    // UC1 – Search Train
+    public int calculateDuration() { return 0; }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\Seat.java --- 
+package org.example.model;
+
+
+import org.example.enums.SeatStatus;
+
+public class Seat {
+    private String seatNumber;
+    private SeatStatus seatStatus;
+
+    // UC4 – Purchase
+    public void reserve() { this.seatStatus = SeatStatus.RESERVED; }
+
+    // UC12 – Inspector Operations
+    public void markOccupied() { this.seatStatus = SeatStatus.OCCUPIED; }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\Station.java --- 
+package org.example.model;
+
+
+public class Station {
+    private int stationId;
+    private String name;
+    private String city;
+    private String code;
+
+    // UC6 – Boards Visualization
+    public void displayBoard(StationBoard data) { /* TODO */ }
+
+    public int getStationId() {
+        return stationId;
+    }
+
+    public void setStationId(int stationId) {
+        this.stationId = stationId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\StationBoard.java --- 
+package org.example.model;
+
+
+import org.example.enums.BoardType;
+import java.time.LocalDateTime;
+
+public class StationBoard {
+    private int boardId;
+    private BoardType boardType;
+    private LocalDateTime lastUpdate;
+
+    // UC6 – Boards Visualization
+    public void updateDisplay() { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\StatisticsReport.java --- 
+package org.example.model;
+
+public class StatisticsReport {
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\Stop.java --- 
+package org.example.model;
+
+
+import java.time.LocalDateTime;
+
+public class Stop {
+    private int stopOrder;
+    private LocalDateTime scheduledArrival;
+    private LocalDateTime scheduledDeparture;
+    private LocalDateTime estimatedArrival;
+    private LocalDateTime estimatedDeparture;
+    private String trackNumber;
+
+    public int getStopOrder() {
+        return stopOrder;
+    }
+
+    public void setStopOrder(int stopOrder) {
+        this.stopOrder = stopOrder;
+    }
+
+    public LocalDateTime getScheduledArrival() {
+        return scheduledArrival;
+    }
+
+    public void setScheduledArrival(LocalDateTime scheduledArrival) {
+        this.scheduledArrival = scheduledArrival;
+    }
+
+    public LocalDateTime getScheduledDeparture() {
+        return scheduledDeparture;
+    }
+
+    public void setScheduledDeparture(LocalDateTime scheduledDeparture) {
+        this.scheduledDeparture = scheduledDeparture;
+    }
+
+    public LocalDateTime getEstimatedArrival() {
+        return estimatedArrival;
+    }
+
+    public void setEstimatedArrival(LocalDateTime estimatedArrival) {
+        this.estimatedArrival = estimatedArrival;
+    }
+
+    public LocalDateTime getEstimatedDeparture() {
+        return estimatedDeparture;
+    }
+
+    public void setEstimatedDeparture(LocalDateTime estimatedDeparture) {
+        this.estimatedDeparture = estimatedDeparture;
+    }
+
+    public String getTrackNumber() {
+        return trackNumber;
+    }
+
+    public void setTrackNumber(String trackNumber) {
+        this.trackNumber = trackNumber;
+    }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\Subscription.java --- 
+package org.example.model;
+
+
+import java.time.LocalDate;
+
+public class Subscription extends TravelDocument {
+    private int subscriptionId;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private int durationDays;
+
+    // UC4 – Purchase (rinnovo)
+    public void renew(int durationDays) { /* TODO */ }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\SupportRequest.java --- 
+package org.example.model;
+
+
+import org.example.enums.SupportRequestType;
+import org.example.enums.SupportRequestStatus;
+import java.time.LocalDateTime;
+
+public class SupportRequest {
+    private int requestId;
+    private SupportRequestType requestType;
+    private String description;
+    private SupportRequestStatus status;
+    private LocalDateTime creationDate;
+
+    // UC11 – Customer Support
+    public void submit() { /* TODO */ }
+    public void close() { this.status = SupportRequestStatus.CLOSED; }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\Ticket.java --- 
+package org.example.model;
+
+
+import org.example.enums.PassengerType;
+import org.example.util.TicketChangeRequest;
+
+import java.time.LocalDateTime;
+
+public class Ticket extends TravelDocument {
+    private int ticketId;
+    private LocalDateTime departureTime;
+    private LocalDateTime arrivalTime;
+    private PassengerType passengerType;
+
+    // UC9 – Ticket Management
+    public long calculateTimeRemaining(LocalDateTime currentTime) { return 0; }
+    public boolean allowFullModification() { return false; }
+    public void restrictToTimeOnly() { /* TODO */ }
+    public void updateTicket(TicketChangeRequest newDetails) { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\TicketInspector.java --- 
+package org.example.model;
+
+
+public class TicketInspector extends RegisteredUser {
+    private String inspectorCode;
+
+    // UC12 – Inspector Operations
+    public void accessSystem() { /* TODO */ }
+    public void selectValidation() { /* TODO */ }
+    public void manualInput(int ticketId) { /* TODO */ }
+    public void ticketData(int ticketId) { /* TODO */ }
+    public void selectTrackOccupancy() { /* TODO */ }
+    public void updateOccupancy(int coachNumber, int nPassengers) { /* TODO */ }
+
+    // UC13 – Shift Schedule Visualization
+    public void viewSchedule(int inputId) { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\Train.java --- 
+package org.example.model;
+
+
+import org.example.enums.TrainType;
+import org.example.enums.TravelClass;
+
+public class Train {
+    private int trainId;
+    private String trainCode;
+    private TrainType trainType;
+    private TravelClass serviceClass;
+
+    // UC5 – Check Train Status
+    public void getLiveLocation(int trainId) { /* TODO */ }
+    public int getDelayEstimate(int trainId) { return 0; }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\TrainOption.java --- 
+package org.example.model;
+
+
+public class TrainOption {
+    private int optionId;
+    private double totalPrice;
+    private int availableSeats;
+
+    // UC1 – Search Train
+    public double displayTotal() { return this.totalPrice; }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\TrainRun.java --- 
+package org.example.model;
+
+
+import org.example.enums.TrainRunStatus;
+import java.time.LocalDate;
+
+public class TrainRun {
+    private int runId;
+    private LocalDate departureDate;
+    private TrainRunStatus status;
+    private int currentDelayMinutes;
+
+    // UC5 – Check Train Status
+    public void reportDelay(int trainId, int delayTime) { /* TODO */ }
+
+    // UC5 / UC6 – Refresh data
+    public void refreshData() { /* TODO */ }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\TrainStatus.java --- 
+package org.example.model;
+
+
+import org.example.util.Location;
+
+import java.time.LocalDateTime;
+
+public class TrainStatus {
+    private LocalDateTime scheduledDeparture;
+    private LocalDateTime estimatedDeparture;
+    private LocalDateTime scheduledArrival;
+    private LocalDateTime estimatedArrival;
+    private int delayMinutes;
+
+    // UC5 – Check Train Status
+    public void displayVisualTimeline(Location location, DelayEstimate delay) { /* TODO */ }
+
+    public LocalDateTime getScheduledDeparture() {
+        return scheduledDeparture;
+    }
+
+    public void setScheduledDeparture(LocalDateTime scheduledDeparture) {
+        this.scheduledDeparture = scheduledDeparture;
+    }
+
+    public LocalDateTime getEstimatedDeparture() {
+        return estimatedDeparture;
+    }
+
+    public void setEstimatedDeparture(LocalDateTime estimatedDeparture) {
+        this.estimatedDeparture = estimatedDeparture;
+    }
+
+    public LocalDateTime getScheduledArrival() {
+        return scheduledArrival;
+    }
+
+    public void setScheduledArrival(LocalDateTime scheduledArrival) {
+        this.scheduledArrival = scheduledArrival;
+    }
+
+    public LocalDateTime getEstimatedArrival() {
+        return estimatedArrival;
+    }
+
+    public void setEstimatedArrival(LocalDateTime estimatedArrival) {
+        this.estimatedArrival = estimatedArrival;
+    }
+
+    public int getDelayMinutes() {
+        return delayMinutes;
+    }
+
+    public void setDelayMinutes(int delayMinutes) {
+        this.delayMinutes = delayMinutes;
+    }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\TravelDocument.java --- 
+package org.example.model;
+
+import org.example.enums.DocumentStatus;
+import java.time.LocalDateTime;
+
+public abstract class TravelDocument {
+    protected int documentId;
+    protected LocalDateTime issueDate;
+    protected double price;
+    protected DocumentStatus status;
+    protected String qrCode;
+
+    // UC12 – Inspector Operations
+    public void validate() { /* TODO */ }
+
+    // UC9 / UC12
+    public boolean isActive(LocalDateTime currentDate) { return false; }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\TravelDocumentSummary.java --- 
+package org.example.model;
+
+
+public class TravelDocumentSummary {
+    private int activeCount;
+
+    public int getActiveCount() {
+        return activeCount;
+    }
+
+    public void setActiveCount(int activeCount) {
+        this.activeCount = activeCount;
+    }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\User.java --- 
+package org.example.model;
+
+import org.example.enums.Language;
+
+public abstract class User {
+    protected int userId;
+    protected String name;
+    protected String surname;
+    protected String email;
+    protected Language preferredLanguage;
+
+    // Use Case: UC15 – Change Language
+    public void changeLanguage(Language lang) {
+        this.preferredLanguage = lang;
+        // TODO
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Language getPreferredLanguage() {
+        return preferredLanguage;
+    }
+
+    public void setPreferredLanguage(Language preferredLanguage) {
+        this.preferredLanguage = preferredLanguage;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", email='" + email + '\'' +
+                ", preferredLanguage=" + preferredLanguage +
+                '}';
+    }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\UserProfile.java --- 
+package org.example.model;
+
+
+public class UserProfile {
+    private int profileId;
+
+    public int getProfileId() {
+        return profileId;
+    }
+
+    public void setProfileId(int profileId) {
+        this.profileId = profileId;
+    }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\model\ValidationPanel.java --- 
+package org.example.model;
+
+
+public class ValidationPanel {
+    private int panelId;
+
+    public int getPanelId() {
+        return panelId;
+    }
+
+    public void setPanelId(int panelId) {
+        this.panelId = panelId;
+    }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\util\Location.java --- 
+package org.example.util;
+
+
+public class Location {
+    private double lat;
+    private double lon;
+
+    public double getLat() {
+        return lat;
+    }
+
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public double getLon() {
+        return lon;
+    }
+
+    public void setLon(double lon) {
+        this.lon = lon;
+    }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\util\PaymentDetails.java --- 
+package org.example.util;
+
+
+
+public class PaymentDetails {
+    private String paymentMethod;       // es. "Visa", "PayPal"
+    private String tokenizedReference;  // riferimento temporaneo fornito dal front-end
+
+    public PaymentDetails() {}
+
+    public PaymentDetails(String paymentMethod, String tokenizedReference) {
+        this.paymentMethod = paymentMethod;
+        this.tokenizedReference = tokenizedReference;
+    }
+
+
+    public boolean validate() {
+        return paymentMethod != null && !paymentMethod.isEmpty()
+                && tokenizedReference != null && !tokenizedReference.isEmpty();
+    }
+
+    // getter e setter
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+    public String getTokenizedReference() { return tokenizedReference; }
+    public void setTokenizedReference(String tokenizedReference) { this.tokenizedReference = tokenizedReference; }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\util\PaymentResult.java --- 
+package org.example.util;
+
+
+public class PaymentResult {
+    private boolean authorized;
+    private String transactionCode;
+    private String message;
+
+
+    public boolean isAuthorized() { return authorized; }
+    public void setAuthorized(boolean authorized) { this.authorized = authorized; }
+    public String getTransactionCode() { return transactionCode; }
+    public void setTransactionCode(String transactionCode) { this.transactionCode = transactionCode; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\util\SearchCriteria.java --- 
+package org.example.util;
+
+
+import org.example.enums.TrainType;
+import org.example.enums.TravelClass;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+public class SearchCriteria {
+    private String departureStationName;
+    private String arrivalStationName;
+    private LocalDate date;
+    private LocalTime time;
+    private TrainType trainType;
+    private TravelClass travelClass;
+    private int passengerCount;
+
+    public boolean validate() { return true; }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\util\SessionToken.java --- 
+package org.example.util;
+
+import java.time.LocalDateTime;
+
+public class SessionToken {
+    private String tokenValue;
+    private LocalDateTime expirationTime;
+
+    // UC2 – Authentication
+    public boolean isExpired(LocalDateTime currentTime) {
+        return currentTime.isAfter(expirationTime);
+    }
+
+
+    public String getTokenValue() { return tokenValue; }
+    public void setTokenValue(String tokenValue) { this.tokenValue = tokenValue; }
+    public LocalDateTime getExpirationTime() { return expirationTime; }
+    public void setExpirationTime(LocalDateTime expirationTime) { this.expirationTime = expirationTime; }
+} 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\util\StatisticsFilter.java --- 
+package org.example.util;
+
+
+import java.time.LocalDate;
+
+public class StatisticsFilter {
+    private LocalDate date;
+    private String trainLine;
+    private String type;
+
+
+    public LocalDate getDate() { return date; }
+    public void setDate(LocalDate date) { this.date = date; }
+    public String getTrainLine() { return trainLine; }
+    public void setTrainLine(String trainLine) { this.trainLine = trainLine; }
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\util\TicketChangeRequest.java --- 
+package org.example.util;
+
+
+
+import org.example.enums.ChangeType;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+
+/**
+ * Rappresenta la richiesta di modifica di un biglietto già acquistato.
+ * Utilizzata in UC9 – Ticket Management.
+ */
+public class TicketChangeRequest {
+    private LocalDate newDate;
+    private LocalTime newTime;
+    private ChangeType changeType;
+
+    public TicketChangeRequest() {}
+
+    public TicketChangeRequest(LocalDate newDate, LocalTime newTime, ChangeType changeType) {
+        this.newDate = newDate;
+        this.newTime = newTime;
+        this.changeType = changeType;
+    }
+
+
+    public boolean validateAgainstThreshold(LocalDateTime departureTime) {
+        // TODO: implementare la logica (es. se >24h full mod, altrimenti solo time)
+        return true;
+    }
+
+    public LocalDate getNewDate() { return newDate; }
+    public void setNewDate(LocalDate newDate) { this.newDate = newDate; }
+    public LocalTime getNewTime() { return newTime; }
+    public void setNewTime(LocalTime newTime) { this.newTime = newTime; }
+    public ChangeType getChangeType() { return changeType; }
+    public void setChangeType(ChangeType changeType) { this.changeType = changeType; }
+}
+ 
+.
+--- C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\Development\skeleton classes\skeleton\src\main\java\org\example\util\ValidationResult.java --- 
+package org.example.util;
+
+
+public class ValidationResult {
+    private boolean valid;
+    private boolean alreadyValidated;
+    private String message;
+
+    public boolean isValid() { return valid; }
+    public void setValid(boolean valid) { this.valid = valid; }
+    public boolean isAlreadyValidated() { return alreadyValidated; }
+    public void setAlreadyValidated(boolean alreadyValidated) { this.alreadyValidated = alreadyValidated; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+} 
+.
