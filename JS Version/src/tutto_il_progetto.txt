@@ -1,0 +1,2631 @@
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\AccountController.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:50             2'483 AccountController.js
+               1 File(s)          2'483 bytes
+               0 Dir(s)  120'227'799'040 bytes free
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import crypto from 'crypto';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DB_PATH = path.join(__dirname, '../../database/database.json');
+
+function readDB() {
+    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+}
+function writeDB(data) {
+    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+}
+function hashPassword(pwd) {
+    return crypto.createHash('sha256').update(pwd).digest('hex');
+}
+
+export class AccountController {
+    /**
+     * UC10 - Change password (FR29)
+     * @param {Object} req - body: { oldPassword, newPassword }
+     * @param {Object} res
+     */
+    static async changePassword(req, res) {
+        const { oldPassword, newPassword } = req.body;
+        const userId = req.user.userId;
+        const db = readDB();
+        const user = db.users.find(u => u.userId === userId);
+        if (!user || user.passwordHash !== hashPassword(oldPassword)) {
+            return res.status(401).json({ success: false, message: 'Password attuale errata' });
+        }
+        if (newPassword.length < 8) {
+            return res.status(400).json({ success: false, message: 'La nuova password deve essere lunga almeno 8 caratteri' });
+        }
+        user.passwordHash = hashPassword(newPassword);
+        writeDB(db);
+        res.json({ success: true, message: 'Password modificata con successo' });
+    }
+
+    /**
+     * UC10 - Delete account (FR27)
+     * @param {Object} req
+     * @param {Object} res
+     */
+    static async deleteAccount(req, res) {
+        const userId = req.user.userId;
+        const db = readDB();
+        const userIndex = db.users.findIndex(u => u.userId === userId);
+        if (userIndex === -1) return res.status(404).json({ success: false, message: 'Utente non trovato' });
+        // Controlla se ci sono biglietti attivi (NFR27)
+        const activeTickets = db.tickets.some(t => t.userId === userId && t.status === 'active');
+        if (activeTickets) {
+            return res.status(400).json({ success: false, message: 'Non puoi eliminare l\'account con biglietti attivi' });
+        }
+        db.users.splice(userIndex, 1);
+        // Anonimizza i ticket storici (GDPR)
+        db.tickets.filter(t => t.userId === userId).forEach(t => t.userId = null);
+        writeDB(db);
+        res.json({ success: true, message: 'Account eliminato' });
+    }
+} 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\ApplicationInterface.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  22:51               378 ApplicationInterface.js
+               1 File(s)            378 bytes
+               0 Dir(s)  120'227'794'944 bytes free
+export class ApplicationInterface {
+    displayDashboard(stats) { console.log('Dashboard mostrata', stats); }
+    displayData(data, filters) { console.log('Dati filtrati', data); }
+    showError(message) { console.error(message); }
+    showConfirmation(message) { return confirm(message); } // solo browser
+    updatedUI(lang) { console.log(`UI aggiornata a ${lang}`); }
+} 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\AuthController.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:49             4'469 AuthController.js
+               1 File(s)          4'469 bytes
+               0 Dir(s)  120'227'794'944 bytes free
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DB_PATH = path.join(__dirname, '../../database/database.json');
+
+function readDB() {
+    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+}
+function writeDB(data) {
+    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+}
+function hashPassword(pwd) {
+    return crypto.createHash('sha256').update(pwd).digest('hex');
+}
+function generateToken() {
+    return crypto.randomBytes(32).toString('hex');
+}
+
+// Session store (in produzione usare Redis)
+const sessions = new Map();
+
+export class AuthController {
+    /**
+     * UC2 - Registrazione nuovo utente (FR12)
+     * @param {Object} req - Express request
+     * @param {Object} res - Express response
+     */
+    static async register(req, res) {
+        const { name, surname, email, password } = req.body;
+        const db = readDB();
+        if (db.users.find(u => u.email === email)) {
+            return res.status(400).json({ success: false, message: 'Email già registrata' });
+        }
+        if (!password || password.length < 8) {
+            return res.status(400).json({ success: false, message: 'Password minima 8 caratteri' });
+        }
+        const newId = Math.max(...db.users.map(u => u.userId)) + 1;
+        const newUser = {
+            userId: newId,
+            name, surname, email,
+            passwordHash: hashPassword(password),
+            role: 'passenger',
+            preferredLanguage: 'it',
+            loyaltyPoints: 0,
+            failedLoginAttempts: 0,
+            accountStatus: 'active'
+        };
+        db.users.push(newUser);
+        writeDB(db);
+        res.json({ success: true, message: 'Registrazione completata' });
+    }
+
+    /**
+     * UC2 - Login (FR28)
+     * @param {Object} req - Express request
+     * @param {Object} res - Express response
+     */
+    static async login(req, res) {
+        const { email, password } = req.body;
+        const db = readDB();
+        const user = db.users.find(u => u.email === email);
+        if (!user || user.passwordHash !== hashPassword(password)) {
+            // Extension: failed attempts (NFR20)
+            if (user) {
+                user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+                if (user.failedLoginAttempts >= 5) {
+                    user.accountStatus = 'blocked';
+                }
+                writeDB(db);
+            }
+            return res.status(401).json({ success: false, message: 'Credenziali errate' });
+        }
+        if (user.accountStatus !== 'active') {
+            return res.status(401).json({ success: false, message: 'Account bloccato' });
+        }
+        // Reset tentativi falliti
+        user.failedLoginAttempts = 0;
+        writeDB(db);
+
+        const token = generateToken();
+        sessions.set(token, { userId: user.userId, role: user.role });
+        res.json({
+            success: true,
+            token,
+            user: { id: user.userId, name: user.name, role: user.role }
+        });
+    }
+
+    /**
+     * UC2 - Logout (FR34)
+     * @param {Object} req - Express request
+     * @param {Object} res - Express response
+     */
+    static async logout(req, res) {
+        const auth = req.headers.authorization;
+        if (auth && auth.startsWith('Bearer ')) {
+            const token = auth.slice(7);
+            sessions.delete(token);
+        }
+        res.json({ success: true });
+    }
+
+    /**
+     * Validazione token (middleware)
+     */
+    static authenticate(req, res, next) {
+        const auth = req.headers.authorization;
+        if (!auth || !auth.startsWith('Bearer ')) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        const token = auth.slice(7);
+        const session = sessions.get(token);
+        if (!session) {
+            return res.status(401).json({ error: 'Invalid token' });
+        }
+        req.user = session;
+        next();
+    }
+
+    /**
+     * Middleware per controllo ruolo
+     */
+    static requireRole(role) {
+        return (req, res, next) => {
+            if (req.user.role !== role) {
+                return res.status(403).json({ error: `Forbidden: ${role} role required` });
+            }
+            next();
+        };
+    }
+} 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\LanguageController.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:50               980 LanguageController.js
+               1 File(s)            980 bytes
+               0 Dir(s)  120'227'786'752 bytes free
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DB_PATH = path.join(__dirname, '../../database/database.json');
+
+function readDB() {
+    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+}
+function writeDB(data) {
+    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+}
+
+export class LanguageController {
+    /**
+     * UC15 - Change language (FR7)
+     * @param {Object} req - body: { language } (ita, eng, ger)
+     * @param {Object} res
+     */
+    static async setLanguage(req, res) {
+        const { language } = req.body;
+        const userId = req.user.userId;
+        const db = readDB();
+        const user = db.users.find(u => u.userId === userId);
+        if (user) {
+            user.preferredLanguage = language;
+            writeDB(db);
+        }
+        res.json({ success: true, currentLanguage: language });
+    }
+} 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\NotificationController.js === 
+ Volume Serial Number is 0844-3CEC
+05.06.2026  00:06             1'861 NotificationController.js
+               1 File(s)          1'861 bytes
+               0 Dir(s)  120'227'786'752 bytes free
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DB_PATH = path.join(__dirname, '../../database/database.json');
+
+function readDB() { return JSON.parse(fs.readFileSync(DB_PATH, 'utf8')); }
+function writeDB(data) { fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2)); }
+
+export class NotificationController {
+    /**
+     * UC7 - Crea notifiche per tutti i passeggeri con biglietto attivo sul treno in ritardo.
+     * @param {number} runId
+     * @param {number} delayMinutes
+     */
+    static async notifyDelay(runId, delayMinutes) {
+        const db = readDB();
+        const affectedTickets = db.tickets.filter(t => t.runId === runId && t.status === 'active');
+        const userIds = [...new Set(affectedTickets.map(t => t.userId))];
+        const now = new Date().toISOString();
+        for (const userId of userIds) {
+            const newId = Math.max(...db.notifications.map(n => n.notificationId)) + 1;
+            db.notifications.push({
+                notificationId: newId,
+                userId,
+                message: `Il treno della corsa ${runId} ha un ritardo di ${delayMinutes} minuti.`,
+                type: 'delay_alert',
+                date: now,
+                read: false
+            });
+        }
+        writeDB(db);
+        // In un'app reale qui si invierebbe anche email (NFR23)
+    }
+
+    /**
+     * UC7 - Recupera le notifiche dell'utente autenticato.
+     * @param {Object} req
+     * @param {Object} res
+     */
+    static async getUserNotifications(req, res) {
+        const userId = req.user.userId;
+        const db = readDB();
+        const userNotifs = db.notifications.filter(n => n.userId === userId);
+        res.json({ notifications: userNotifs });
+    }
+} 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\ScheduleController.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:50             1'503 ScheduleController.js
+               1 File(s)          1'503 bytes
+               0 Dir(s)  120'227'786'752 bytes free
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DB_PATH = path.join(__dirname, '../../database/database.json');
+
+function readDB() {
+    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+}
+
+export class ScheduleController {
+    /**
+     * UC13 - Shift schedule display (FR25) per ticket inspector
+     * @param {Object} req - params: inspectorId
+     * @param {Object} res
+     */
+    static async getSchedule(req, res) {
+        const inspectorId = parseInt(req.params.inspectorId);
+        if (req.user.userId !== inspectorId && req.user.role !== 'administrator') {
+            return res.status(403).json({ error: 'Accesso negato' });
+        }
+        const db = readDB();
+        const shifts = db.shiftSchedules.filter(s => s.staffId === inspectorId);
+        const enriched = shifts.map(s => {
+            const run = db.trainRuns.find(r => r.runId === s.trainRunId);
+            const route = db.routes.find(r => r.routeId === run?.routeId);
+            const train = db.trains.find(t => t.trainId === run?.trainId);
+            return {
+                date: s.date,
+                startTime: s.startTime,
+                endTime: s.endTime,
+                route: s.assignedRoute,
+                trainCode: train?.trainCode,
+                trainType: train?.trainType
+            };
+        });
+        res.json({ shifts: enriched });
+    }
+} 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\StatisticsController.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:49             1'577 StatisticsController.js
+               1 File(s)          1'577 bytes
+               0 Dir(s)  120'227'782'656 bytes free
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DB_PATH = path.join(__dirname, '../../database/database.json');
+
+function readDB() {
+    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+}
+
+export class StatisticsController {
+    /**
+     * UC14 - View statistics (FR32) – for administrators
+     * @param {Object} req
+     * @param {Object} res
+     */
+    static async getStatistics(req, res) {
+        const db = readDB();
+        const totalRevenue = db.payments.reduce((sum, p) => sum + p.amount, 0);
+        const totalBookings = db.tickets.length;
+        const delayedRuns = db.trainRuns.filter(r => r.status === 'delayed').length;
+        const activeUsers = db.users.filter(u => u.accountStatus === 'active' && u.role === 'passenger').length;
+
+        // Dettaglio per route (frequenza)
+        const routeStats = {};
+        for (const ticket of db.tickets) {
+            const run = db.trainRuns.find(r => r.runId === ticket.runId);
+            if (run) {
+                const route = db.routes.find(r => r.routeId === run.routeId);
+                if (route) {
+                    routeStats[route.routeName] = (routeStats[route.routeName] || 0) + 1;
+                }
+            }
+        }
+
+        res.json({
+            revenue: totalRevenue,
+            bookings: totalBookings,
+            delayedTrains: delayedRuns,
+            activeUsers,
+            routeBreakdown: routeStats
+        });
+    }
+} 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\TicketManagementController.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  22:52               675 TicketManagementController.js
+               1 File(s)            675 bytes
+               0 Dir(s)  120'227'782'656 bytes free
+export class TicketManagementController {
+    selectTicketModify(ticketId) { console.log(`Modifica biglietto ${ticketId}`); }
+    requestModification(ticketId) { console.log(`Richiesta modifica per ${ticketId}`); }
+    getTicketDetails(ticketId) { return {}; }
+    calculateTimeRemaining(departureTime) { return 3600000; }
+    allowFullModification() { return true; }
+    restrictToTimeOnly() { console.log('Modifica solo orario'); }
+    confirmChange(newDetails) { console.log('Conferma modifica', newDetails); }
+    updateTicket(ticketId, newDetails) { console.log(`Biglietto ${ticketId} aggiornato`); }
+    showErrorMessage(message) { console.error(message); }
+} 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\TicketPurchaseController.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:49             5'956 TicketPurchaseController.js
+               1 File(s)          5'956 bytes
+               0 Dir(s)  120'227'778'560 bytes free
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { AuthController } from './AuthController.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DB_PATH = path.join(__dirname, '../../database/database.json');
+
+function readDB() {
+    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+}
+function writeDB(data) {
+    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+}
+
+export class TicketPurchaseController {
+    /**
+     * UC4 - Purchase ticket or subscription (FR13, FR14, FR8, FR9, FR10, FR21)
+     * @param {Object} req - body: { runId, fromStopOrder, toStopOrder, passengerType, travelClass, seatNumber, extras, totalPrice }
+     * @param {Object} res
+     */
+    static async purchase(req, res) {
+        const userId = req.user.userId;
+        const { runId, fromStopOrder, toStopOrder, passengerType, travelClass, seatNumber, extras, totalPrice } = req.body;
+        const db = readDB();
+
+        const user = db.users.find(u => u.userId === userId);
+        if (!user) return res.status(400).json({ success: false, message: 'Utente non valido' });
+
+        // Verifica disponibilità (FR8 seat selection)
+        const existingReservation = db.seatReservations.find(sr => sr.runId === runId && sr.seatNumber === seatNumber);
+        if (existingReservation && existingReservation.status !== 'free') {
+            return res.status(409).json({ success: false, message: 'Posto già occupato o prenotato' });
+        }
+
+        const newTicketId = Math.max(...db.tickets.map(t => t.ticketId)) + 1;
+        const now = new Date().toISOString();
+        const newTicket = {
+            ticketId: newTicketId,
+            ticketCode: `TKT-${userId}-${newTicketId}`,
+            userId,
+            runId,
+            fromStopOrder,
+            toStopOrder,
+            passengerType,
+            seatNumber,
+            class: travelClass,
+            price: totalPrice,
+            status: 'active',
+            purchaseDate: now,
+            qrCode: `QR${newTicketId}${Math.random().toString(36).substring(2,8)}`
+        };
+        db.tickets.push(newTicket);
+
+        // Punti fedeltà (FR19)
+        const pointsEarned = Math.floor(totalPrice);
+        user.loyaltyPoints += pointsEarned;
+        const newLoyaltyId = Math.max(...db.loyaltyTransactions.map(l => l.transactionId)) + 1;
+        db.loyaltyTransactions.push({
+            transactionId: newLoyaltyId,
+            userId,
+            points: pointsEarned,
+            reason: `Acquisto biglietto #${newTicketId}`,
+            date: now
+        });
+
+        // Pagamento (NFR19)
+        const newPaymentId = Math.max(...db.payments.map(p => p.paymentId)) + 1;
+        db.payments.push({
+            paymentId: newPaymentId,
+            userId,
+            ticketId: newTicketId,
+            subscriptionId: null,
+            amount: totalPrice,
+            paymentDate: now,
+            paymentMethod: 'Credit Card',
+            transactionId: `TXN${newPaymentId}`,
+            status: 'completed'
+        });
+
+        // Prenotazione posto
+        if (existingReservation) {
+            existingReservation.status = 'reserved';
+            existingReservation.ticketId = newTicketId;
+        } else {
+            db.seatReservations.push({
+                runId,
+                coachNumber: 1,
+                seatNumber,
+                ticketId: newTicketId,
+                status: 'reserved'
+            });
+        }
+
+        // Servizi extra (FR9, FR10)
+        if (extras && extras.length) {
+            for (const extra of extras) {
+                const newResId = Math.max(...db.additionalReservations.map(r => r.reservationId)) + 1;
+                db.additionalReservations.push({
+                    reservationId: newResId,
+                    ticketId: newTicketId,
+                    type: extra.type,
+                    status: 'confirmed',
+                    price: extra.price
+                });
+            }
+        }
+
+        writeDB(db);
+        res.json({ success: true, ticketId: newTicketId });
+    }
+
+    /**
+     * UC9 - Modify ticket (FR16)
+     * @param {Object} req - body: { ticketId, newDate, newTime }
+     * @param {Object} res
+     */
+    static async modifyTicket(req, res) {
+        const { ticketId, newDate, newTime } = req.body;
+        const db = readDB();
+        const ticket = db.tickets.find(t => t.ticketId === ticketId);
+        if (!ticket) return res.status(404).json({ success: false, message: 'Biglietto non trovato' });
+        if (ticket.userId !== req.user.userId && req.user.role !== 'administrator') {
+            return res.status(403).json({ success: false, message: 'Non autorizzato' });
+        }
+
+        const run = db.trainRuns.find(r => r.runId === ticket.runId);
+        const originalDeparture = new Date(run.departureDateTime);
+        const now = new Date();
+        const hoursDiff = (originalDeparture - now) / (1000 * 3600);
+
+        // Regola: se >24h si può cambiare data e ora, altrimenti solo ora (FR16)
+        if (hoursDiff <= 24 && newDate !== originalDeparture.toISOString().slice(0,10)) {
+            return res.status(400).json({ success: false, message: 'Modifica data non consentita a meno di 24 ore dalla partenza' });
+        }
+
+        // Aggiorna il runId (cerca un nuovo run con la stessa route e la nuova data)
+        const route = db.routes.find(r => r.routeId === run.routeId);
+        const newRun = db.trainRuns.find(r => r.routeId === route.routeId && r.departureDateTime.startsWith(newDate));
+        if (!newRun) return res.status(404).json({ success: false, message: 'Nessun treno disponibile nella nuova data' });
+
+        ticket.runId = newRun.runId;
+        writeDB(db);
+        res.json({ success: true, message: 'Biglietto modificato con successo' });
+    }
+} 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\TrainSearchController.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:49             6'940 TrainSearchController.js
+               1 File(s)          6'940 bytes
+               0 Dir(s)  120'227'774'464 bytes free
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DB_PATH = path.join(__dirname, '../../database/database.json');
+
+function readDB() {
+    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+}
+
+function calculatePrice(fromStation, toStation, travelClass) {
+    const R = 6371;
+    const dLat = (toStation.latitude - fromStation.latitude) * Math.PI / 180;
+    const dLon = (toStation.longitude - fromStation.longitude) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(fromStation.latitude * Math.PI/180) * Math.cos(toStation.latitude * Math.PI/180) * Math.sin(dLon/2)**2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const km = R * c;
+    let price = km * 0.15;
+    if (travelClass === 'business') price *= 1.8;
+    return Math.round(price * 100) / 100;
+}
+
+export class TrainSearchController {
+    /**
+     * UC1 - Search Train (FR1, FR3, FR4, FR5, FR11)
+     * @param {Object} req - body: { departureStationName, arrivalStationName, date, travelClass }
+     * @param {Object} res
+     */
+    static async search(req, res) {
+        const { departureStationName, arrivalStationName, date, travelClass } = req.body;
+        const db = readDB();
+
+        const fromStation = db.stations.find(s => s.name.toLowerCase() === departureStationName.toLowerCase());
+        const toStation = db.stations.find(s => s.name.toLowerCase() === arrivalStationName.toLowerCase());
+        if (!fromStation || !toStation) {
+            return res.json({ trains: [] });
+        }
+
+        const searchDate = new Date(date);
+        const results = [];
+
+        for (const run of db.trainRuns) {
+            const route = db.routes.find(r => r.routeId === run.routeId);
+            if (!route) continue;
+            const fromStop = route.stops.find(stop => stop.stationId === fromStation.stationId);
+            const toStop = route.stops.find(stop => stop.stationId === toStation.stationId);
+            if (!fromStop || !toStop || fromStop.stopOrder >= toStop.stopOrder) continue;
+
+            const runDate = new Date(run.departureDateTime);
+            if (runDate.toDateString() !== searchDate.toDateString()) continue;
+            if (run.status === 'cancelled') continue;
+
+            const train = db.trains.find(t => t.trainId === run.trainId);
+            if (!train.serviceClasses.includes(travelClass)) continue;
+
+            const depTime = new Date(runDate);
+            const [depHour, depMin] = fromStop.scheduledDeparture.split(':');
+            depTime.setHours(parseInt(depHour), parseInt(depMin), 0);
+
+            const arrTime = new Date(runDate);
+            const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
+            arrTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
+            if (arrTime < depTime) arrTime.setDate(arrTime.getDate() + 1);
+
+            const durationMs = arrTime - depTime;
+            const durationMinutes = Math.round(durationMs / 60000);
+            const price = calculatePrice(fromStation, toStation, travelClass);
+
+            results.push({
+                id: run.runId,
+                from: fromStation.name,
+                to: toStation.name,
+                departureTime: depTime.toISOString(),
+                arrivalTime: arrTime.toISOString(),
+                duration: `${Math.floor(durationMinutes/60)}h ${durationMinutes%60}m`,
+                price,
+                trainType: train.trainType,
+                trainCode: train.trainCode,
+                travelClass
+            });
+        }
+        res.json({ trains: results });
+    }
+
+    /**
+     * UC5 - Check Train Status (FR15, FR33)
+     * @param {Object} req - params: trainId (runId)
+     * @param {Object} res
+     */
+    static async trainStatus(req, res) {
+        const runId = parseInt(req.params.runId);
+        const db = readDB();
+        const run = db.trainRuns.find(r => r.runId === runId);
+        if (!run) return res.status(404).json({ error: 'Train run not found' });
+
+        const route = db.routes.find(r => r.routeId === run.routeId);
+        const train = db.trains.find(t => t.trainId === run.trainId);
+        const stops = route.stops.map(stop => {
+            const station = db.stations.find(s => s.stationId === stop.stationId);
+            return {
+                stationName: station.name,
+                scheduledArrival: stop.scheduledArrival,
+                scheduledDeparture: stop.scheduledDeparture,
+                track: stop.trackNumber
+            };
+        });
+
+        res.json({
+            runId: run.runId,
+            trainCode: train.trainCode,
+            status: run.status,
+            currentDelayMinutes: run.currentDelayMinutes,
+            stops,
+            realTimePosition: run.actualDeparture ? 'In viaggio' : 'Non partito'
+        });
+    }
+
+    /**
+     * UC6 - Boards Visualization (FR6) – partenze/arrivi di una stazione
+     * @param {Object} req - query: stationName, boardType (departures/arrivals)
+     * @param {Object} res
+     */
+    static async stationBoard(req, res) {
+        const { stationName, boardType } = req.query;
+        const db = readDB();
+        const station = db.stations.find(s => s.name.toLowerCase() === stationName.toLowerCase());
+        if (!station) return res.status(404).json({ error: 'Station not found' });
+
+        const today = new Date().toISOString().slice(0,10);
+        const results = [];
+
+        for (const run of db.trainRuns) {
+            const runDate = new Date(run.departureDateTime).toISOString().slice(0,10);
+            if (runDate !== today) continue;
+
+            const route = db.routes.find(r => r.routeId === run.routeId);
+            const stop = route.stops.find(s => s.stationId === station.stationId);
+            if (!stop) continue;
+
+            const train = db.trains.find(t => t.trainId === run.trainId);
+            if (boardType === 'departures' && stop.scheduledDeparture) {
+                results.push({
+                    trainCode: train.trainCode,
+                    destination: route.stops[route.stops.length-1].stationName,
+                    scheduledTime: stop.scheduledDeparture,
+                    track: stop.trackNumber,
+                    status: run.status
+                });
+            } else if (boardType === 'arrivals' && stop.scheduledArrival) {
+                results.push({
+                    trainCode: train.trainCode,
+                    origin: route.stops[0].stationName,
+                    scheduledTime: stop.scheduledArrival,
+                    track: stop.trackNumber,
+                    status: run.status
+                });
+            }
+        }
+        res.json({ station: station.name, boardType, entries: results });
+    }
+} 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\ValidationController.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:49             3'145 ValidationController.js
+               1 File(s)          3'145 bytes
+               0 Dir(s)  120'227'766'272 bytes free
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DB_PATH = path.join(__dirname, '../../database/database.json');
+
+function readDB() {
+    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+}
+function writeDB(data) {
+    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+}
+
+export class ValidationController {
+    /**
+     * UC12 - Validate ticket (FR24) and update occupancy (FR26)
+     * @param {Object} req - body: { ticketId }
+     * @param {Object} res
+     */
+    static async validateTicket(req, res) {
+        const { ticketId } = req.body;
+        const db = readDB();
+        const ticket = db.tickets.find(t => t.ticketId === ticketId);
+        if (!ticket) {
+            return res.json({ valid: false, message: 'Biglietto non trovato' });
+        }
+        if (ticket.status !== 'active') {
+            return res.json({ valid: false, message: 'Biglietto già utilizzato o scaduto' });
+        }
+
+        // Marca come usato
+        ticket.status = 'used';
+        const seatRes = db.seatReservations.find(sr => sr.ticketId === ticketId);
+        if (seatRes) seatRes.status = 'occupied';
+
+        // Aggiorna occupazione (FR26) – incrementa il contatore dei posti occupati del coach
+        const run = db.trainRuns.find(r => r.runId === ticket.runId);
+        const coachNumber = seatRes ? seatRes.coachNumber : 1;
+        const occupancy = db.occupancySnapshots.find(o => o.runId === ticket.runId && o.coachNumber === coachNumber);
+        if (occupancy) {
+            occupancy.occupiedSeats += 1;
+            occupancy.lastUpdateBy = req.user.userId;
+            occupancy.timestamp = new Date().toISOString();
+        } else {
+            db.occupancySnapshots.push({
+                runId: ticket.runId,
+                coachNumber,
+                timestamp: new Date().toISOString(),
+                occupiedSeats: 1,
+                lastUpdateBy: req.user.userId
+            });
+        }
+        writeDB(db);
+        res.json({ valid: true, message: 'Biglietto valido e marcato come utilizzato' });
+    }
+
+    /**
+     * UC12 - Track occupancy manually (FR26)
+     * @param {Object} req - body: { runId, coachNumber, occupiedSeats }
+     * @param {Object} res
+     */
+    static async updateOccupancy(req, res) {
+        const { runId, coachNumber, occupiedSeats } = req.body;
+        const db = readDB();
+        const occupancy = db.occupancySnapshots.find(o => o.runId === runId && o.coachNumber === coachNumber);
+        if (occupancy) {
+            occupancy.occupiedSeats = occupiedSeats;
+            occupancy.timestamp = new Date().toISOString();
+            occupancy.lastUpdateBy = req.user.userId;
+        } else {
+            db.occupancySnapshots.push({
+                runId, coachNumber,
+                timestamp: new Date().toISOString(),
+                occupiedSeats,
+                lastUpdateBy: req.user.userId
+            });
+        }
+        writeDB(db);
+        res.json({ success: true });
+    }
+} 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\databases\TicketDatabase.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:01               408 TicketDatabase.js
+               1 File(s)            408 bytes
+               0 Dir(s)  120'227'762'176 bytes free
+export class TicketDatabase {
+    saveTicket(data) { console.log('Ticket salvato', data); }
+    getTicketDetails(ticketId) { return {}; }
+    updateTicket(ticketId, newDetails) { }
+    getAffectedUsers(trainId) { return []; }
+    retrieveData(type) { }
+    requestFilters() { }
+    applyFilters(filters) { }
+    noData() { return false; }
+    showErrorMessage(message) { console.error(message); }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\databases\TrainDatabase.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:01               157 TrainDatabase.js
+               1 File(s)            157 bytes
+               0 Dir(s)  120'227'762'176 bytes free
+export class TrainDatabase {
+    checkAvailability(option) { return true; }
+    queryTrainStations(stationCodes, date, time, travelClass) { return []; }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\databases\UserDatabase.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:00               394 UserDatabase.js
+               1 File(s)            394 bytes
+               0 Dir(s)  120'227'762'176 bytes free
+export class UserDatabase {
+    createAccount(userData) { console.log('Creazione utente', userData); }
+    updateCredentials(userId, newPass) { }
+    hardDelete(userId) { }
+    savePreference(userId, lang) { }
+    retrieveData(type) { }
+    requestFilters() { }
+    applyFilters(filters) { }
+    noData() { return false; }
+    showErrorMessage() { console.log('Errore DB utenti'); }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\AccountStatus.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:58               225 AccountStatus.js
+               1 File(s)            225 bytes
+               0 Dir(s)  120'227'762'176 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Stato di un account utente.
+ */
+export const AccountStatus = {
+    ACTIVE: 'ACTIVE',
+    BLOCKED: 'BLOCKED',
+    DELETED: 'DELETED'
+};
+Object.freeze(AccountStatus); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\BoardEntryStatus.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:58               302 BoardEntryStatus.js
+               1 File(s)            302 bytes
+               0 Dir(s)  120'227'762'176 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Stato di una singola riga del tabellone.
+ */
+export const BoardEntryStatus = {
+    ON_TIME: 'ON_TIME',
+    DELAYED: 'DELAYED',
+    CANCELLED: 'CANCELLED',
+    DEPARTED: 'DEPARTED',
+    ARRIVED: 'ARRIVED'
+};
+Object.freeze(BoardEntryStatus); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\BoardType.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:58               211 BoardType.js
+               1 File(s)            211 bytes
+               0 Dir(s)  120'227'762'176 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Tipo di tabellone (partenze/arrivi).
+ */
+export const BoardType = {
+    DEPARTURES: 'DEPARTURES',
+    ARRIVALS: 'ARRIVALS'
+};
+Object.freeze(BoardType); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\ChangeType.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:58               237 ChangeType.js
+               1 File(s)            237 bytes
+               0 Dir(s)  120'227'758'080 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Tipo di modifica richiesta per un biglietto.
+ */
+export const ChangeType = {
+    FULL_MODIFICATION: 'FULL_MODIFICATION',
+    TIME_ONLY: 'TIME_ONLY'
+};
+Object.freeze(ChangeType); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\DocumentStatus.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:58               280 DocumentStatus.js
+               1 File(s)            280 bytes
+               0 Dir(s)  120'223'281'152 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Stato di un documento di viaggio (biglietto/abbonamento).
+ */
+export const DocumentStatus = {
+    ACTIVE: 'ACTIVE',
+    USED: 'USED',
+    EXPIRED: 'EXPIRED',
+    CANCELLED: 'CANCELLED'
+};
+Object.freeze(DocumentStatus); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\Language.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:59               212 Language.js
+               1 File(s)            212 bytes
+               0 Dir(s)  120'218'165'248 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Lingue supportate dall'interfaccia.
+ */
+export const Language = {
+    ITALIAN: 'ITA',
+    ENGLISH: 'ENG',
+    GERMAN: 'DEU'
+};
+Object.freeze(Language); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\NotificationType.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:59               317 NotificationType.js
+               1 File(s)            317 bytes
+               0 Dir(s)  120'213'106'688 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Categoria della notifica.
+ */
+export const NotificationType = {
+    DELAY_ALERT: 'DELAY_ALERT',
+    INFO: 'INFO',
+    PROMO: 'PROMO',
+    PURCHASE_CONFIRMATION: 'PURCHASE_CONFIRMATION',
+    ROUTE_CHANGE: 'ROUTE_CHANGE'
+};
+Object.freeze(NotificationType); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\PassengerType.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:59               208 PassengerType.js
+               1 File(s)            208 bytes
+               0 Dir(s)  120'208'760'832 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Tipologia di passeggero (adulto/bambino).
+ */
+export const PassengerType = {
+    ADULT: 'ADULT',
+    CHILD: 'CHILD'
+};
+Object.freeze(PassengerType); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\PaymentStatus.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:59               267 PaymentStatus.js
+               1 File(s)            267 bytes
+               0 Dir(s)  120'208'560'128 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Stato di una transazione di pagamento.
+ */
+export const PaymentStatus = {
+    PENDING: 'PENDING',
+    COMPLETED: 'COMPLETED',
+    FAILED: 'FAILED',
+    REFUNDED: 'REFUNDED'
+};
+Object.freeze(PaymentStatus); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\ReservationStatus.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:59               251 ReservationStatus.js
+               1 File(s)            251 bytes
+               0 Dir(s)  120'208'523'264 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Stato di una prenotazione aggiuntiva (bagaglio, bici, etc.).
+ */
+export const ReservationStatus = {
+    CONFIRMED: 'CONFIRMED',
+    CANCELLED: 'CANCELLED'
+};
+Object.freeze(ReservationStatus); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\SeatStatus.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:59               251 SeatStatus.js
+               1 File(s)            251 bytes
+               0 Dir(s)  120'208'494'592 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Stato di una prenotazione aggiuntiva (bagaglio, bici, etc.).
+ */
+export const ReservationStatus = {
+    CONFIRMED: 'CONFIRMED',
+    CANCELLED: 'CANCELLED'
+};
+Object.freeze(ReservationStatus); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\SupportRequestStatus.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:59               249 SupportRequestStatus.js
+               1 File(s)            249 bytes
+               0 Dir(s)  120'208'470'016 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Stato di una richiesta di supporto.
+ */
+export const SupportRequestStatus = {
+    OPEN: 'OPEN',
+    IN_PROGRESS: 'IN_PROGRESS',
+    CLOSED: 'CLOSED'
+};
+Object.freeze(SupportRequestStatus); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\SupportRequestType.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:59               271 SupportRequestType.js
+               1 File(s)            271 bytes
+               0 Dir(s)  120'208'445'440 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Tipo di richiesta di supporto.
+ */
+export const SupportRequestType = {
+    REFUND: 'REFUND',
+    INFORMATION: 'INFORMATION',
+    COMPLAINT: 'COMPLAINT',
+    OTHER: 'OTHER'
+};
+Object.freeze(SupportRequestType); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\TrainRunStatus.js === 
+ Volume Serial Number is 0844-3CEC
+05.06.2026  00:00               270 TrainRunStatus.js
+               1 File(s)            270 bytes
+               0 Dir(s)  120'208'420'864 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Stato di una corsa di un treno.
+ */
+export const TrainRunStatus = {
+    SCHEDULED: 'SCHEDULED',
+    DELAYED: 'DELAYED',
+    COMPLETED: 'COMPLETED',
+    CANCELLED: 'CANCELLED'
+};
+Object.freeze(TrainRunStatus); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\TrainType.js === 
+ Volume Serial Number is 0844-3CEC
+05.06.2026  00:00               272 TrainType.js
+               1 File(s)            272 bytes
+               0 Dir(s)  120'208'396'288 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Tipologia di treno.
+ */
+export const TrainType = {
+    REGIONALE: 'REGIONALE',
+    REGIONALE_VELOCE: 'REGIONALE_VELOCE',
+    INTERCITY: 'INTERCITY',
+    FRECCIAROSSA: 'FRECCIAROSSA'
+};
+Object.freeze(TrainType); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\TravelClass.js === 
+ Volume Serial Number is 0844-3CEC
+05.06.2026  00:00               213 TravelClass.js
+               1 File(s)            213 bytes
+               0 Dir(s)  120'208'371'712 bytes free
+/**
+ * @enum {string}
+ * @readonly
+ * @description Classe di viaggio (standard/business).
+ */
+export const TravelClass = {
+    STANDARD: 'STANDARD',
+    BUSINESS: 'BUSINESS'
+};
+Object.freeze(TravelClass); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\externals\LoginAPI.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:01               237 LoginAPI.js
+               1 File(s)            237 bytes
+               0 Dir(s)  120'208'347'136 bytes free
+export class LoginAPI {
+    checkEmailUnique(email) { return true; }
+    validateCredentials(email, password) { return true; }
+    createSession(userData) { console.log('Sessione esterna creata'); }
+    terminateSession(token) { }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\externals\MappingAPI.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:02               124 MappingAPI.js
+               1 File(s)            124 bytes
+               0 Dir(s)  120'208'318'464 bytes free
+export class MappingAPI {
+    resolve(coords) { console.log('Coordinate risolte', coords); return 'Stazione Centrale'; }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\externals\PaymentGatewayAPI.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:01               174 PaymentGatewayAPI.js
+               1 File(s)            174 bytes
+               0 Dir(s)  120'208'281'600 bytes free
+export class PaymentGatewayAPI {
+    authorize(amount) { console.log(`Autorizzato ${amount}`); return true; }
+    refund(amount) { console.log(`Rimborsato ${amount}`); }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\AdditionalReservation.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:53               779 AdditionalReservation.js
+               1 File(s)            779 bytes
+               0 Dir(s)  120'208'257'024 bytes free
+/**
+ * @class AdditionalReservation
+ * @abstract
+ * @description Prenotazione di servizi extra (bagaglio, bici, ecc.).
+ */
+export class AdditionalReservation {
+    constructor(reservationId, status, price) {
+        this.reservationId = reservationId;
+        this.status = status; // 'confirmed', 'cancelled'
+        this.price = price;
+    }
+
+    /** UC4 - Conferma la prenotazione. */
+    confirmReservation() {
+        this.status = 'confirmed';
+        console.log(`[AdditionalReservation] Prenotazione ${this.reservationId} confermata`);
+    }
+
+    /** UC9 - Cancella la prenotazione. */
+    cancelReservation() {
+        this.status = 'cancelled';
+        console.log(`[AdditionalReservation] Prenotazione ${this.reservationId} cancellata`);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\AnonymousUser.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:52             1'384 AnonymousUser.js
+               1 File(s)          1'384 bytes
+               0 Dir(s)  120'208'232'448 bytes free
+import { User } from './User.js';
+
+/**
+ * @class AnonymousUser
+ * @extends User
+ * @description Utente non autenticato.
+ */
+export class AnonymousUser extends User {
+    constructor(userId = 0, name = 'Guest', surname = '', email = 'guest@example.com') {
+        super(userId, name, surname, email, 'ITA');
+    }
+
+    /**
+     * UC1 - Cerca treni (richiama il controller di ricerca).
+     * @param {Object} criteria - Criteri di ricerca.
+     * @param {boolean} mapOpt - Usa mappa o no.
+     * @param {Function} searchCallback - Funzione che esegue la ricerca.
+     */
+    search(criteria, mapOpt, searchCallback) {
+        console.log('[AnonymousUser] Ricerca treni con criteri:', criteria);
+        return searchCallback(criteria, mapOpt);
+    }
+
+    /**
+     * UC1 - Seleziona stazione dalla mappa.
+     * @param {string} stationName
+     */
+    selectStation(stationName) {
+        console.log(`[AnonymousUser] Stazione selezionata: ${stationName}`);
+        return stationName;
+    }
+
+    /**
+     * UC2 - Registra un nuovo utente.
+     * @param {string} name
+     * @param {string} surname
+     * @param {string} email
+     * @param {string} password
+     * @param {Function} registerCallback
+     */
+    register(name, surname, email, password, registerCallback) {
+        registerCallback({ name, surname, email, password });
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\BoardEntry.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:55               400 BoardEntry.js
+               1 File(s)            400 bytes
+               0 Dir(s)  120'208'220'160 bytes free
+/**
+ * @class BoardEntry
+ * @description Singola riga del tabellone.
+ */
+export class BoardEntry {
+    constructor(scheduledTime, estimatedTime, platform, entryStatus) {
+        this.scheduledTime = scheduledTime;
+        this.estimatedTime = estimatedTime;
+        this.platform = platform;
+        this.entryStatus = entryStatus; // ON_TIME, DELAYED, CANCELLED, DEPARTED, ARRIVED
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\BookingHistory.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  22:58               106 BookingHistory.js
+               1 File(s)            106 bytes
+               0 Dir(s)  120'208'216'064 bytes free
+export class BookingHistory {
+    constructor(historyId) {
+        this.historyId = historyId;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Coach.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:55               689 Coach.js
+               1 File(s)            689 bytes
+               0 Dir(s)  120'208'216'064 bytes free
+/**
+ * @class Coach
+ * @description Carrozza di un treno.
+ */
+export class Coach {
+    constructor(coachNumber, coachClass, maxPassengers, currentPassengers = 0) {
+        this.coachNumber = coachNumber;
+        this.coachClass = coachClass;
+        this.maxPassengers = maxPassengers;
+        this.currentPassengers = currentPassengers;
+    }
+
+    /**
+     * UC12 - Aggiorna il numero di passeggeri nella carrozza.
+     * @param {number} nPassengers
+     */
+    updateOccupancy(nPassengers) {
+        this.currentPassengers = nPassengers;
+        console.log(`[Coach] Carrozza ${this.coachNumber} occupazione aggiornata: ${nPassengers}/${this.maxPassengers}`);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\CustomerSupportAgent.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:52             1'468 CustomerSupportAgent.js
+               1 File(s)          1'468 bytes
+               0 Dir(s)  120'208'216'064 bytes free
+import { RegisteredUser } from './RegisteredUser.js';
+
+/**
+ * @class CustomerSupportAgent
+ * @extends RegisteredUser
+ * @description Agente del servizio clienti.
+ */
+export class CustomerSupportAgent extends RegisteredUser {
+    constructor(userId, name, surname, email, preferredLanguage, passwordHash, accountStatus, staffCode) {
+        super(userId, name, surname, email, preferredLanguage, passwordHash, accountStatus);
+        this.staffCode = staffCode;
+    }
+
+    /**
+     * UC11 - Visualizza il profilo di un utente (per assistenza).
+     * @param {number} userId
+     * @param {Function} getUserCallback
+     */
+    viewUserProfile(userId, getUserCallback) {
+        getUserCallback(userId);
+    }
+
+    /**
+     * UC11 - Gestisce una richiesta di supporto.
+     * @param {number} requestId
+     * @param {Function} updateCallback
+     */
+    manageSupportRequest(requestId, updateCallback) {
+        updateCallback(requestId);
+    }
+
+    /**
+     * UC11 - Visualizza punti fedeltà di un utente.
+     * @param {number} userId
+     * @param {Function} getLoyaltyCallback
+     */
+    viewLoyaltyPointsBalance(userId, getLoyaltyCallback) {
+        getLoyaltyCallback(userId);
+    }
+
+    /**
+     * UC13 - Visualizza il proprio turno di lavoro.
+     * @param {number} staffId
+     * @param {Function} scheduleCallback
+     */
+    viewSchedule(staffId, scheduleCallback) {
+        scheduleCallback(staffId);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Dashboard.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  22:59               143 Dashboard.js
+               1 File(s)            143 bytes
+               0 Dir(s)  120'208'216'064 bytes free
+export class Dashboard {
+    constructor(dashboardId, title) {
+        this.dashboardId = dashboardId;
+        this.title = title;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\DelayEstimate.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:56               573 DelayEstimate.js
+               1 File(s)            573 bytes
+               0 Dir(s)  120'208'216'064 bytes free
+/**
+ * @class DelayEstimate
+ * @description Stima del ritardo per una corsa.
+ */
+export class DelayEstimate {
+    constructor(estimateId, delayMinutes, confidence) {
+        this.estimateId = estimateId;
+        this.delayMinutes = delayMinutes;
+        this.confidence = confidence; // 0-1
+    }
+
+    /**
+     * UC5 - Restituisce il ritardo predetto per un treno.
+     * @param {number} trainId
+     * @returns {number}
+     */
+    getDelayPrediction(trainId) {
+        // In realtà usa un modello ML simulato
+        return this.delayMinutes;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\lang.js === 
+ Volume Serial Number is 0844-3CEC
+12.06.2026  11:59             1'403 lang.js
+               1 File(s)          1'403 bytes
+               0 Dir(s)  120'208'211'968 bytes free
+const translations = {
+    it: { home: "🏠 Cerca treni", login: "🔐 Login", dashboard: "📋 Dashboard", purchase: "🎫 Acquista", inspector: "👮 Ispettore", admin: "📊 Admin", support: "💬 Supporto", status: "🚆 Stato treno", subscription: "🎫 Abbonamenti", tabellone: "🚉 Tabellone" },
+    en: { home: "🏠 Search trains", login: "🔐 Login", dashboard: "📋 Dashboard", purchase: "🎫 Buy", inspector: "👮 Inspector", admin: "📊 Admin", support: "💬 Support", status: "🚆 Train status", subscription: "🎫 Subscriptions", tabellone: "🚉 Departures" },
+    de: { home: "🏠 Zug suchen", login: "🔐 Anmelden", dashboard: "📋 Dashboard", purchase: "🎫 Kaufen", inspector: "👮 Schaffner", admin: "📊 Admin", support: "💬 Support", status: "🚆 Zugstatus", subscription: "🎫 Abos", tabellone: "🚉 Abfahrten" }
+};
+function setLanguage(lang) {
+    localStorage.setItem('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) el.innerText = translations[lang][key];
+    });
+}
+const savedLang = localStorage.getItem('lang') || 'it';
+document.getElementById('langSelect').value = savedLang;
+setLanguage(savedLang);
+document.getElementById('langSelect').addEventListener('change', (e) => setLanguage(e.target.value)); 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Notification.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:56               732 Notification.js
+               1 File(s)            732 bytes
+               0 Dir(s)  120'208'211'968 bytes free
+/**
+ * @class Notification
+ * @description Notifica per l'utente.
+ */
+export class Notification {
+    constructor(notificationId, message, notificationDate, notificationType) {
+        this.notificationId = notificationId;
+        this.message = message;
+        this.notificationDate = notificationDate;
+        this.notificationType = notificationType; // DELAY_ALERT, INFO, PROMO, etc.
+        this.read = false;
+    }
+
+    /** UC7 - Invia notifica in-app. */
+    pushInAppAlert() {
+        console.log(`[Notification] In-app: ${this.message}`);
+    }
+
+    /** UC7 - Invia notifica email (NFR23). */
+    sendEmailNotification() {
+        console.log(`[Notification] Email inviata: ${this.message}`);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\OccupancyPanel.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  22:59               100 OccupancyPanel.js
+               1 File(s)            100 bytes
+               0 Dir(s)  120'208'211'968 bytes free
+export class OccupancyPanel {
+    constructor(panelId) {
+        this.panelId = panelId;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Passenger.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:52             2'572 Passenger.js
+               1 File(s)          2'572 bytes
+               0 Dir(s)  120'208'211'968 bytes free
+import { RegisteredUser } from './RegisteredUser.js';
+
+/**
+ * @class Passenger
+ * @extends RegisteredUser
+ * @description Passeggero registrato, con punti fedeltà e prenotazioni.
+ */
+export class Passenger extends RegisteredUser {
+    constructor(userId, name, surname, email, preferredLanguage, passwordHash, accountStatus, failedLoginAttempts, loyaltyPoints = 0) {
+        super(userId, name, surname, email, preferredLanguage, passwordHash, accountStatus, failedLoginAttempts);
+        this.loyaltyPoints = loyaltyPoints;
+    }
+
+    /**
+     * UC4 - Seleziona le opzioni del treno per l'acquisto.
+     * @param {Object} criteria - Criteri di ricerca.
+     * @returns {Object} Opzioni treno.
+     */
+    selectTrainOptions(criteria) {
+        // In realtà chiama il controller di ricerca
+        console.log('[Passenger] Selezione opzioni treno:', criteria);
+        return { trainId: 1, price: 100 };
+    }
+
+    /**
+     * UC4 - Conferma il pagamento.
+     * @param {Object} paymentDetails
+     * @param {Function} paymentCallback
+     */
+    confirmPayment(paymentDetails, paymentCallback) {
+        paymentCallback(paymentDetails);
+    }
+
+    /**
+     * UC9 - Seleziona un biglietto da modificare.
+     * @param {number} ticketId
+     */
+    selectTicketModify(ticketId) {
+        console.log(`[Passenger] Richiesta modifica biglietto ${ticketId}`);
+        return ticketId;
+    }
+
+    /**
+     * UC9 - Conferma le modifiche al biglietto.
+     * @param {Object} changeRequest
+     */
+    confirmChange(changeRequest) {
+        console.log('[Passenger] Conferma modifica biglietto:', changeRequest);
+    }
+
+    /**
+     * UC5 - Richiede lo stato del treno in tempo reale.
+     * @param {number} trainId
+     * @param {Function} statusCallback
+     */
+    requestTrainStatus(trainId, statusCallback) {
+        statusCallback({ trainId, status: 'onTime' });
+    }
+
+    /**
+     * UC11 - Contatta il servizio clienti.
+     * @param {string} message
+     */
+    contactCustomerService(message) {
+        console.log(`[Passenger] Messaggio al supporto: ${message}`);
+    }
+
+    /**
+     * UC8 - Visualizza la cronologia degli acquisti.
+     * @param {Array} tickets - Lista biglietti dell'utente.
+     * @returns {Array}
+     */
+    viewBookingHistory(tickets) {
+        return tickets.map(t => ({ id: t.ticketId, date: t.purchaseDate, price: t.price }));
+    }
+
+    /** UC8 - Visualizza il saldo punti fedeltà. */
+    viewLoyaltyPointsBalance() {
+        return this.loyaltyPoints;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\PaymentTransaction.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:56             1'070 PaymentTransaction.js
+               1 File(s)          1'070 bytes
+               0 Dir(s)  120'208'207'872 bytes free
+/**
+ * @class PaymentTransaction
+ * @description Transazione di pagamento.
+ */
+export class PaymentTransaction {
+    constructor(paymentId, amount, paymentDate, paymentStatus) {
+        this.paymentId = paymentId;
+        this.amount = amount;
+        this.paymentDate = paymentDate;
+        this.paymentStatus = paymentStatus; // PENDING, COMPLETED, FAILED, REFUNDED
+    }
+
+    /**
+     * UC4 - Autorizza il pagamento (chiamata a gateway esterno).
+     * @param {number} amount
+     * @returns {boolean}
+     */
+    authorize(amount) {
+        // Simula autorizzazione
+        if (amount > 0) {
+            this.paymentStatus = 'COMPLETED';
+            return true;
+        }
+        this.paymentStatus = 'FAILED';
+        return false;
+    }
+
+    /**
+     * UC11 - Esegue un rimborso.
+     * @param {number} amount
+     */
+    refund(amount) {
+        if (this.paymentStatus === 'COMPLETED') {
+            this.paymentStatus = 'REFUNDED';
+            console.log(`[PaymentTransaction] Rimborsati ${amount} euro`);
+        }
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\PredictionSystem.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:56               694 PredictionSystem.js
+               1 File(s)            694 bytes
+               0 Dir(s)  120'208'203'776 bytes free
+/**
+ * @class PredictionSystem
+ * @description Sistema di predizione dei ritardi.
+ */
+export class PredictionSystem {
+    /**
+     * UC1 - Restituisce predizioni per più treni.
+     * @param {string} trainIds - Lista ID separati da virgola.
+     * @returns {Object}
+     */
+    getDelayPrediction(trainIds) {
+        // Simula calcolo
+        return { predictions: trainIds.split(',').map(id => ({ trainId: id, delay: Math.floor(Math.random() * 15) })) };
+    }
+
+    /**
+     * UC5 - Stima ritardo per un singolo treno.
+     * @param {number} trainId
+     * @returns {number}
+     */
+    getDelayEstimate(trainId) {
+        return Math.floor(Math.random() * 20);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\RailwayAdministrator.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:53             1'258 RailwayAdministrator.js
+               1 File(s)          1'258 bytes
+               0 Dir(s)  120'208'203'776 bytes free
+import { RegisteredUser } from './RegisteredUser.js';
+
+/**
+ * @class RailwayAdministrator
+ * @extends RegisteredUser
+ * @description Amministratore della piattaforma ferroviaria.
+ */
+export class RailwayAdministrator extends RegisteredUser {
+    constructor(userId, name, surname, email, preferredLanguage, passwordHash, accountStatus, adminCode) {
+        super(userId, name, surname, email, preferredLanguage, passwordHash, accountStatus);
+        this.adminCode = adminCode;
+    }
+
+    /** UC3 - Richiede l'accesso all'area amministrativa. */
+    requestAdminArea() {
+        console.log('[RailwayAdministrator] Richiesta accesso area admin');
+    }
+
+    /** UC14 - Carica le statistiche dal database. */
+    loadStatistics() {
+        console.log('[RailwayAdministrator] Caricamento statistiche');
+    }
+
+    /**
+     * UC14 - Applica filtri alle statistiche.
+     * @param {Date} date
+     * @param {string} trainLine
+     */
+    applyFilters(date, trainLine) {
+        console.log(`[RailwayAdministrator] Filtri applicati: data=${date}, linea=${trainLine}`);
+    }
+
+    /** UC14 - Visualizza le statistiche. */
+    viewStatistics() {
+        console.log('[RailwayAdministrator] Visualizzazione statistiche');
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\RegisteredUser.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:52             3'401 RegisteredUser.js
+               1 File(s)          3'401 bytes
+               0 Dir(s)  120'208'203'776 bytes free
+import { User } from './User.js';
+import crypto from 'crypto';
+
+/**
+ * @class RegisteredUser
+ * @extends User
+ * @description Utente registrato al sistema.
+ */
+export class RegisteredUser extends User {
+    /**
+     * @param {number} userId
+     * @param {string} name
+     * @param {string} surname
+     * @param {string} email
+     * @param {string} preferredLanguage
+     * @param {string} passwordHash - Hash SHA256 della password.
+     * @param {string} accountStatus - 'active', 'blocked', 'deleted'
+     * @param {number} failedLoginAttempts - Tentativi di login falliti.
+     */
+    constructor(userId, name, surname, email, preferredLanguage, passwordHash, accountStatus, failedLoginAttempts = 0) {
+        super(userId, name, surname, email, preferredLanguage);
+        this.passwordHash = passwordHash;
+        this.accountStatus = accountStatus;
+        this.failedLoginAttempts = failedLoginAttempts;
+    }
+
+    /**
+     * UC2 - Esegue il login dell'utente.
+     * @param {string} email
+     * @param {string} password
+     * @param {Function} hashFunction - Funzione per hashare la password (dipende dal contesto).
+     * @returns {boolean} true se login riuscito.
+     */
+    login(email, password, hashFunction) {
+        if (this.email !== email) return false;
+        if (this.accountStatus !== 'active') return false;
+        if (this.passwordHash !== hashFunction(password)) {
+            this.failedLoginAttempts++;
+            return false;
+        }
+        this.failedLoginAttempts = 0;
+        return true;
+    }
+
+    /** UC2 - Logout (solitamente lato client, qui solo log) */
+    logout() {
+        console.log(`[RegisteredUser] ${this.email} logged out`);
+    }
+
+    /**
+     * UC10 - Cambia password.
+     * @param {string} oldPass
+     * @param {string} newPass
+     * @param {Function} hashFunction
+     * @returns {boolean}
+     */
+    changePassword(oldPass, newPass, hashFunction) {
+        if (this.passwordHash !== hashFunction(oldPass)) return false;
+        if (newPass.length < 8) return false;
+        this.passwordHash = hashFunction(newPass);
+        return true;
+    }
+
+    /**
+     * UC10 - Richiede recupero password (contatta il supporto).
+     * @param {string} email
+     * @param {Function} sendResetLinkCallback - Callback per inviare link di reset.
+     */
+    requestPasswordRecovery(email, sendResetLinkCallback) {
+        if (this.email === email) {
+            sendResetLinkCallback(this.email);
+        }
+    }
+
+    /**
+     * UC10 - Elimina l'account (soft delete o hard delete).
+     * @param {boolean} hardDelete - Se true, rimuove completamente; altrimenti segna come 'deleted'.
+     */
+    eliminateAccount(hardDelete = false) {
+        if (hardDelete) {
+            // In un contesto reale, cancellazione fisica dal DB
+            console.log(`[RegisteredUser] Account ${this.userId} hard deleted`);
+        } else {
+            this.accountStatus = 'deleted';
+            console.log(`[RegisteredUser] Account ${this.userId} marked as deleted`);
+        }
+    }
+
+    /**
+     * UC8/UC9 - Visualizza i documenti di viaggio attivi.
+     * @param {Array} tickets - Lista di ticket dell'utente.
+     * @returns {Array} Biglietti attivi.
+     */
+    viewActiveDocuments(tickets) {
+        return tickets.filter(t => t.status === 'active');
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Route.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:55             1'180 Route.js
+               1 File(s)          1'180 bytes
+               0 Dir(s)  120'208'199'680 bytes free
+/**
+ * @class Route
+ * @description Percorso di una linea ferroviaria.
+ */
+export class Route {
+    constructor(routeId, routeName, stops) {
+        this.routeId = routeId;
+        this.routeName = routeName;
+        this.stops = stops; // array di oggetti Stop
+    }
+
+    /**
+     * UC1 - Calcola la durata totale del percorso.
+     * @returns {number} Minuti totali.
+     */
+    calculateDuration() {
+        if (!this.stops || this.stops.length < 2) return 0;
+        const firstStop = this.stops[0];
+        const lastStop = this.stops[this.stops.length - 1];
+        // Supponiamo che scheduledDeparture e scheduledArrival siano stringhe HH:MM
+        const start = firstStop.scheduledDeparture ? firstStop.scheduledDeparture : firstStop.scheduledArrival;
+        const end = lastStop.scheduledArrival ? lastStop.scheduledArrival : lastStop.scheduledDeparture;
+        if (!start || !end) return 0;
+        const [sh, sm] = start.split(':');
+        const [eh, em] = end.split(':');
+        let total = (parseInt(eh) * 60 + parseInt(em)) - (parseInt(sh) * 60 + parseInt(sm));
+        if (total < 0) total += 24 * 60;
+        return total;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Seat.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:55               599 Seat.js
+               1 File(s)            599 bytes
+               0 Dir(s)  120'208'199'680 bytes free
+/**
+ * @class Seat
+ * @description Posto a sedere in una carrozza.
+ */
+export class Seat {
+    constructor(seatNumber, seatStatus = 'FREE') {
+        this.seatNumber = seatNumber;
+        this.seatStatus = seatStatus; // FREE, RESERVED, OCCUPIED
+    }
+
+    /** UC4 - Prenota il posto. */
+    reserve() {
+        if (this.seatStatus === 'FREE') {
+            this.seatStatus = 'RESERVED';
+            return true;
+        }
+        return false;
+    }
+
+    /** UC12 - Marca come occupato (dopo validazione). */
+    markOccupied() {
+        this.seatStatus = 'OCCUPIED';
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Station.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:55               636 Station.js
+               1 File(s)            636 bytes
+               0 Dir(s)  120'208'195'584 bytes free
+/**
+ * @class Station
+ * @description Stazione ferroviaria.
+ */
+export class Station {
+    constructor(stationId, name, city, code, latitude, longitude) {
+        this.stationId = stationId;
+        this.name = name;
+        this.city = city;
+        this.code = code;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    /**
+     * UC6 - Visualizza il tabellone partenze/arrivi.
+     * @param {StationBoard} boardData
+     */
+    displayBoard(boardData) {
+        console.log(`[Station] Visualizzazione tabellone per ${this.name}`);
+        // In realtà richiama il controller
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\StationBoard.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:55               549 StationBoard.js
+               1 File(s)            549 bytes
+               0 Dir(s)  120'208'195'584 bytes free
+/**
+ * @class StationBoard
+ * @description Tabellone informativo di stazione.
+ */
+export class StationBoard {
+    constructor(boardId, boardType, lastUpdate) {
+        this.boardId = boardId;
+        this.boardType = boardType; // 'departures' | 'arrivals'
+        this.lastUpdate = lastUpdate;
+        this.entries = [];
+    }
+
+    /** UC6 - Aggiorna la visualizzazione del tabellone. */
+    updateDisplay() {
+        this.lastUpdate = new Date();
+        console.log(`[StationBoard] Tabellone ${this.boardId} aggiornato`);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\StatisticsReport.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  22:59                56 StatisticsReport.js
+               1 File(s)             56 bytes
+               0 Dir(s)  120'208'195'584 bytes free
+export class StatisticsReport {
+    constructor() {}
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Stop.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:55               526 Stop.js
+               1 File(s)            526 bytes
+               0 Dir(s)  120'208'195'584 bytes free
+/**
+ * @class Stop
+ * @description Fermata lungo un percorso.
+ */
+export class Stop {
+    constructor(stopOrder, stationId, scheduledArrival, scheduledDeparture, trackNumber) {
+        this.stopOrder = stopOrder;
+        this.stationId = stationId;
+        this.scheduledArrival = scheduledArrival;   // HH:MM o null
+        this.scheduledDeparture = scheduledDeparture; // HH:MM o null
+        this.trackNumber = trackNumber;
+        this.estimatedArrival = null;
+        this.estimatedDeparture = null;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Subscription.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:53             1'071 Subscription.js
+               1 File(s)          1'071 bytes
+               0 Dir(s)  120'208'195'584 bytes free
+import { TravelDocument } from './TravelDocument.js';
+
+/**
+ * @class Subscription
+ * @extends TravelDocument
+ * @description Abbonamento per tratte ripetute.
+ */
+export class Subscription extends TravelDocument {
+    constructor(documentId, issueDate, price, status, qrCode, subscriptionId, startDate, endDate, durationDays) {
+        super(documentId, issueDate, price, status, qrCode);
+        this.subscriptionId = subscriptionId;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.durationDays = durationDays;
+    }
+
+    /**
+     * UC4 - Rinnova l'abbonamento per una data durata.
+     * @param {number} durationDays
+     */
+    renew(durationDays) {
+        this.durationDays = durationDays;
+        const today = new Date();
+        this.startDate = today;
+        this.endDate = new Date(today);
+        this.endDate.setDate(today.getDate() + durationDays);
+        this.status = 'active';
+        console.log(`[Subscription] Abbonamento ${this.subscriptionId} rinnovato fino al ${this.endDate}`);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\SupportRequest.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:56               792 SupportRequest.js
+               1 File(s)            792 bytes
+               0 Dir(s)  120'208'191'488 bytes free
+/**
+ * @class SupportRequest
+ * @description Richiesta di assistenza clienti.
+ */
+export class SupportRequest {
+    constructor(requestId, requestType, description, status, creationDate) {
+        this.requestId = requestId;
+        this.requestType = requestType; // REFUND, INFORMATION, COMPLAINT, OTHER
+        this.description = description;
+        this.status = status; // OPEN, IN_PROGRESS, CLOSED
+        this.creationDate = creationDate;
+        this.resolution = null;
+    }
+
+    /** UC11 - Invia la richiesta al sistema di supporto. */
+    submit() {
+        this.status = 'OPEN';
+        console.log(`[SupportRequest] Richiesta ${this.requestId} inviata`);
+    }
+
+    /** UC11 - Chiude la richiesta. */
+    close() {
+        this.status = 'CLOSED';
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Ticket.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:53             2'536 Ticket.js
+               1 File(s)          2'536 bytes
+               0 Dir(s)  120'208'191'488 bytes free
+import { TravelDocument } from './TravelDocument.js';
+
+/**
+ * @class Ticket
+ * @extends TravelDocument
+ * @description Biglietto singolo per un viaggio.
+ */
+export class Ticket extends TravelDocument {
+    /**
+     * @param {number} documentId
+     * @param {Date} issueDate
+     * @param {number} price
+     * @param {string} status
+     * @param {string} qrCode
+     * @param {number} ticketId
+     * @param {Date} departureTime
+     * @param {Date} arrivalTime
+     * @param {string} passengerType - 'adult' | 'child'
+     */
+    constructor(documentId, issueDate, price, status, qrCode, ticketId, departureTime, arrivalTime, passengerType) {
+        super(documentId, issueDate, price, status, qrCode);
+        this.ticketId = ticketId;
+        this.departureTime = departureTime;
+        this.arrivalTime = arrivalTime;
+        this.passengerType = passengerType;
+    }
+
+    /**
+     * UC9 - Calcola il tempo rimasto alla partenza.
+     * @param {Date} currentTime
+     * @returns {number} Millisecondi rimasti.
+     */
+    calculateTimeRemaining(currentTime) {
+        const diff = this.departureTime - currentTime;
+        return diff > 0 ? diff : 0;
+    }
+
+    /**
+     * UC9 - Controlla se si può modificare data e ora (>24h).
+     * @param {Date} currentTime
+     * @returns {boolean}
+     */
+    allowFullModification(currentTime) {
+        const hoursRemaining = this.calculateTimeRemaining(currentTime) / (1000 * 3600);
+        return hoursRemaining > 24;
+    }
+
+    /**
+     * UC9 - Restringe la modifica al solo orario (<24h).
+     * @param {Date} currentTime
+     * @returns {boolean}
+     */
+    restrictToTimeOnly(currentTime) {
+        const hoursRemaining = this.calculateTimeRemaining(currentTime) / (1000 * 3600);
+        return hoursRemaining > 0 && hoursRemaining <= 24;
+    }
+
+    /**
+     * UC9 - Aggiorna il biglietto con nuovi dettagli.
+     * @param {Object} newDetails - { newDate, newTime, newRunId }
+     */
+    updateTicket(newDetails) {
+        if (newDetails.newDate) {
+            const [year, month, day] = newDetails.newDate.split('-');
+            this.departureTime.setFullYear(parseInt(year), parseInt(month)-1, parseInt(day));
+        }
+        if (newDetails.newTime) {
+            const [hour, minute] = newDetails.newTime.split(':');
+            this.departureTime.setHours(hour, minute, 0);
+        }
+        console.log(`[Ticket] Biglietto ${this.ticketId} aggiornato: nuova partenza ${this.departureTime}`);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\TicketInspector.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:52             2'040 TicketInspector.js
+               1 File(s)          2'040 bytes
+               0 Dir(s)  120'208'187'392 bytes free
+import { RegisteredUser } from './RegisteredUser.js';
+
+/**
+ * @class TicketInspector
+ * @extends RegisteredUser
+ * @description Ispettore di bordo.
+ */
+export class TicketInspector extends RegisteredUser {
+    constructor(userId, name, surname, email, preferredLanguage, passwordHash, accountStatus, inspectorCode) {
+        super(userId, name, surname, email, preferredLanguage, passwordHash, accountStatus);
+        this.inspectorCode = inspectorCode;
+    }
+
+    /** UC12 - Accede al sistema di ispezione. */
+    accessSystem() {
+        console.log(`[TicketInspector] ${this.name} accesso al pannello ispettore`);
+    }
+
+    /** UC12 - Seleziona la funzionalità di validazione. */
+    selectValidation() {
+        console.log('[TicketInspector] Seleziona validazione biglietto');
+    }
+
+    /**
+     * UC12 - Inserimento manuale del codice biglietto.
+     * @param {string} ticketId
+     */
+    manualInput(ticketId) {
+        console.log(`[TicketInspector] Inserimento manuale biglietto ${ticketId}`);
+    }
+
+    /**
+     * UC12 - Carica i dati del biglietto nel sistema.
+     * @param {string} ticketId
+     */
+    ticketData(ticketId) {
+        // Recupera dal DB e restituisce i dettagli
+        return { ticketId, valid: true };
+    }
+
+    /** UC12 - Seleziona il tracciamento dell'occupazione. */
+    selectTrackOccupancy() {
+        console.log('[TicketInspector] Tracciamento occupazione selezionato');
+    }
+
+    /**
+     * UC12 - Aggiorna il numero di passeggeri in una carrozza.
+     * @param {number} coachNumber
+     * @param {number} passengersCount
+     */
+    updateOccupancy(coachNumber, passengersCount) {
+        console.log(`[TicketInspector] Occupazione carrozza ${coachNumber}: ${passengersCount} passeggeri`);
+    }
+
+    /**
+     * UC13 - Visualizza il turno di lavoro.
+     * @param {number} inspectorId
+     * @param {Function} scheduleCallback
+     */
+    viewSchedule(inspectorId, scheduleCallback) {
+        scheduleCallback(inspectorId);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Train.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:54               893 Train.js
+               1 File(s)            893 bytes
+               0 Dir(s)  120'208'187'392 bytes free
+/**
+ * @class Train
+ * @description Rotabile ferroviario.
+ */
+export class Train {
+    constructor(trainId, trainCode, trainType, serviceClass) {
+        this.trainId = trainId;
+        this.trainCode = trainCode;
+        this.trainType = trainType;
+        this.serviceClass = serviceClass;
+    }
+
+    /**
+     * UC5 - Recupera la posizione in tempo reale.
+     * @param {number} trainId
+     * @param {Function} callback
+     */
+    getLiveLocation(trainId, callback) {
+        // Simula chiamata a sistema esterno
+        callback({ trainId, lat: 45.0, lon: 11.0, lastUpdate: new Date() });
+    }
+
+    /**
+     * UC5 - Stima del ritardo.
+     * @param {number} trainId
+     * @returns {number} Minuti di ritardo.
+     */
+    getDelayEstimate(trainId) {
+        // In realtà interroga il PredictionSystem
+        return Math.floor(Math.random() * 20);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\TrainOption.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:56               423 TrainOption.js
+               1 File(s)            423 bytes
+               0 Dir(s)  120'208'183'296 bytes free
+/**
+ * @class TrainOption
+ * @description Opzione di treno mostrata nei risultati di ricerca.
+ */
+export class TrainOption {
+    constructor(optionId, totalPrice, availableSeats) {
+        this.optionId = optionId;
+        this.totalPrice = totalPrice;
+        this.availableSeats = availableSeats;
+    }
+
+    /** UC1 - Mostra il prezzo totale. */
+    displayTotal() {
+        return this.totalPrice;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\TrainRun.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:56             1'091 TrainRun.js
+               1 File(s)          1'091 bytes
+               0 Dir(s)  120'208'183'296 bytes free
+/**
+ * @class TrainRun
+ * @description Corsa specifica di un treno in una data.
+ */
+export class TrainRun {
+    constructor(runId, trainId, routeId, departureDateTime, status, currentDelayMinutes = 0) {
+        this.runId = runId;
+        this.trainId = trainId;
+        this.routeId = routeId;
+        this.departureDateTime = new Date(departureDateTime);
+        this.status = status; // scheduled, delayed, completed, cancelled
+        this.currentDelayMinutes = currentDelayMinutes;
+    }
+
+    /**
+     * UC5/UC7 - Segnala un ritardo e notifica gli utenti.
+     * @param {number} trainId
+     * @param {number} delayTime
+     * @param {Function} notifyCallback - Chiamata per inviare notifiche.
+     */
+    reportDelay(trainId, delayTime, notifyCallback) {
+        this.status = 'delayed';
+        this.currentDelayMinutes = delayTime;
+        notifyCallback(this.runId, delayTime);
+    }
+
+    /** UC5/UC6 - Aggiorna i dati in tempo reale (es. posizione). */
+    refreshData() {
+        console.log(`[TrainRun] Dati corsa ${this.runId} aggiornati`);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\TrainStatus.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:56               787 TrainStatus.js
+               1 File(s)            787 bytes
+               0 Dir(s)  120'208'183'296 bytes free
+/**
+ * @class TrainStatus
+ * @description Stato di un treno in un dato momento.
+ */
+export class TrainStatus {
+    constructor(scheduledDeparture, estimatedDeparture, scheduledArrival, estimatedArrival, delayMinutes) {
+        this.scheduledDeparture = scheduledDeparture;
+        this.estimatedDeparture = estimatedDeparture;
+        this.scheduledArrival = scheduledArrival;
+        this.estimatedArrival = estimatedArrival;
+        this.delayMinutes = delayMinutes;
+    }
+
+    /**
+     * UC5 - Mostra timeline visiva del viaggio.
+     * @param {Object} location
+     * @param {DelayEstimate} delay
+     */
+    displayVisualTimeline(location, delay) {
+        console.log(`[TrainStatus] Timeline: posizione ${location}, ritardo ${delay.delayMinutes} min`);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\TravelDocument.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:53             1'296 TravelDocument.js
+               1 File(s)          1'296 bytes
+               0 Dir(s)  120'208'183'296 bytes free
+/**
+ * @file Modello astratto per documenti di viaggio (biglietto/abbonamento).
+ */
+
+/**
+ * @class TravelDocument
+ * @abstract
+ */
+export class TravelDocument {
+    /**
+     * @param {number} documentId
+     * @param {Date} issueDate
+     * @param {number} price
+     * @param {string} status - 'active', 'used', 'expired', 'cancelled'
+     * @param {string} qrCode
+     */
+    constructor(documentId, issueDate, price, status, qrCode) {
+        this.documentId = documentId;
+        this.issueDate = issueDate;
+        this.price = price;
+        this.status = status;
+        this.qrCode = qrCode;
+    }
+
+    /**
+     * UC12 - Valida il documento (marcato come utilizzato).
+     */
+    validate() {
+        if (this.status === 'active') {
+            this.status = 'used';
+            console.log(`[TravelDocument] Documento ${this.documentId} validato`);
+            return true;
+        }
+        console.log(`[TravelDocument] Documento ${this.documentId} non valido (status=${this.status})`);
+        return false;
+    }
+
+    /**
+     * UC9/UC12 - Verifica se il documento è attivo alla data corrente.
+     * @param {Date} currentDate
+     * @returns {boolean}
+     */
+    isActive(currentDate) {
+        return this.status === 'active';
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\TravelDocumentSummary.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:00               119 TravelDocumentSummary.js
+               1 File(s)            119 bytes
+               0 Dir(s)  120'208'179'200 bytes free
+export class TravelDocumentSummary {
+    constructor(activeCount) {
+        this.activeCount = activeCount;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\User.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:52             1'002 User.js
+               1 File(s)          1'002 bytes
+               0 Dir(s)  120'208'154'624 bytes free
+/**
+ * @file Modello astratto per un generico utente del sistema.
+ */
+
+/**
+ * @class User
+ * @abstract
+ * @description Rappresenta un utente generico (anonimo o registrato).
+ */
+export class User {
+    /**
+     * @param {number} userId - ID univoco dell'utente.
+     * @param {string} name - Nome.
+     * @param {string} surname - Cognome.
+     * @param {string} email - Email.
+     * @param {string} preferredLanguage - Lingua preferita (ITA, ENG, GER).
+     */
+    constructor(userId, name, surname, email, preferredLanguage = 'ITA') {
+        this.userId = userId;
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.preferredLanguage = preferredLanguage;
+    }
+
+    /**
+     * UC15 - Cambia la lingua dell'interfaccia.
+     * @param {string} lang - Nuova lingua (ITA, ENG, GER).
+     */
+    changeLanguage(lang) {
+        this.preferredLanguage = lang;
+        console.log(`[User] Lingua cambiata in ${lang}`);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\UserProfile.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:00               103 UserProfile.js
+               1 File(s)            103 bytes
+               0 Dir(s)  120'208'130'048 bytes free
+export class UserProfile {
+    constructor(profileId) {
+        this.profileId = profileId;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\ValidationPanel.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  22:59               101 ValidationPanel.js
+               1 File(s)            101 bytes
+               0 Dir(s)  120'208'105'472 bytes free
+export class ValidationPanel {
+    constructor(panelId) {
+        this.panelId = panelId;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\Location.js === 
+ Volume Serial Number is 0844-3CEC
+05.06.2026  00:00               864 Location.js
+               1 File(s)            864 bytes
+               0 Dir(s)  120'208'105'472 bytes free
+/**
+ * @class Location
+ * @description Coordinate geografiche (latitudine, longitudine).
+ */
+export class Location {
+    /**
+     * @param {number} lat - Latitudine.
+     * @param {number} lon - Longitudine.
+     */
+    constructor(lat, lon) {
+        this.lat = lat;
+        this.lon = lon;
+    }
+
+    /**
+     * Calcola la distanza approssimativa in km da un'altra posizione.
+     * @param {Location} other
+     * @returns {number}
+     */
+    distanceTo(other) {
+        const R = 6371;
+        const dLat = (other.lat - this.lat) * Math.PI / 180;
+        const dLon = (other.lon - this.lon) * Math.PI / 180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(this.lat * Math.PI/180) * Math.cos(other.lat * Math.PI/180) * Math.sin(dLon/2)**2;
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\PaymentDetails.js === 
+ Volume Serial Number is 0844-3CEC
+05.06.2026  00:00               600 PaymentDetails.js
+               1 File(s)            600 bytes
+               0 Dir(s)  120'208'101'376 bytes free
+/**
+ * @class PaymentDetails
+ * @description Dettagli di pagamento forniti dal frontend.
+ */
+export class PaymentDetails {
+    /**
+     * @param {string} paymentMethod - Es. 'Visa', 'PayPal'
+     * @param {string} tokenizedReference - Token temporaneo (es. da Stripe)
+     */
+    constructor(paymentMethod, tokenizedReference) {
+        this.paymentMethod = paymentMethod;
+        this.tokenizedReference = tokenizedReference;
+    }
+
+    /** @returns {boolean} true se i dati sono validi. */
+    validate() {
+        return !!(this.paymentMethod && this.tokenizedReference);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\PaymentResult.js === 
+ Volume Serial Number is 0844-3CEC
+05.06.2026  00:00               507 PaymentResult.js
+               1 File(s)            507 bytes
+               0 Dir(s)  120'208'101'376 bytes free
+/**
+ * @class PaymentResult
+ * @description Risultato di una transazione di pagamento.
+ */
+export class PaymentResult {
+    /**
+     * @param {boolean} authorized - true se autorizzato.
+     * @param {string} transactionCode - Codice transazione.
+     * @param {string} message - Messaggio di risposta.
+     */
+    constructor(authorized, transactionCode, message) {
+        this.authorized = authorized;
+        this.transactionCode = transactionCode;
+        this.message = message;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\SearchCriteria.js === 
+ Volume Serial Number is 0844-3CEC
+05.06.2026  00:00             1'454 SearchCriteria.js
+               1 File(s)          1'454 bytes
+               0 Dir(s)  120'208'101'376 bytes free
+import { TrainType, TravelClass } from '../enums/TrainType.js';
+// Nota: gli import degli enum potrebbero essere necessari solo per i tipi, ma qui li usiamo per documentazione.
+
+/**
+ * @class SearchCriteria
+ * @description Criteri di ricerca per trovare un treno.
+ */
+export class SearchCriteria {
+    /**
+     * @param {string} departureStationName
+     * @param {string} arrivalStationName
+     * @param {Date} date
+     * @param {string} time - HH:MM (opzionale)
+     * @param {string} trainType - Valore di TrainType
+     * @param {string} travelClass - Valore di TravelClass
+     * @param {number} passengerCount
+     */
+    constructor(departureStationName, arrivalStationName, date, time, trainType, travelClass, passengerCount) {
+        this.departureStationName = departureStationName;
+        this.arrivalStationName = arrivalStationName;
+        this.date = date;
+        this.time = time;
+        this.trainType = trainType;
+        this.travelClass = travelClass;
+        this.passengerCount = passengerCount;
+    }
+
+    /** @returns {boolean} true se i criteri sono validi. */
+    validate() {
+        if (!this.departureStationName || !this.arrivalStationName) return false;
+        if (this.departureStationName === this.arrivalStationName) return false;
+        if (!this.date || isNaN(this.date.getTime())) return false;
+        if (this.passengerCount < 1) return false;
+        return true;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\SessionToken.js === 
+ Volume Serial Number is 0844-3CEC
+05.06.2026  00:00               602 SessionToken.js
+               1 File(s)            602 bytes
+               0 Dir(s)  120'208'101'376 bytes free
+/**
+ * @class SessionToken
+ * @description Token di sessione per autenticazione.
+ */
+export class SessionToken {
+    /**
+     * @param {string} tokenValue - Token casuale.
+     * @param {Date} expirationTime - Data di scadenza.
+     */
+    constructor(tokenValue, expirationTime) {
+        this.tokenValue = tokenValue;
+        this.expirationTime = expirationTime;
+    }
+
+    /**
+     * UC2 - Verifica se il token è scaduto.
+     * @param {Date} currentTime
+     * @returns {boolean}
+     */
+    isExpired(currentTime) {
+        return currentTime > this.expirationTime;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\StatisticsFilter.js === 
+ Volume Serial Number is 0844-3CEC
+05.06.2026  00:01               493 StatisticsFilter.js
+               1 File(s)            493 bytes
+               0 Dir(s)  120'208'097'280 bytes free
+/**
+ * @class StatisticsFilter
+ * @description Filtri per visualizzare statistiche (area admin).
+ */
+export class StatisticsFilter {
+    /**
+     * @param {Date} date - Filtro per data (opzionale)
+     * @param {string} trainLine - Filtro per linea (opzionale)
+     * @param {string} type - Tipo di report (es. 'revenue', 'bookings')
+     */
+    constructor(date, trainLine, type) {
+        this.date = date;
+        this.trainLine = trainLine;
+        this.type = type;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\TicketChangeRequest.js === 
+ Volume Serial Number is 0844-3CEC
+05.06.2026  00:01             1'071 TicketChangeRequest.js
+               1 File(s)          1'071 bytes
+               0 Dir(s)  120'208'097'280 bytes free
+import { ChangeType } from '../enums/ChangeType.js';
+
+/**
+ * @class TicketChangeRequest
+ * @description Richiesta di modifica di un biglietto.
+ */
+export class TicketChangeRequest {
+    /**
+     * @param {Date} newDate - Nuova data di partenza.
+     * @param {string} newTime - Nuovo orario (HH:MM).
+     * @param {string} changeType - Valore di ChangeType.
+     */
+    constructor(newDate, newTime, changeType) {
+        this.newDate = newDate;
+        this.newTime = newTime;
+        this.changeType = changeType;
+    }
+
+    /**
+     * UC9 - Valida la richiesta contro la soglia (24h).
+     * @param {Date} departureTime - Orario di partenza originale.
+     * @returns {boolean}
+     */
+    validateAgainstThreshold(departureTime) {
+        const now = new Date();
+        const hoursLeft = (departureTime - now) / (1000 * 3600);
+        if (this.changeType === ChangeType.FULL_MODIFICATION && hoursLeft <= 24) return false;
+        if (this.changeType === ChangeType.TIME_ONLY && hoursLeft > 24) return false;
+        return true;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\ValidationResult.js === 
+ Volume Serial Number is 0844-3CEC
+05.06.2026  00:01               552 ValidationResult.js
+               1 File(s)            552 bytes
+               0 Dir(s)  120'208'097'280 bytes free
+/**
+ * @class ValidationResult
+ * @description Risultato della validazione di un biglietto da parte dell'ispettore.
+ */
+export class ValidationResult {
+    /**
+     * @param {boolean} valid - true se il biglietto è valido.
+     * @param {boolean} alreadyValidated - true se già validato in precedenza.
+     * @param {string} message - Messaggio esplicativo.
+     */
+    constructor(valid, alreadyValidated, message) {
+        this.valid = valid;
+        this.alreadyValidated = alreadyValidated;
+        this.message = message;
+    }
+} 
+.

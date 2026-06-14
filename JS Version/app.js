@@ -1,139 +1,66 @@
+/**
+ * @file Main Express server for the Train Application.
+ * Implements all REST endpoints required by the frontend.
+ * Delegates business logic to controllers following D2 design.
+ */
+
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-import crypto from 'crypto';
+
+import { AuthController, hashPassword } from './src/controllers/AuthController.js';
+import { TrainSearchController } from './src/controllers/TrainSearchController.js';
+import { TicketPurchaseController } from './src/controllers/TicketPurchaseController.js';
+import { ValidationController } from './src/controllers/ValidationController.js';
+import { ScheduleController } from './src/controllers/ScheduleController.js';
+import { StatisticsController } from './src/controllers/StatisticsController.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = 3000;
 
+// ============================================================================
+//  MIDDLEWARE & STATIC FILES
+// ============================================================================
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ============================================================================
-//  DATABASE HELPERS
+//  DATABASE HELPERS (only for direct DB access where no controller exists)
 // ============================================================================
-
-/**
- * Percorso del file JSON che funge da database.
- * @constant {string}
- */
 const DB_PATH = path.join(__dirname, 'database', 'database.json');
 
 /**
- * Legge il database dal file JSON.
- * @returns {object} Contenuto del database.
+ * Reads the entire JSON database.
+ * @returns {object} Database content.
  */
 function readDB() {
     return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
 }
 
 /**
- * Scrive il database sul file JSON.
- * @param {object} data - Dati da salvare.
+ * Writes data to the JSON database.
+ * @param {object} data - Database content.
  */
 function writeDB(data) {
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
 }
 
 // ============================================================================
-//  SESSION MANAGEMENT
+//  SEED DEFAULT USERS (using AuthController.hashPassword)
 // ============================================================================
-
-/** Mappa token di sessione → { userId, role } */
-const sessions = new Map();
-
 /**
- * Genera un token di sessione casuale.
- * @returns {string} Token esadecimale a 64 caratteri.
- */
-function generateToken() {
-    return crypto.randomBytes(32).toString('hex');
-}
-
-/**
- * Middleware di autenticazione: verifica il token Bearer.
- * @param {object} req - Richiesta Express.
- * @param {object} res - Risposta Express.
- * @param {Function} next - Chiamata successiva.
- */
-function authenticate(req, res, next) {
-    const auth = req.headers.authorization;
-    if (!auth || !auth.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Unauthorized: missing token' });
-    }
-    const token = auth.slice(7);
-    const session = sessions.get(token);
-    if (!session) {
-        return res.status(401).json({ error: 'Unauthorized: invalid token' });
-    }
-    req.user = session;
-    next();
-}
-
-/**
- * Middleware per richiedere un ruolo specifico.
- * @param {string} role - Ruolo richiesto (admin, inspector, passenger).
- * @returns {Function} Middleware Express.
- */
-function requireRole(role) {
-    return (req, res, next) => {
-        if (req.user.role !== role) {
-            return res.status(403).json({ error: `Forbidden: ${role} role required` });
-        }
-        next();
-    };
-}
-
-// ============================================================================
-//  UTILITY FUNCTIONS
-// ============================================================================
-
-/**
- * Calcola l'hash SHA256 di una password.
- * @param {string} pwd - Password in chiaro.
- * @returns {string} Hash esadecimale.
- */
-function hashPassword(pwd) {
-    return crypto.createHash('sha256').update(pwd).digest('hex');
-}
-
-/**
- * Calcola il prezzo di un biglietto in base alla distanza geografica approssimativa.
- * @param {object} fromStation - Stazione di partenza (con latitude, longitude).
- * @param {object} toStation - Stazione di arrivo.
- * @param {string} travelClass - 'standard' o 'business'.
- * @returns {number} Prezzo in euro (arrotondato a 2 decimali).
- */
-function calculatePrice(fromStation, toStation, travelClass) {
-    const R = 6371; // raggio Terra in km
-    const dLat = (toStation.latitude - fromStation.latitude) * Math.PI / 180;
-    const dLon = (toStation.longitude - fromStation.longitude) * Math.PI / 180;
-    const a = Math.sin(dLat / 2) ** 2 +
-              Math.cos(fromStation.latitude * Math.PI / 180) *
-              Math.cos(toStation.latitude * Math.PI / 180) *
-              Math.sin(dLon / 2) ** 2;
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const km = R * c;
-    let price = km * 0.15;
-    if (travelClass === 'business') price *= 1.8;
-    return Math.round(price * 100) / 100;
-}
-
-/**
- * Inizializza il database con utenti di default se non esistono.
- * Utenti creati:
- * - admin@railway.it / admin (ruolo administrator)
- * - test@example.com / password (ruolo passenger)
+ * Initialises the database with default users if they do not exist.
+ * - administrator: admin@railway.it / admin
+ * - passenger: test@example.com / password
  */
 function seedDefaultUsers() {
     const db = readDB();
     let changed = false;
 
-    const adminExists = db.users.some(u => u.email === 'admin@railway.it');
-    if (!adminExists) {
-        const newId = Math.max(...db.users.map(u => u.userId)) + 1;
+    if (!db.users.some(u => u.email === 'admin@railway.it')) {
+        const newId = Math.max(...db.users.map(u => u.userId), 0) + 1;
         db.users.push({
             userId: newId,
             name: 'Admin',
@@ -148,12 +75,11 @@ function seedDefaultUsers() {
             adminCode: 'ADMIN-001'
         });
         changed = true;
-        console.log('✅ Utente admin creato (admin@railway.it / admin)');
+        console.log('✅ Admin user created (admin@railway.it / admin)');
     }
 
-    const testExists = db.users.some(u => u.email === 'test@example.com');
-    if (!testExists) {
-        const newId = Math.max(...db.users.map(u => u.userId)) + 1;
+    if (!db.users.some(u => u.email === 'test@example.com')) {
+        const newId = Math.max(...db.users.map(u => u.userId), 0) + 1;
         db.users.push({
             userId: newId,
             name: 'Test',
@@ -167,26 +93,20 @@ function seedDefaultUsers() {
             accountStatus: 'active'
         });
         changed = true;
-        console.log('✅ Utente test creato (test@example.com / password)');
+        console.log('✅ Test user created (test@example.com / password)');
     }
 
     if (changed) writeDB(db);
 }
-
-// Esegui il seeding all'avvio
-try {
-    seedDefaultUsers();
-} catch (err) {
-    console.error('Errore durante il seeding:', err);
-}
+seedDefaultUsers();
 
 // ============================================================================
-//  API PUBLICHE (non richiedono autenticazione)
+//  PUBLIC ROUTES (no authentication required)
 // ============================================================================
 
 /**
  * GET /api/stations
- * Restituisce l'elenco di tutte le stazioni.
+ * Returns the list of all stations (simple DB read, no controller needed).
  */
 app.get('/api/stations', (req, res) => {
     const db = readDB();
@@ -195,157 +115,50 @@ app.get('/api/stations', (req, res) => {
 
 /**
  * POST /api/login
- * Autentica un utente e restituisce un token di sessione.
- * Body: { email, password }
+ * Authenticates a user and returns a session token.
  */
-app.post('/api/login', (req, res) => {
-    const { email, password } = req.body;
-    const db = readDB();
-    const user = db.users.find(u => u.email === email);
-
-    if (!user || user.passwordHash !== hashPassword(password)) {
-        return res.status(401).json({ success: false, message: 'Credenziali errate' });
-    }
-    if (user.accountStatus !== 'active') {
-        return res.status(401).json({ success: false, message: 'Account non attivo' });
-    }
-
-    const token = generateToken();
-    sessions.set(token, { userId: user.userId, role: user.role });
-    res.json({
-        success: true,
-        token,
-        user: { id: user.userId, name: user.name, role: user.role }
-    });
-});
+app.post('/api/login', AuthController.login);
 
 /**
  * POST /api/register
- * Registra un nuovo utente (ruolo passenger).
- * Body: { name, surname, email, password }
+ * Creates a new passenger account.
  */
-app.post('/api/register', (req, res) => {
-    const { name, surname, email, password } = req.body;
-    const db = readDB();
-
-    if (db.users.find(u => u.email === email)) {
-        return res.json({ success: false, message: 'Email già registrata' });
-    }
-    if (!password || password.length < 8) {
-        return res.json({ success: false, message: 'La password deve essere lunga almeno 8 caratteri' });
-    }
-
-    const newId = Math.max(...db.users.map(u => u.userId)) + 1;
-    const newUser = {
-        userId: newId,
-        name,
-        surname,
-        email,
-        passwordHash: hashPassword(password),
-        role: 'passenger',
-        preferredLanguage: 'it',
-        loyaltyPoints: 0,
-        failedLoginAttempts: 0,
-        accountStatus: 'active'
-    };
-    db.users.push(newUser);
-    writeDB(db);
-    res.json({ success: true, message: 'Registrazione completata' });
-});
+app.post('/api/register', AuthController.register);
 
 /**
  * POST /api/search
- * Cerca treni in base a partenza, arrivo, data e classe.
- * Body: { departureStationName, arrivalStationName, date, travelClass }
+ * Searches for available trains matching the criteria.
  */
-app.post('/api/search', (req, res) => {
-    const { departureStationName, arrivalStationName, date, travelClass } = req.body;
-    const db = readDB();
-
-    const fromStation = db.stations.find(s => s.name.toLowerCase() === departureStationName.toLowerCase());
-    const toStation = db.stations.find(s => s.name.toLowerCase() === arrivalStationName.toLowerCase());
-
-    if (!fromStation || !toStation) {
-        return res.json({ trains: [] }); // stazione non esistente
-    }
-
-    const searchDate = new Date(date);
-    const results = [];
-
-    for (const run of db.trainRuns) {
-        const route = db.routes.find(r => r.routeId === run.routeId);
-        if (!route) continue;
-
-        const fromStop = route.stops.find(stop => stop.stationId === fromStation.stationId);
-        const toStop = route.stops.find(stop => stop.stationId === toStation.stationId);
-        if (!fromStop || !toStop || fromStop.stopOrder >= toStop.stopOrder) continue;
-
-        const runDate = new Date(run.departureDateTime);
-        if (runDate.toDateString() !== searchDate.toDateString()) continue;
-        if (run.status === 'cancelled') continue;
-
-        const train = db.trains.find(t => t.trainId === run.trainId);
-        if (!train.serviceClasses.includes(travelClass)) continue;
-
-        // Orari di partenza e arrivo dalla fermata specifica
-        const departureDateTime = new Date(runDate);
-        const [depHour, depMin] = fromStop.scheduledDeparture.split(':');
-        departureDateTime.setHours(parseInt(depHour), parseInt(depMin), 0);
-
-        const arrivalDateTime = new Date(runDate);
-        const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
-        arrivalDateTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
-        if (arrivalDateTime < departureDateTime) arrivalDateTime.setDate(arrivalDateTime.getDate() + 1);
-
-        const durationMs = arrivalDateTime - departureDateTime;
-        const durationMinutes = Math.round(durationMs / 60000);
-        const price = calculatePrice(fromStation, toStation, travelClass);
-
-        results.push({
-            id: run.runId,
-            from: fromStation.name,
-            to: toStation.name,
-            departureTime: departureDateTime.toISOString(),
-            arrivalTime: arrivalDateTime.toISOString(),
-            duration: `${Math.floor(durationMinutes / 60)}h ${durationMinutes % 60}m`,
-            price,
-            trainType: train.trainType,
-            trainCode: train.trainCode,
-            travelClass
-        });
-    }
-    res.json({ trains: results });
-});
+app.post('/api/search', TrainSearchController.search);
 
 // ============================================================================
-//  API PROTETTE (richiedono autenticazione)
+//  PROTECTED ROUTES (authentication required)
 // ============================================================================
 
 /**
  * GET /api/me
- * Restituisce i dati dell'utente autenticato.
+ * Returns the authenticated user's basic data.
  */
-app.get('/api/me', authenticate, (req, res) => {
+app.get('/api/me', AuthController.authenticate, (req, res) => {
     const db = readDB();
     const user = db.users.find(u => u.userId === req.user.userId);
-    if (!user) return res.status(404).json({ error: 'Utente non trovato' });
+    if (!user) return res.status(404).json({ error: 'User not found' });
     res.json({ id: user.userId, name: user.name, role: user.role });
 });
 
 /**
  * GET /api/user/dashboard/:userId
- * Restituisce dashboard del passeggero (biglietti attivi, storico, punti fedeltà).
- * Solo l'utente stesso o un amministratore può accedere.
+ * Returns passenger dashboard (active tickets, history, loyalty points).
+ * Accessible by the user themselves or an administrator.
  */
-app.get('/api/user/dashboard/:userId', authenticate, (req, res) => {
+app.get('/api/user/dashboard/:userId', AuthController.authenticate, (req, res) => {
     const targetUserId = parseInt(req.params.userId);
     if (req.user.userId !== targetUserId && req.user.role !== 'administrator') {
-        return res.status(403).json({ error: 'Accesso negato' });
+        return res.status(403).json({ error: 'Access denied' });
     }
-
     const db = readDB();
     const user = db.users.find(u => u.userId === targetUserId);
-    if (!user) return res.status(404).json({ error: 'Utente non trovato' });
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
     const tickets = db.tickets.filter(t => t.userId === targetUserId);
     const activeTickets = tickets.filter(t => t.status === 'active');
@@ -391,171 +204,37 @@ app.get('/api/user/dashboard/:userId', authenticate, (req, res) => {
 
 /**
  * POST /api/purchase
- * Acquista un biglietto per l'utente autenticato.
- * Body: { runId, fromStopOrder, toStopOrder, passengerType, travelClass, seatNumber, extras, totalPrice }
+ * Buys a ticket for the authenticated user.
  */
-app.post('/api/purchase', authenticate, (req, res) => {
-    const userId = req.user.userId;
-    const { runId, fromStopOrder, toStopOrder, passengerType, travelClass, seatNumber, extras, totalPrice } = req.body;
-    const db = readDB();
-
-    const user = db.users.find(u => u.userId === userId);
-    if (!user) return res.status(400).json({ success: false, message: 'Utente non valido' });
-
-    // Crea nuovo biglietto
-    const newTicketId = Math.max(...db.tickets.map(t => t.ticketId)) + 1;
-    const now = new Date().toISOString();
-    const newTicket = {
-        ticketId: newTicketId,
-        ticketCode: `TKT-${userId}-${newTicketId}`,
-        userId,
-        runId,
-        fromStopOrder,
-        toStopOrder,
-        passengerType,
-        seatNumber,
-        class: travelClass,
-        price: totalPrice,
-        status: 'active',
-        purchaseDate: now,
-        qrCode: `QR${newTicketId}${Math.random().toString(36).substring(2, 8)}`
-    };
-    db.tickets.push(newTicket);
-
-    // Aggiorna punti fedeltà (1 punto per euro)
-    const pointsEarned = Math.floor(totalPrice);
-    user.loyaltyPoints += pointsEarned;
-
-    // Registra transazione punti
-    const newLoyaltyId = Math.max(...db.loyaltyTransactions.map(l => l.transactionId)) + 1;
-    db.loyaltyTransactions.push({
-        transactionId: newLoyaltyId,
-        userId,
-        points: pointsEarned,
-        reason: `Acquisto biglietto #${newTicketId}`,
-        date: now
-    });
-
-    // Registra pagamento
-    const newPaymentId = Math.max(...db.payments.map(p => p.paymentId)) + 1;
-    db.payments.push({
-        paymentId: newPaymentId,
-        userId,
-        ticketId: newTicketId,
-        subscriptionId: null,
-        amount: totalPrice,
-        paymentDate: now,
-        paymentMethod: 'Credit Card',
-        transactionId: `TXN${newPaymentId}`,
-        status: 'completed'
-    });
-
-    // Prenotazione posto
-    db.seatReservations.push({
-        runId,
-        coachNumber: 1, // Semplificato; in realtà andrebbe calcolato
-        seatNumber,
-        ticketId: newTicketId,
-        status: 'reserved'
-    });
-
-    // Servizi extra (bagaglio, bici, ...)
-    if (extras && extras.length) {
-        for (const extra of extras) {
-            const newResId = Math.max(...db.additionalReservations.map(r => r.reservationId)) + 1;
-            db.additionalReservations.push({
-                reservationId: newResId,
-                ticketId: newTicketId,
-                type: extra.type,
-                status: 'confirmed',
-                price: extra.price
-            });
-        }
-    }
-
-    writeDB(db);
-    res.json({ success: true, ticketId: newTicketId });
-});
+app.post('/api/purchase', AuthController.authenticate, TicketPurchaseController.purchase);
 
 /**
  * POST /api/validate
- * Valida un biglietto (solo ispettori).
- * Body: { ticketId }
+ * Validates a ticket (inspector only).
  */
-app.post('/api/validate', authenticate, requireRole('inspector'), (req, res) => {
-    const { ticketId } = req.body;
-    const db = readDB();
-    const ticket = db.tickets.find(t => t.ticketId === ticketId);
-
-    if (!ticket) {
-        return res.json({ valid: false, message: 'Biglietto non trovato' });
-    }
-    if (ticket.status !== 'active') {
-        return res.json({ valid: false, message: 'Biglietto già utilizzato o scaduto' });
-    }
-
-    ticket.status = 'used';
-    const seatRes = db.seatReservations.find(sr => sr.ticketId === ticketId);
-    if (seatRes) seatRes.status = 'occupied';
-
-    writeDB(db);
-    res.json({ valid: true, message: 'Biglietto valido e marcato come utilizzato' });
-});
+app.post('/api/validate', AuthController.authenticate, AuthController.requireRole('inspector'), ValidationController.validateTicket);
 
 /**
  * GET /api/inspector/schedule/:inspectorId
- * Restituisce i turni di un ispettore (solo l'ispettore stesso).
+ * Returns the shift schedule for a ticket inspector.
  */
-app.get('/api/inspector/schedule/:inspectorId', authenticate, requireRole('inspector'), (req, res) => {
-    const inspectorId = parseInt(req.params.inspectorId);
-    if (req.user.userId !== inspectorId) {
-        return res.status(403).json({ error: 'Accesso negato' });
-    }
-    const db = readDB();
-    const shifts = db.shiftSchedules.filter(s => s.staffId === inspectorId);
-    const enriched = shifts.map(s => {
-        const run = db.trainRuns.find(r => r.runId === s.trainRunId);
-        const route = db.routes.find(r => r.routeId === run?.routeId);
-        const train = db.trains.find(t => t.trainId === run?.trainId);
-        return {
-            date: s.date,
-            startTime: s.startTime,
-            endTime: s.endTime,
-            route: s.assignedRoute,
-            trainCode: train?.trainCode,
-            trainType: train?.trainType
-        };
-    });
-    res.json({ shifts: enriched });
-});
+app.get('/api/inspector/schedule/:inspectorId', AuthController.authenticate, AuthController.requireRole('inspector'), ScheduleController.getSchedule);
 
 /**
  * GET /api/admin/stats
- * Restituisce statistiche di sistema (solo amministratori).
+ * Returns system statistics (administrator only).
  */
-app.get('/api/admin/stats', authenticate, requireRole('administrator'), (req, res) => {
-    const db = readDB();
-    const totalRevenue = db.payments.reduce((sum, p) => sum + p.amount, 0);
-    const totalBookings = db.tickets.length;
-    const delayedRuns = db.trainRuns.filter(r => r.status === 'delayed').length;
-    const activeUsers = db.users.filter(u => u.accountStatus === 'active' && u.role === 'passenger').length;
-    res.json({
-        revenue: totalRevenue,
-        bookings: totalBookings,
-        delayedTrains: delayedRuns,
-        activeUsers
-    });
-});
+app.get('/api/admin/stats', AuthController.authenticate, AuthController.requireRole('administrator'), StatisticsController.getStatistics);
 
 /**
  * POST /api/support
- * Invia una richiesta di supporto (utente autenticato).
- * Body: { requestType, ticketRef, description }
+ * Submits a customer support request.
+ * (No dedicated controller yet – kept inline for simplicity)
  */
-app.post('/api/support', authenticate, (req, res) => {
+app.post('/api/support', AuthController.authenticate, (req, res) => {
     const { requestType, ticketRef, description } = req.body;
     const db = readDB();
-    const newId = Math.max(...db.supportRequests.map(r => r.requestId)) + 1;
+    const newId = Math.max(...db.supportRequests.map(r => r.requestId), 0) + 1;
     db.supportRequests.push({
         requestId: newId,
         userId: req.user.userId,
@@ -566,15 +245,14 @@ app.post('/api/support', authenticate, (req, res) => {
         resolution: null
     });
     writeDB(db);
-    res.json({ success: true, message: 'Richiesta inviata' });
+    res.json({ success: true, message: 'Request sent' });
 });
 
 // ============================================================================
-//  AVVIO DEL SERVER
+//  START SERVER
 // ============================================================================
-
 app.listen(PORT, () => {
-    console.log(`🚆 Server running on http://localhost:${PORT}`);
+    console.log(`🚆 Train server running on http://localhost:${PORT}`);
     console.log(`📁 Database: ${DB_PATH}`);
     console.log(`🔐 Admin: admin@railway.it / admin`);
     console.log(`👤 Test user: test@example.com / password`);

@@ -1,4 +1,5 @@
 {
+<<<<<<< Updated upstream
     "_comment": "Database per l'applicazione di ticketing ferroviario - Progetto 'Team Not Found' - Università di Trento",
     "stations": [
       { "stationId": 1, "name": "Trento", "city": "Trento", "code": "TN", "region": "Trentino-Alto Adige", "latitude": 46.0667, "longitude": 11.1167 },
@@ -730,3 +731,4754 @@
     "accountStatuses": ["active", "blocked", "deleted"],
     "roles": ["passenger", "inspector", "customer_support", "administrator"]
   }
+=======
+  "_comment": "Database per l'applicazione di ticketing ferroviario - Progetto 'Team Not Found' - Università di Trento - VERSIONE COMPLETA CON NUOVE STAZIONI, LINEE E 10+ CORSE GIORNALIERE (ANDATA/RITORNO)",
+  "stations": [
+    {
+      "stationId": 1,
+      "name": "Trento",
+      "city": "Trento",
+      "code": "TN",
+      "region": "Trentino-Alto Adige",
+      "latitude": 46.0667,
+      "longitude": 11.1167
+    },
+    {
+      "stationId": 6,
+      "name": "Bolzano",
+      "city": "Bolzano",
+      "code": "BZ",
+      "region": "Trentino-Alto Adige",
+      "latitude": 46.5,
+      "longitude": 11.35
+    },
+    {
+      "stationId": 9,
+      "name": "Verona Porta Nuova",
+      "city": "Verona",
+      "code": "VR",
+      "region": "Veneto",
+      "latitude": 45.4298,
+      "longitude": 10.9824
+    },
+    {
+      "stationId": 10,
+      "name": "Padova",
+      "city": "Padova",
+      "code": "PD",
+      "region": "Veneto",
+      "latitude": 45.4064,
+      "longitude": 11.8761
+    },
+    {
+      "stationId": 11,
+      "name": "Venezia Santa Lucia",
+      "city": "Venezia",
+      "code": "VE",
+      "region": "Veneto",
+      "latitude": 45.4408,
+      "longitude": 12.3155
+    },
+    {
+      "stationId": 15,
+      "name": "Bologna Centrale",
+      "city": "Bologna",
+      "code": "BO",
+      "region": "Emilia-Romagna",
+      "latitude": 44.5059,
+      "longitude": 11.3426
+    },
+    {
+      "stationId": 16,
+      "name": "Modena",
+      "city": "Modena",
+      "code": "MO",
+      "region": "Emilia-Romagna",
+      "latitude": 44.6471,
+      "longitude": 10.9252
+    },
+    {
+      "stationId": 17,
+      "name": "Reggio Emilia",
+      "city": "Reggio Emilia",
+      "code": "RE",
+      "region": "Emilia-Romagna",
+      "latitude": 44.7,
+      "longitude": 10.6333
+    },
+    {
+      "stationId": 18,
+      "name": "Parma",
+      "city": "Parma",
+      "code": "PR",
+      "region": "Emilia-Romagna",
+      "latitude": 44.8015,
+      "longitude": 10.328
+    },
+    {
+      "stationId": 19,
+      "name": "Piacenza",
+      "city": "Piacenza",
+      "code": "PC",
+      "region": "Emilia-Romagna",
+      "latitude": 45.05,
+      "longitude": 9.7
+    },
+    {
+      "stationId": 20,
+      "name": "Milano Centrale",
+      "city": "Milano",
+      "code": "MI",
+      "region": "Lombardia",
+      "latitude": 45.4856,
+      "longitude": 9.2036
+    },
+    {
+      "stationId": 22,
+      "name": "Brescia",
+      "city": "Brescia",
+      "code": "BS",
+      "region": "Lombardia",
+      "latitude": 45.5333,
+      "longitude": 10.2167
+    },
+    {
+      "stationId": 32,
+      "name": "Vicenza",
+      "city": "Vicenza",
+      "code": "VI",
+      "region": "Veneto",
+      "latitude": 45.5478,
+      "longitude": 11.5496
+    },
+    {
+      "stationId": 33,
+      "name": "Levico Terme",
+      "city": "Levico Terme",
+      "code": "LV",
+      "region": "Trentino-Alto Adige",
+      "latitude": 46.0167,
+      "longitude": 11.3
+    },
+    {
+      "stationId": 34,
+      "name": "Borgo Valsugana",
+      "city": "Borgo Valsugana",
+      "code": "BV",
+      "region": "Trentino-Alto Adige",
+      "latitude": 46.05,
+      "longitude": 11.45
+    },
+    {
+      "stationId": 35,
+      "name": "Bassano del Grappa",
+      "city": "Bassano del Grappa",
+      "code": "BSG",
+      "region": "Veneto",
+      "latitude": 45.7667,
+      "longitude": 11.7333
+    },
+    {
+      "stationId": 36,
+      "name": "Rovereto",
+      "city": "Rovereto",
+      "code": "RO",
+      "region": "Trentino-Alto Adige",
+      "latitude": 45.8833,
+      "longitude": 11.0333
+    },
+    {
+      "stationId": 37,
+      "name": "Bressanone",
+      "city": "Bressanone",
+      "code": "BRI",
+      "region": "Trentino-Alto Adige",
+      "latitude": 46.7167,
+      "longitude": 11.65
+    },
+    {
+      "stationId": 38,
+      "name": "Brennero",
+      "city": "Brennero",
+      "code": "BRN",
+      "region": "Trentino-Alto Adige",
+      "latitude": 47,
+      "longitude": 11.5
+    },
+    {
+      "stationId": 39,
+      "name": "Innsbruck Hbf",
+      "city": "Innsbruck",
+      "code": "INN",
+      "region": "Tirol",
+      "latitude": 47.2667,
+      "longitude": 11.4
+    },
+    {
+      "stationId": 40,
+      "name": "Bari Centrale",
+      "city": "Bari",
+      "code": "BA",
+      "region": "Puglia",
+      "latitude": 41.1173,
+      "longitude": 16.8719
+    },
+    {
+      "stationId": 41,
+      "name": "Lecce",
+      "city": "Lecce",
+      "code": "LE",
+      "region": "Puglia",
+      "latitude": 40.352,
+      "longitude": 18.169
+    }
+  ],
+  "routes": [
+    {
+      "routeId": 20,
+      "routeName": "Bologna - Bolzano (via Verona-Brennero)",
+      "stops": [
+        {
+          "stopOrder": 1,
+          "stationId": 15,
+          "scheduledArrival": null,
+          "scheduledDeparture": "00:00",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 2,
+          "stationId": 9,
+          "scheduledArrival": "01:10",
+          "scheduledDeparture": "01:12",
+          "trackNumber": 3
+        },
+        {
+          "stopOrder": 3,
+          "stationId": 1,
+          "scheduledArrival": "02:00",
+          "scheduledDeparture": "02:02",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 4,
+          "stationId": 6,
+          "scheduledArrival": "02:50",
+          "scheduledDeparture": null,
+          "trackNumber": 1
+        }
+      ]
+    },
+    {
+      "routeId": 21,
+      "routeName": "Venezia - Milano (via Padova-Verona-Brescia)",
+      "stops": [
+        {
+          "stopOrder": 1,
+          "stationId": 11,
+          "scheduledArrival": null,
+          "scheduledDeparture": "00:00",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 2,
+          "stationId": 10,
+          "scheduledArrival": "00:25",
+          "scheduledDeparture": "00:27",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 3,
+          "stationId": 32,
+          "scheduledArrival": "00:50",
+          "scheduledDeparture": "00:52",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 4,
+          "stationId": 9,
+          "scheduledArrival": "01:15",
+          "scheduledDeparture": "01:17",
+          "trackNumber": 4
+        },
+        {
+          "stopOrder": 5,
+          "stationId": 22,
+          "scheduledArrival": "01:50",
+          "scheduledDeparture": "01:52",
+          "trackNumber": 3
+        },
+        {
+          "stopOrder": 6,
+          "stationId": 20,
+          "scheduledArrival": "02:30",
+          "scheduledDeparture": null,
+          "trackNumber": 6
+        }
+      ]
+    },
+    {
+      "routeId": 22,
+      "routeName": "Bologna - Milano (via Emilia)",
+      "stops": [
+        {
+          "stopOrder": 1,
+          "stationId": 15,
+          "scheduledArrival": null,
+          "scheduledDeparture": "00:00",
+          "trackNumber": 5
+        },
+        {
+          "stopOrder": 2,
+          "stationId": 16,
+          "scheduledArrival": "00:25",
+          "scheduledDeparture": "00:27",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 3,
+          "stationId": 17,
+          "scheduledArrival": "00:45",
+          "scheduledDeparture": "00:47",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 4,
+          "stationId": 18,
+          "scheduledArrival": "01:05",
+          "scheduledDeparture": "01:07",
+          "trackNumber": 3
+        },
+        {
+          "stopOrder": 5,
+          "stationId": 19,
+          "scheduledArrival": "01:35",
+          "scheduledDeparture": "01:37",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 6,
+          "stationId": 20,
+          "scheduledArrival": "02:15",
+          "scheduledDeparture": null,
+          "trackNumber": 4
+        }
+      ]
+    },
+    {
+      "routeId": 23,
+      "routeName": "Trento - Venezia Santa Lucia (via Levico, Borgo Valsugana, Bassano, Padova)",
+      "stops": [
+        {
+          "stopOrder": 1,
+          "stationId": 1,
+          "scheduledArrival": null,
+          "scheduledDeparture": "00:00",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 2,
+          "stationId": 33,
+          "scheduledArrival": "00:30",
+          "scheduledDeparture": "00:32",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 3,
+          "stationId": 34,
+          "scheduledArrival": "00:52",
+          "scheduledDeparture": "00:54",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 4,
+          "stationId": 35,
+          "scheduledArrival": "01:34",
+          "scheduledDeparture": "01:36",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 5,
+          "stationId": 10,
+          "scheduledArrival": "02:26",
+          "scheduledDeparture": "02:28",
+          "trackNumber": 3
+        },
+        {
+          "stopOrder": 6,
+          "stationId": 11,
+          "scheduledArrival": "02:58",
+          "scheduledDeparture": null,
+          "trackNumber": 2
+        }
+      ]
+    },
+    {
+      "routeId": 24,
+      "routeName": "Verona Porta Nuova - Innsbruck (via Rovereto, Trento, Bolzano, Bressanone, Brennero)",
+      "stops": [
+        {
+          "stopOrder": 1,
+          "stationId": 9,
+          "scheduledArrival": null,
+          "scheduledDeparture": "00:00",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 2,
+          "stationId": 36,
+          "scheduledArrival": "00:55",
+          "scheduledDeparture": "00:57",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 3,
+          "stationId": 1,
+          "scheduledArrival": "01:17",
+          "scheduledDeparture": "01:19",
+          "trackNumber": 3
+        },
+        {
+          "stopOrder": 4,
+          "stationId": 6,
+          "scheduledArrival": "02:09",
+          "scheduledDeparture": "02:11",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 5,
+          "stationId": 37,
+          "scheduledArrival": "02:41",
+          "scheduledDeparture": "02:43",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 6,
+          "stationId": 38,
+          "scheduledArrival": "03:23",
+          "scheduledDeparture": "03:25",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 7,
+          "stationId": 39,
+          "scheduledArrival": "04:45",
+          "scheduledDeparture": null,
+          "trackNumber": 4
+        }
+      ]
+    },
+    {
+      "routeId": 25,
+      "routeName": "VirginiaPugliaExpress - Trento->Bari->Lecce (Alta Velocità)",
+      "stops": [
+        {
+          "stopOrder": 1,
+          "stationId": 1,
+          "scheduledArrival": null,
+          "scheduledDeparture": "00:00",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 2,
+          "stationId": 9,
+          "scheduledArrival": "01:30",
+          "scheduledDeparture": "01:32",
+          "trackNumber": 3
+        },
+        {
+          "stopOrder": 3,
+          "stationId": 15,
+          "scheduledArrival": "02:30",
+          "scheduledDeparture": "02:32",
+          "trackNumber": 5
+        },
+        {
+          "stopOrder": 4,
+          "stationId": 40,
+          "scheduledArrival": "06:30",
+          "scheduledDeparture": "06:32",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 5,
+          "stationId": 41,
+          "scheduledArrival": "08:00",
+          "scheduledDeparture": null,
+          "trackNumber": 1
+        }
+      ]
+    },
+    {
+      "routeId": 26,
+      "routeName": "Bolzano - Bologna (via Brennero-Verona)",
+      "stops": [
+        {
+          "stopOrder": 1,
+          "stationId": 6,
+          "scheduledArrival": null,
+          "scheduledDeparture": "00:00",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 2,
+          "stationId": 1,
+          "scheduledArrival": "00:48",
+          "scheduledDeparture": "00:50",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 3,
+          "stationId": 9,
+          "scheduledArrival": "01:38",
+          "scheduledDeparture": "01:40",
+          "trackNumber": 3
+        },
+        {
+          "stopOrder": 4,
+          "stationId": 15,
+          "scheduledArrival": "02:50",
+          "scheduledDeparture": null,
+          "trackNumber": 1
+        }
+      ]
+    },
+    {
+      "routeId": 27,
+      "routeName": "Milano - Venezia (via Brescia-Verona-Padova)",
+      "stops": [
+        {
+          "stopOrder": 1,
+          "stationId": 20,
+          "scheduledArrival": null,
+          "scheduledDeparture": "00:00",
+          "trackNumber": 5
+        },
+        {
+          "stopOrder": 2,
+          "stationId": 22,
+          "scheduledArrival": "00:40",
+          "scheduledDeparture": "00:42",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 3,
+          "stationId": 9,
+          "scheduledArrival": "01:15",
+          "scheduledDeparture": "01:17",
+          "trackNumber": 4
+        },
+        {
+          "stopOrder": 4,
+          "stationId": 32,
+          "scheduledArrival": "01:40",
+          "scheduledDeparture": "01:42",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 5,
+          "stationId": 10,
+          "scheduledArrival": "02:05",
+          "scheduledDeparture": "02:07",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 6,
+          "stationId": 11,
+          "scheduledArrival": "02:32",
+          "scheduledDeparture": null,
+          "trackNumber": 3
+        }
+      ]
+    },
+    {
+      "routeId": 28,
+      "routeName": "Milano - Bologna (via Emilia)",
+      "stops": [
+        {
+          "stopOrder": 1,
+          "stationId": 20,
+          "scheduledArrival": null,
+          "scheduledDeparture": "00:00",
+          "trackNumber": 4
+        },
+        {
+          "stopOrder": 2,
+          "stationId": 19,
+          "scheduledArrival": "00:38",
+          "scheduledDeparture": "00:40",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 3,
+          "stationId": 18,
+          "scheduledArrival": "01:08",
+          "scheduledDeparture": "01:10",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 4,
+          "stationId": 17,
+          "scheduledArrival": "01:28",
+          "scheduledDeparture": "01:30",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 5,
+          "stationId": 16,
+          "scheduledArrival": "01:48",
+          "scheduledDeparture": "01:50",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 6,
+          "stationId": 15,
+          "scheduledArrival": "02:15",
+          "scheduledDeparture": null,
+          "trackNumber": 5
+        }
+      ]
+    },
+    {
+      "routeId": 29,
+      "routeName": "Venezia - Trento (via Bassano, Borgo, Levico)",
+      "stops": [
+        {
+          "stopOrder": 1,
+          "stationId": 11,
+          "scheduledArrival": null,
+          "scheduledDeparture": "00:00",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 2,
+          "stationId": 10,
+          "scheduledArrival": "00:30",
+          "scheduledDeparture": "00:32",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 3,
+          "stationId": 35,
+          "scheduledArrival": "01:22",
+          "scheduledDeparture": "01:24",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 4,
+          "stationId": 34,
+          "scheduledArrival": "02:04",
+          "scheduledDeparture": "02:06",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 5,
+          "stationId": 33,
+          "scheduledArrival": "02:26",
+          "scheduledDeparture": "02:28",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 6,
+          "stationId": 1,
+          "scheduledArrival": "02:58",
+          "scheduledDeparture": null,
+          "trackNumber": 1
+        }
+      ]
+    },
+    {
+      "routeId": 30,
+      "routeName": "Innsbruck - Verona Porta Nuova (via Brennero, Bressanone, Bolzano, Trento, Rovereto)",
+      "stops": [
+        {
+          "stopOrder": 1,
+          "stationId": 39,
+          "scheduledArrival": null,
+          "scheduledDeparture": "00:00",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 2,
+          "stationId": 38,
+          "scheduledArrival": "01:20",
+          "scheduledDeparture": "01:22",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 3,
+          "stationId": 37,
+          "scheduledArrival": "02:02",
+          "scheduledDeparture": "02:04",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 4,
+          "stationId": 6,
+          "scheduledArrival": "02:34",
+          "scheduledDeparture": "02:36",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 5,
+          "stationId": 1,
+          "scheduledArrival": "03:26",
+          "scheduledDeparture": "03:28",
+          "trackNumber": 3
+        },
+        {
+          "stopOrder": 6,
+          "stationId": 36,
+          "scheduledArrival": "03:48",
+          "scheduledDeparture": "03:50",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 7,
+          "stationId": 9,
+          "scheduledArrival": "04:45",
+          "scheduledDeparture": null,
+          "trackNumber": 2
+        }
+      ]
+    },
+    {
+      "routeId": 31,
+      "routeName": "VirginiaPugliaExpress - Lecce->Bari->Trento (Alta Velocità ritorno)",
+      "stops": [
+        {
+          "stopOrder": 1,
+          "stationId": 41,
+          "scheduledArrival": null,
+          "scheduledDeparture": "00:00",
+          "trackNumber": 1
+        },
+        {
+          "stopOrder": 2,
+          "stationId": 40,
+          "scheduledArrival": "01:30",
+          "scheduledDeparture": "01:32",
+          "trackNumber": 2
+        },
+        {
+          "stopOrder": 3,
+          "stationId": 15,
+          "scheduledArrival": "05:30",
+          "scheduledDeparture": "05:32",
+          "trackNumber": 5
+        },
+        {
+          "stopOrder": 4,
+          "stationId": 9,
+          "scheduledArrival": "06:30",
+          "scheduledDeparture": "06:32",
+          "trackNumber": 3
+        },
+        {
+          "stopOrder": 5,
+          "stationId": 1,
+          "scheduledArrival": "08:00",
+          "scheduledDeparture": null,
+          "trackNumber": 1
+        }
+      ]
+    }
+  ],
+  "trains": [
+    {
+      "trainId": 10,
+      "trainCode": "FR9600",
+      "trainType": "Frecciarossa",
+      "serviceClasses": [
+        "standard",
+        "business"
+      ],
+      "coaches": [
+        {
+          "coachNumber": 1,
+          "coachClass": "business",
+          "totalSeats": 20,
+          "bikeCapacity": 0,
+          "luggageRacks": true
+        },
+        {
+          "coachNumber": 2,
+          "coachClass": "standard",
+          "totalSeats": 45,
+          "bikeCapacity": 0,
+          "luggageRacks": true
+        },
+        {
+          "coachNumber": 3,
+          "coachClass": "standard",
+          "totalSeats": 45,
+          "bikeCapacity": 4,
+          "luggageRacks": true
+        }
+      ]
+    },
+    {
+      "trainId": 11,
+      "trainCode": "IC700",
+      "trainType": "Intercity",
+      "serviceClasses": [
+        "standard",
+        "business"
+      ],
+      "coaches": [
+        {
+          "coachNumber": 1,
+          "coachClass": "business",
+          "totalSeats": 30,
+          "bikeCapacity": 0,
+          "luggageRacks": true
+        },
+        {
+          "coachNumber": 2,
+          "coachClass": "standard",
+          "totalSeats": 70,
+          "bikeCapacity": 0,
+          "luggageRacks": true
+        },
+        {
+          "coachNumber": 3,
+          "coachClass": "standard",
+          "totalSeats": 70,
+          "bikeCapacity": 6,
+          "luggageRacks": false
+        }
+      ]
+    },
+    {
+      "trainId": 12,
+      "trainCode": "RV300",
+      "trainType": "Regionale Veloce",
+      "serviceClasses": [
+        "standard"
+      ],
+      "coaches": [
+        {
+          "coachNumber": 1,
+          "coachClass": "standard",
+          "totalSeats": 60,
+          "bikeCapacity": 4,
+          "luggageRacks": false
+        },
+        {
+          "coachNumber": 2,
+          "coachClass": "standard",
+          "totalSeats": 60,
+          "bikeCapacity": 0,
+          "luggageRacks": true
+        }
+      ]
+    },
+    {
+      "trainId": 13,
+      "trainCode": "REG500",
+      "trainType": "Regionale",
+      "serviceClasses": [
+        "standard"
+      ],
+      "coaches": [
+        {
+          "coachNumber": 1,
+          "coachClass": "standard",
+          "totalSeats": 80,
+          "bikeCapacity": 10,
+          "luggageRacks": false
+        }
+      ]
+    },
+    {
+      "trainId": 14,
+      "trainCode": "FR8800",
+      "trainType": "Frecciarossa",
+      "serviceClasses": [
+        "standard",
+        "business"
+      ],
+      "coaches": [
+        {
+          "coachNumber": 1,
+          "coachClass": "business",
+          "totalSeats": 30,
+          "bikeCapacity": 0,
+          "luggageRacks": true
+        },
+        {
+          "coachNumber": 2,
+          "coachClass": "standard",
+          "totalSeats": 60,
+          "bikeCapacity": 0,
+          "luggageRacks": true
+        },
+        {
+          "coachNumber": 3,
+          "coachClass": "standard",
+          "totalSeats": 60,
+          "bikeCapacity": 4,
+          "luggageRacks": true
+        },
+        {
+          "coachNumber": 4,
+          "coachClass": "standard",
+          "totalSeats": 60,
+          "bikeCapacity": 0,
+          "luggageRacks": false
+        }
+      ]
+    }
+  ],
+  "trainRuns": [
+    {
+      "runId": 201,
+      "trainId": 10,
+      "routeId": 20,
+      "departureDateTime": "2026-06-15T19:44:00.000Z",
+      "status": "delayed",
+      "currentDelayMinutes": 20,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 202,
+      "trainId": 11,
+      "routeId": 20,
+      "departureDateTime": "2026-06-14T07:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 203,
+      "trainId": 10,
+      "routeId": 20,
+      "departureDateTime": "2026-06-14T09:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 204,
+      "trainId": 12,
+      "routeId": 20,
+      "departureDateTime": "2026-06-14T11:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 12,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 205,
+      "trainId": 11,
+      "routeId": 20,
+      "departureDateTime": "2026-06-14T12:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": -5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 206,
+      "trainId": 10,
+      "routeId": 20,
+      "departureDateTime": "2026-06-14T14:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 3,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 207,
+      "trainId": 13,
+      "routeId": 20,
+      "departureDateTime": "2026-06-14T16:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 35,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 208,
+      "trainId": 11,
+      "routeId": 20,
+      "departureDateTime": "2026-06-14T17:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 11,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 209,
+      "trainId": 12,
+      "routeId": 20,
+      "departureDateTime": "2026-06-14T19:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 20,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 210,
+      "trainId": 10,
+      "routeId": 20,
+      "departureDateTime": "2026-06-14T21:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 20,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 211,
+      "trainId": 10,
+      "routeId": 21,
+      "departureDateTime": "2026-06-14T05:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 20,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 212,
+      "trainId": 11,
+      "routeId": 21,
+      "departureDateTime": "2026-06-14T06:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 213,
+      "trainId": 12,
+      "routeId": 21,
+      "departureDateTime": "2026-06-14T08:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 10,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 214,
+      "trainId": 10,
+      "routeId": 21,
+      "departureDateTime": "2026-06-14T10:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 10,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 215,
+      "trainId": 11,
+      "routeId": 21,
+      "departureDateTime": "2026-06-14T11:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 10,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 216,
+      "trainId": 13,
+      "routeId": 21,
+      "departureDateTime": "2026-06-14T13:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 15,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 217,
+      "trainId": 10,
+      "routeId": 21,
+      "departureDateTime": "2026-06-14T15:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 30,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 218,
+      "trainId": 12,
+      "routeId": 21,
+      "departureDateTime": "2026-06-14T16:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": -10,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 219,
+      "trainId": 11,
+      "routeId": 21,
+      "departureDateTime": "2026-06-14T18:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 20,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 220,
+      "trainId": 10,
+      "routeId": 21,
+      "departureDateTime": "2026-06-14T20:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 221,
+      "trainId": 10,
+      "routeId": 22,
+      "departureDateTime": "2026-06-14T05:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 20,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 222,
+      "trainId": 11,
+      "routeId": 22,
+      "departureDateTime": "2026-06-14T06:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 180,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 223,
+      "trainId": 12,
+      "routeId": 22,
+      "departureDateTime": "2026-06-14T08:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 180,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 224,
+      "trainId": 10,
+      "routeId": 22,
+      "departureDateTime": "2026-06-14T09:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 100,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 225,
+      "trainId": 13,
+      "routeId": 22,
+      "departureDateTime": "2026-06-14T11:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 60,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 226,
+      "trainId": 11,
+      "routeId": 22,
+      "departureDateTime": "2026-06-14T12:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 60,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 227,
+      "trainId": 10,
+      "routeId": 22,
+      "departureDateTime": "2026-06-14T14:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 20,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 228,
+      "trainId": 12,
+      "routeId": 22,
+      "departureDateTime": "2026-06-14T16:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 40,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 229,
+      "trainId": 11,
+      "routeId": 22,
+      "departureDateTime": "2026-06-14T17:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 40,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 230,
+      "trainId": 10,
+      "routeId": 22,
+      "departureDateTime": "2026-06-14T19:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 10,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 231,
+      "trainId": 12,
+      "routeId": 23,
+      "departureDateTime": "2026-06-14T05:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 232,
+      "trainId": 13,
+      "routeId": 23,
+      "departureDateTime": "2026-06-14T07:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 233,
+      "trainId": 12,
+      "routeId": 23,
+      "departureDateTime": "2026-06-14T08:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 234,
+      "trainId": 13,
+      "routeId": 23,
+      "departureDateTime": "2026-06-14T10:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 235,
+      "trainId": 12,
+      "routeId": 23,
+      "departureDateTime": "2026-06-14T11:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 236,
+      "trainId": 13,
+      "routeId": 23,
+      "departureDateTime": "2026-06-14T13:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 237,
+      "trainId": 12,
+      "routeId": 23,
+      "departureDateTime": "2026-06-14T14:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 238,
+      "trainId": 13,
+      "routeId": 23,
+      "departureDateTime": "2026-06-14T16:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 239,
+      "trainId": 12,
+      "routeId": 23,
+      "departureDateTime": "2026-06-14T17:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 240,
+      "trainId": 13,
+      "routeId": 23,
+      "departureDateTime": "2026-06-14T19:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 241,
+      "trainId": 11,
+      "routeId": 24,
+      "departureDateTime": "2026-06-14T06:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 242,
+      "trainId": 12,
+      "routeId": 24,
+      "departureDateTime": "2026-06-14T07:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 243,
+      "trainId": 11,
+      "routeId": 24,
+      "departureDateTime": "2026-06-14T09:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 244,
+      "trainId": 12,
+      "routeId": 24,
+      "departureDateTime": "2026-06-14T10:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 245,
+      "trainId": 11,
+      "routeId": 24,
+      "departureDateTime": "2026-06-14T12:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 246,
+      "trainId": 12,
+      "routeId": 24,
+      "departureDateTime": "2026-06-14T13:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 247,
+      "trainId": 11,
+      "routeId": 24,
+      "departureDateTime": "2026-06-14T15:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 248,
+      "trainId": 12,
+      "routeId": 24,
+      "departureDateTime": "2026-06-14T16:30:00",
+      "status": "delayed",
+      "currentDelayMinutes": 10,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 249,
+      "trainId": 11,
+      "routeId": 24,
+      "departureDateTime": "2026-06-14T18:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": 10,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 250,
+      "trainId": 12,
+      "routeId": 24,
+      "departureDateTime": "2026-06-14T20:00:00",
+      "status": "delayed",
+      "currentDelayMinutes": -5,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 251,
+      "trainId": 14,
+      "routeId": 25,
+      "departureDateTime": "2026-06-14T06:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 252,
+      "trainId": 14,
+      "routeId": 25,
+      "departureDateTime": "2026-06-14T07:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 253,
+      "trainId": 14,
+      "routeId": 25,
+      "departureDateTime": "2026-06-14T09:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 254,
+      "trainId": 14,
+      "routeId": 25,
+      "departureDateTime": "2026-06-14T10:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 255,
+      "trainId": 14,
+      "routeId": 25,
+      "departureDateTime": "2026-06-14T12:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 256,
+      "trainId": 14,
+      "routeId": 25,
+      "departureDateTime": "2026-06-14T13:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 257,
+      "trainId": 14,
+      "routeId": 25,
+      "departureDateTime": "2026-06-14T15:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 258,
+      "trainId": 14,
+      "routeId": 25,
+      "departureDateTime": "2026-06-14T16:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 259,
+      "trainId": 14,
+      "routeId": 25,
+      "departureDateTime": "2026-06-14T18:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 260,
+      "trainId": 14,
+      "routeId": 25,
+      "departureDateTime": "2026-06-14T20:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 261,
+      "trainId": 10,
+      "routeId": 26,
+      "departureDateTime": "2026-06-14T05:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 262,
+      "trainId": 11,
+      "routeId": 26,
+      "departureDateTime": "2026-06-14T07:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 263,
+      "trainId": 10,
+      "routeId": 26,
+      "departureDateTime": "2026-06-14T08:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 264,
+      "trainId": 12,
+      "routeId": 26,
+      "departureDateTime": "2026-06-14T10:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 265,
+      "trainId": 11,
+      "routeId": 26,
+      "departureDateTime": "2026-06-14T11:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 266,
+      "trainId": 10,
+      "routeId": 26,
+      "departureDateTime": "2026-06-14T13:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 267,
+      "trainId": 13,
+      "routeId": 26,
+      "departureDateTime": "2026-06-14T14:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 268,
+      "trainId": 11,
+      "routeId": 26,
+      "departureDateTime": "2026-06-14T16:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 269,
+      "trainId": 12,
+      "routeId": 26,
+      "departureDateTime": "2026-06-14T18:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 270,
+      "trainId": 10,
+      "routeId": 26,
+      "departureDateTime": "2026-06-14T20:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 271,
+      "trainId": 10,
+      "routeId": 27,
+      "departureDateTime": "2026-06-14T05:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 272,
+      "trainId": 11,
+      "routeId": 27,
+      "departureDateTime": "2026-06-14T07:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 273,
+      "trainId": 12,
+      "routeId": 27,
+      "departureDateTime": "2026-06-14T08:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 274,
+      "trainId": 10,
+      "routeId": 27,
+      "departureDateTime": "2026-06-14T10:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 275,
+      "trainId": 13,
+      "routeId": 27,
+      "departureDateTime": "2026-06-14T11:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 276,
+      "trainId": 11,
+      "routeId": 27,
+      "departureDateTime": "2026-06-14T13:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 277,
+      "trainId": 10,
+      "routeId": 27,
+      "departureDateTime": "2026-06-14T14:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 278,
+      "trainId": 12,
+      "routeId": 27,
+      "departureDateTime": "2026-06-14T16:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 279,
+      "trainId": 11,
+      "routeId": 27,
+      "departureDateTime": "2026-06-14T17:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 280,
+      "trainId": 10,
+      "routeId": 27,
+      "departureDateTime": "2026-06-14T19:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 281,
+      "trainId": 10,
+      "routeId": 28,
+      "departureDateTime": "2026-06-14T05:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 282,
+      "trainId": 11,
+      "routeId": 28,
+      "departureDateTime": "2026-06-14T06:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 283,
+      "trainId": 12,
+      "routeId": 28,
+      "departureDateTime": "2026-06-14T08:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 284,
+      "trainId": 10,
+      "routeId": 28,
+      "departureDateTime": "2026-06-14T09:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 285,
+      "trainId": 13,
+      "routeId": 28,
+      "departureDateTime": "2026-06-14T11:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 286,
+      "trainId": 11,
+      "routeId": 28,
+      "departureDateTime": "2026-06-14T12:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 287,
+      "trainId": 10,
+      "routeId": 28,
+      "departureDateTime": "2026-06-14T14:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 288,
+      "trainId": 12,
+      "routeId": 28,
+      "departureDateTime": "2026-06-14T16:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 289,
+      "trainId": 11,
+      "routeId": 28,
+      "departureDateTime": "2026-06-14T17:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 290,
+      "trainId": 10,
+      "routeId": 28,
+      "departureDateTime": "2026-06-14T19:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 291,
+      "trainId": 12,
+      "routeId": 29,
+      "departureDateTime": "2026-06-14T05:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 292,
+      "trainId": 13,
+      "routeId": 29,
+      "departureDateTime": "2026-06-14T07:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 293,
+      "trainId": 12,
+      "routeId": 29,
+      "departureDateTime": "2026-06-14T08:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 294,
+      "trainId": 13,
+      "routeId": 29,
+      "departureDateTime": "2026-06-14T10:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 295,
+      "trainId": 12,
+      "routeId": 29,
+      "departureDateTime": "2026-06-14T11:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 296,
+      "trainId": 13,
+      "routeId": 29,
+      "departureDateTime": "2026-06-14T13:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 297,
+      "trainId": 12,
+      "routeId": 29,
+      "departureDateTime": "2026-06-14T14:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 298,
+      "trainId": 13,
+      "routeId": 29,
+      "departureDateTime": "2026-06-14T16:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 299,
+      "trainId": 12,
+      "routeId": 29,
+      "departureDateTime": "2026-06-14T17:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 300,
+      "trainId": 13,
+      "routeId": 29,
+      "departureDateTime": "2026-06-14T19:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 301,
+      "trainId": 11,
+      "routeId": 30,
+      "departureDateTime": "2026-06-14T06:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 302,
+      "trainId": 12,
+      "routeId": 30,
+      "departureDateTime": "2026-06-14T07:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 303,
+      "trainId": 11,
+      "routeId": 30,
+      "departureDateTime": "2026-06-14T09:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 304,
+      "trainId": 12,
+      "routeId": 30,
+      "departureDateTime": "2026-06-14T10:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 305,
+      "trainId": 11,
+      "routeId": 30,
+      "departureDateTime": "2026-06-14T12:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 306,
+      "trainId": 12,
+      "routeId": 30,
+      "departureDateTime": "2026-06-14T13:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 307,
+      "trainId": 11,
+      "routeId": 30,
+      "departureDateTime": "2026-06-14T15:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 308,
+      "trainId": 12,
+      "routeId": 30,
+      "departureDateTime": "2026-06-14T16:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 309,
+      "trainId": 11,
+      "routeId": 30,
+      "departureDateTime": "2026-06-14T18:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 310,
+      "trainId": 12,
+      "routeId": 30,
+      "departureDateTime": "2026-06-14T20:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 311,
+      "trainId": 14,
+      "routeId": 31,
+      "departureDateTime": "2026-06-14T06:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 312,
+      "trainId": 14,
+      "routeId": 31,
+      "departureDateTime": "2026-06-14T07:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 313,
+      "trainId": 14,
+      "routeId": 31,
+      "departureDateTime": "2026-06-14T09:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 314,
+      "trainId": 14,
+      "routeId": 31,
+      "departureDateTime": "2026-06-14T10:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 315,
+      "trainId": 14,
+      "routeId": 31,
+      "departureDateTime": "2026-06-14T12:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 316,
+      "trainId": 14,
+      "routeId": 31,
+      "departureDateTime": "2026-06-14T13:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 317,
+      "trainId": 14,
+      "routeId": 31,
+      "departureDateTime": "2026-06-14T15:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 318,
+      "trainId": 14,
+      "routeId": 31,
+      "departureDateTime": "2026-06-14T16:30:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 319,
+      "trainId": 14,
+      "routeId": 31,
+      "departureDateTime": "2026-06-14T18:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    },
+    {
+      "runId": 320,
+      "trainId": 14,
+      "routeId": 31,
+      "departureDateTime": "2026-06-14T20:00:00",
+      "status": "scheduled",
+      "currentDelayMinutes": 0,
+      "actualDeparture": null,
+      "actualArrival": null
+    }
+  ],
+  "users": [
+    {
+      "userId": 1001,
+      "name": "Matteo",
+      "surname": "Golinelli",
+      "email": "matteo.golinelli@studenti.unitn.it",
+      "passwordHash": "6cf615d5bcaac778352a8f1f3360d23f02f34ec182e259897fd6ce485d7870d4",
+      "role": "administrator",
+      "preferredLanguage": "en",
+      "loyaltyPoints": 320,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 1002,
+      "name": "Caterina",
+      "surname": "Alessi",
+      "email": "caterina.alessi@studenti.unitn.it",
+      "passwordHash": "hash_caterina",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 245,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 1003,
+      "name": "Robin",
+      "surname": "Bertolini",
+      "email": "robin.bertolini@studenti.unitn.it",
+      "passwordHash": "6cf615d5bcaac778352a8f1f3360d23f02f34ec182e259897fd6ce485d7870d4",
+      "role": "inspector",
+      "preferredLanguage": "en",
+      "loyaltyPoints": 205,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 1004,
+      "name": "Virginia",
+      "surname": "Ancora",
+      "email": "virginia.ancora@studenti.unitn.it",
+      "passwordHash": "6cf615d5bcaac778352a8f1f3360d23f02f34ec182e259897fd6ce485d7870d4",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 4,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 2001,
+      "name": "Luca",
+      "surname": "Bianchi",
+      "email": "luca.bianchi@example.com",
+      "passwordHash": "hash_luca",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 89,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 2002,
+      "name": "Giulia",
+      "surname": "Rossi",
+      "email": "giulia.rossi@example.com",
+      "passwordHash": "hash_giulia",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 12,
+      "failedLoginAttempts": 2,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 3001,
+      "name": "Marco",
+      "surname": "Verdi",
+      "email": "marco.verdi@trenitalia.it",
+      "passwordHash": "hash_marco",
+      "role": "inspector",
+      "preferredLanguage": "it",
+      "inspectorCode": "INSP-001",
+      "accountStatus": "active"
+    },
+    {
+      "userId": 3002,
+      "name": "Elena",
+      "surname": "Neri",
+      "email": "elena.neri@trenitalia.it",
+      "passwordHash": "hash_elena",
+      "role": "customer_support",
+      "preferredLanguage": "it",
+      "staffCode": "CS-045",
+      "accountStatus": "active"
+    },
+    {
+      "userId": 4001,
+      "name": "Admin",
+      "surname": "Railway",
+      "email": "admin@railway.it",
+      "passwordHash": "hash_admin",
+      "role": "administrator",
+      "preferredLanguage": "en",
+      "adminCode": "ADMIN-001",
+      "accountStatus": "active",
+      "failedLoginAttempts": 1
+    },
+    {
+      "userId": 4002,
+      "name": "Test",
+      "surname": "User",
+      "email": "test@example.com",
+      "passwordHash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 317,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 4003,
+      "name": "Mario",
+      "surname": "Camuno",
+      "email": "mario.camuno@temu.vlc",
+      "passwordHash": "6f5ea1c4acc7a563ea8cb3381a55f0183a2394d679ebb7db8312e047bbf87e0d",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 18,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 4004,
+      "name": "Matteo",
+      "surname": "Goli",
+      "email": "teogoli@boh.it",
+      "passwordHash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 23,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 4005,
+      "name": "Dylan",
+      "surname": "Bertolini",
+      "email": "bertolini.dylan@gmail.com",
+      "passwordHash": "9a900403ac313ba27a1bc81f0932652b8020dac92c234d98fa0b06bf0040ecfd",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 18,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 4006,
+      "name": "Robin",
+      "surname": "Bertolini",
+      "email": "robinbertolini@gmail.com",
+      "passwordHash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 124,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    },
+    {
+      "userId": 4007,
+      "name": "Tizio",
+      "surname": "Caio",
+      "email": "tizio.caio@gmail.com",
+      "passwordHash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+      "role": "passenger",
+      "preferredLanguage": "en",
+      "loyaltyPoints": 0,
+      "failedLoginAttempts": 5,
+      "accountStatus": "blocked"
+    },
+    {
+      "userId": 4008,
+      "name": "Gianni",
+      "surname": "Penasa",
+      "email": "gianni@penasa.dimaro.tn.it",
+      "passwordHash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+      "role": "passenger",
+      "preferredLanguage": "en",
+      "loyaltyPoints": 0,
+      "failedLoginAttempts": 5,
+      "accountStatus": "blocked"
+    },
+    {
+      "userId": 4009,
+      "name": "Gianni",
+      "surname": "Penasa",
+      "email": "gianni@penasaa.dimaro.tn.it",
+      "passwordHash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+      "role": "passenger",
+      "preferredLanguage": "en",
+      "loyaltyPoints": 26,
+      "failedLoginAttempts": 0,
+      "accountStatus": "active"
+    }
+  ],
+  "tickets": [
+    {
+      "ticketId": 5001,
+      "ticketCode": "TKT-1001-001",
+      "userId": 1001,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "12B",
+      "class": "standard",
+      "price": 24.9,
+      "status": "used",
+      "purchaseDate": "2026-06-03T10:15:00",
+      "qrCode": "QR5001ABC"
+    },
+    {
+      "ticketId": 5002,
+      "ticketCode": "TKT-1002-002",
+      "userId": 1002,
+      "runId": 211,
+      "fromStopOrder": 1,
+      "toStopOrder": 6,
+      "passengerType": "adult",
+      "seatNumber": "8A",
+      "class": "business",
+      "price": 89.9,
+      "status": "active",
+      "purchaseDate": "2026-06-04T14:30:00",
+      "qrCode": "QR5002DEF"
+    },
+    {
+      "ticketId": 5003,
+      "ticketCode": "TKT-1003-003",
+      "userId": 1003,
+      "runId": 222,
+      "fromStopOrder": 1,
+      "toStopOrder": 6,
+      "passengerType": "adult",
+      "seatNumber": "22C",
+      "class": "standard",
+      "price": 19.9,
+      "status": "active",
+      "purchaseDate": "2026-06-04T09:45:00",
+      "qrCode": "QR5003GHI"
+    },
+    {
+      "ticketId": 5004,
+      "ticketCode": "TKT-1004-004",
+      "userId": 1004,
+      "runId": 203,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "5D",
+      "class": "business",
+      "price": 55,
+      "status": "used",
+      "purchaseDate": "2026-06-04T16:20:00",
+      "qrCode": "QR5004JKL"
+    },
+    {
+      "ticketId": 5005,
+      "ticketCode": "TKT-4002-5005",
+      "userId": 4002,
+      "runId": 215,
+      "fromStopOrder": 1,
+      "toStopOrder": 6,
+      "passengerType": "adult",
+      "seatNumber": "1A",
+      "class": "standard",
+      "price": 18.35,
+      "status": "active",
+      "purchaseDate": "2026-06-04T22:56:06.297Z",
+      "qrCode": "QR5005TEST"
+    },
+    {
+      "ticketId": 5006,
+      "ticketCode": "TKT-1004-006",
+      "userId": 1004,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 3,
+      "passengerType": "adult",
+      "seatNumber": "3C",
+      "class": "standard",
+      "price": 18.5,
+      "status": "used",
+      "purchaseDate": "2026-05-20T09:30:00",
+      "qrCode": "QR5006XYZ"
+    },
+    {
+      "ticketId": 5007,
+      "ticketCode": "TKT-1004-007",
+      "userId": 1004,
+      "runId": 210,
+      "fromStopOrder": 1,
+      "toStopOrder": 5,
+      "passengerType": "adult",
+      "seatNumber": "12F",
+      "class": "standard",
+      "price": 32,
+      "status": "used",
+      "purchaseDate": "2026-05-25T14:15:00",
+      "qrCode": "QR5007UVW"
+    },
+    {
+      "ticketId": 5008,
+      "ticketCode": "TKT-1004-008",
+      "userId": 1004,
+      "runId": 202,
+      "fromStopOrder": 2,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "9A",
+      "class": "business",
+      "price": 45,
+      "status": "expired",
+      "purchaseDate": "2026-05-30T11:45:00",
+      "qrCode": "QR5008RST"
+    },
+    {
+      "ticketId": 5009,
+      "ticketCode": "TKT-1004-009",
+      "userId": 1004,
+      "runId": 221,
+      "fromStopOrder": 1,
+      "toStopOrder": 6,
+      "passengerType": "adult",
+      "seatNumber": "7B",
+      "class": "standard",
+      "price": 28.9,
+      "status": "used",
+      "purchaseDate": "2026-05-28T18:00:00",
+      "qrCode": "QR5009LMN"
+    },
+    {
+      "ticketId": 5010,
+      "ticketCode": "TKT-1004-010",
+      "userId": 1004,
+      "runId": 225,
+      "fromStopOrder": 3,
+      "toStopOrder": 6,
+      "passengerType": "adult",
+      "seatNumber": "14D",
+      "class": "standard",
+      "price": 22.3,
+      "status": "used",
+      "purchaseDate": "2026-05-22T07:20:00",
+      "qrCode": "QR5010OPQ"
+    },
+    {
+      "ticketId": 5011,
+      "ticketCode": "TKT-1004-5011",
+      "userId": 1004,
+      "runId": 201,
+      "status": "used",
+      "purchaseDate": "2026-06-14T15:33:14.935Z",
+      "qrCode": "QR5011tca74b"
+    },
+    {
+      "ticketId": 5012,
+      "ticketCode": "TKT-1004-5012",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:34:28.055Z",
+      "qrCode": "QR50129l6d4c"
+    },
+    {
+      "ticketId": 5013,
+      "ticketCode": "TKT-1004-5013",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:34:28.922Z",
+      "qrCode": "QR5013tjeb1x"
+    },
+    {
+      "ticketId": 5014,
+      "ticketCode": "TKT-1004-5014",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:36:28.790Z",
+      "qrCode": "QR5014ijkv8j"
+    },
+    {
+      "ticketId": 5015,
+      "ticketCode": "TKT-1004-5015",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:43:01.387Z",
+      "qrCode": "QR5015bfnz17"
+    },
+    {
+      "ticketId": 5016,
+      "ticketCode": "TKT-1004-5016",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:43:04.712Z",
+      "qrCode": "QR5016o9ayw4"
+    },
+    {
+      "ticketId": 5017,
+      "ticketCode": "TKT-1004-5017",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:43:06.718Z",
+      "qrCode": "QR5017465k26"
+    },
+    {
+      "ticketId": 5018,
+      "ticketCode": "TKT-1004-5018",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:43:26.578Z",
+      "qrCode": "QR5018igem7x"
+    },
+    {
+      "ticketId": 5019,
+      "ticketCode": "TKT-1004-5019",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:43:30.003Z",
+      "qrCode": "QR5019ngo5x9"
+    },
+    {
+      "ticketId": 5020,
+      "ticketCode": "TKT-1004-5020",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:43:30.187Z",
+      "qrCode": "QR5020nks6zp"
+    },
+    {
+      "ticketId": 5021,
+      "ticketCode": "TKT-1004-5021",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:43:30.360Z",
+      "qrCode": "QR50210ey0nc"
+    },
+    {
+      "ticketId": 5022,
+      "ticketCode": "TKT-1004-5022",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:43:30.540Z",
+      "qrCode": "QR5022fjqhxv"
+    },
+    {
+      "ticketId": 5023,
+      "ticketCode": "TKT-1004-5023",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:43:30.735Z",
+      "qrCode": "QR5023tfyiip"
+    },
+    {
+      "ticketId": 5024,
+      "ticketCode": "TKT-1004-5024",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:45:19.616Z",
+      "qrCode": "QR5024ofd2ej"
+    },
+    {
+      "ticketId": 5025,
+      "ticketCode": "TKT-1004-5025",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:45:20.155Z",
+      "qrCode": "QR5025si4b91"
+    },
+    {
+      "ticketId": 5026,
+      "ticketCode": "TKT-1004-5026",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:45:20.314Z",
+      "qrCode": "QR5026ctpbbx"
+    },
+    {
+      "ticketId": 5027,
+      "ticketCode": "TKT-1004-5027",
+      "userId": 1004,
+      "runId": 201,
+      "status": "used",
+      "purchaseDate": "2026-06-14T15:45:20.475Z",
+      "qrCode": "QR5027q46pxf"
+    },
+    {
+      "ticketId": 5028,
+      "ticketCode": "TKT-1004-5028",
+      "userId": 1004,
+      "runId": 201,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:45:20.623Z",
+      "qrCode": "QR502814e6to"
+    },
+    {
+      "ticketId": 5029,
+      "ticketCode": "TKT-1004-5029",
+      "userId": 1004,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "1C",
+      "class": "standard",
+      "price": 10.74,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:50:45.786Z",
+      "qrCode": "QR50293onrrd"
+    },
+    {
+      "ticketId": 5030,
+      "ticketCode": "TKT-1004-5030",
+      "userId": 1004,
+      "runId": 202,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "1A",
+      "class": "standard",
+      "price": 10.74,
+      "status": "active",
+      "purchaseDate": "2026-06-14T15:52:26.456Z",
+      "qrCode": "QR5030tzsp42"
+    },
+    {
+      "ticketId": 5031,
+      "ticketCode": "TKT-1003-5031",
+      "userId": 1003,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "2A",
+      "class": "standard",
+      "price": 18.35,
+      "status": "active",
+      "purchaseDate": "2026-06-14T18:34:14.607Z",
+      "qrCode": "QR5031u5siw9"
+    },
+    {
+      "ticketId": 5032,
+      "ticketCode": "TKT-1004-5032",
+      "userId": 1004,
+      "runId": 241,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "1A",
+      "class": "standard",
+      "price": 12.8,
+      "status": "active",
+      "purchaseDate": "2026-06-14T19:26:47.486Z",
+      "qrCode": "QR50320kgeew"
+    },
+    {
+      "ticketId": 5033,
+      "ticketCode": "TKT-1004-5033",
+      "userId": 1004,
+      "runId": 251,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "1A",
+      "class": "standard",
+      "price": 10.74,
+      "status": "active",
+      "purchaseDate": "2026-06-14T20:00:50.979Z",
+      "qrCode": "QR50335yhmdx"
+    },
+    {
+      "ticketId": 5034,
+      "ticketCode": "TKT-4005-5034",
+      "userId": 4005,
+      "runId": 262,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "1C",
+      "class": "standard",
+      "price": 18.35,
+      "status": "used",
+      "purchaseDate": "2026-06-07T08:55:29.382Z",
+      "qrCode": "QR50342zfn8k"
+    },
+    {
+      "ticketId": 5035,
+      "ticketCode": "TKT-1004-5035",
+      "userId": 1004,
+      "runId": 251,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "1B",
+      "class": "standard",
+      "price": 21.47,
+      "status": "active",
+      "purchaseDate": "2026-06-09T21:21:24.178Z",
+      "qrCode": "QR5035s095lg"
+    },
+    {
+      "ticketId": 5036,
+      "ticketCode": "TKT-1004-5036",
+      "userId": 1004,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "1D",
+      "class": "standard",
+      "price": 61.519999999999996,
+      "status": "active",
+      "purchaseDate": "2026-06-14T08:01:57.975Z",
+      "qrCode": "QR5036onqv33"
+    },
+    {
+      "ticketId": 5037,
+      "ticketCode": "TKT-1004-5037",
+      "userId": 1004,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "2B",
+      "class": "standard",
+      "price": 59.519999999999996,
+      "status": "active",
+      "purchaseDate": "2026-06-14T08:05:49.897Z",
+      "qrCode": "QR5037vsq0mi"
+    },
+    {
+      "ticketId": 5038,
+      "ticketCode": "TKT-4006-5038",
+      "userId": 4006,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "1E",
+      "class": "standard",
+      "price": 66.52,
+      "status": "used",
+      "purchaseDate": "2026-06-14T09:27:00.046Z",
+      "qrCode": "QR5038990k5m"
+    },
+    {
+      "ticketId": 5039,
+      "ticketCode": "TKT-4006-5039",
+      "userId": 4006,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "2D",
+      "class": "standard",
+      "price": 31.97,
+      "status": "used",
+      "purchaseDate": "2026-06-14T09:27:50.657Z",
+      "qrCode": "QR5039rqx2k7"
+    },
+    {
+      "ticketId": 5040,
+      "ticketCode": "TKT-4006-5040",
+      "userId": 4006,
+      "runId": 271,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "7C",
+      "class": "standard",
+      "price": 31.11,
+      "status": "used",
+      "purchaseDate": "2026-06-14T09:28:57.868Z",
+      "qrCode": "QR5040ew79ke"
+    },
+    {
+      "ticketId": 5041,
+      "ticketCode": "TKT-4006-5041",
+      "userId": 4006,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "3A",
+      "class": "standard",
+      "price": 61.519999999999996,
+      "status": "used",
+      "purchaseDate": "2026-06-14T09:31:15.377Z",
+      "qrCode": "QR50419elrqf"
+    },
+    {
+      "ticketId": 5042,
+      "ticketCode": "TKT-4006-5042",
+      "userId": 4006,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "3B",
+      "class": "standard",
+      "price": 62.519999999999996,
+      "status": "active",
+      "purchaseDate": "2026-06-12T09:41:02.152Z",
+      "qrCode": "QR5042n8dsrv"
+    },
+    {
+      "ticketId": 5043,
+      "ticketCode": "TKT-4006-5043",
+      "userId": 4006,
+      "runId": 241,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "1B",
+      "class": "standard",
+      "price": 40.05,
+      "status": "active",
+      "purchaseDate": "2026-06-13T07:15:19.497Z",
+      "qrCode": "QR5043u8tctn"
+    },
+    {
+      "ticketId": 5044,
+      "ticketCode": "TKT-4006-5044",
+      "userId": 4006,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "3C",
+      "class": "standard",
+      "price": 66.52,
+      "status": "active",
+      "purchaseDate": "2026-06-13T07:21:28.470Z",
+      "qrCode": "QR5044agayyf"
+    },
+    {
+      "ticketId": 5045,
+      "ticketCode": "TKT-4006-5045",
+      "userId": 4006,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "3D",
+      "class": "standard",
+      "price": 66.52,
+      "status": "active",
+      "purchaseDate": "2026-06-13T07:26:47.666Z",
+      "qrCode": "QR504500yuk0"
+    },
+    {
+      "ticketId": 5046,
+      "ticketCode": "TKT-4006-5046",
+      "userId": 4006,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "2E",
+      "class": "standard",
+      "price": 56.519999999999996,
+      "status": "active",
+      "purchaseDate": "2026-06-13T07:40:00.699Z",
+      "qrCode": "QR5046sdgzey"
+    },
+    {
+      "ticketId": 5047,
+      "ticketCode": "TKT-4006-5047",
+      "userId": 4006,
+      "runId": 291,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "1A",
+      "class": "standard",
+      "price": 25.34,
+      "status": "active",
+      "purchaseDate": "2026-06-13T08:21:26.648Z",
+      "qrCode": "QR5047lhfr7z"
+    },
+    {
+      "ticketId": 5048,
+      "ticketCode": "TKT-4007-5048",
+      "userId": null,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "1F",
+      "class": "standard",
+      "price": 66.52,
+      "status": "used",
+      "purchaseDate": "2026-06-13T09:11:49.037Z",
+      "qrCode": "QR5048u5dlbi"
+    },
+    {
+      "ticketId": 5049,
+      "ticketCode": "TKT-4007-5049",
+      "userId": null,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "2F",
+      "class": "standard",
+      "price": 66.52,
+      "status": "used",
+      "purchaseDate": "2026-06-13T09:21:18.187Z",
+      "qrCode": "QR5049u5iggb"
+    },
+    {
+      "ticketId": 5050,
+      "ticketCode": "TKT-4006-5050",
+      "userId": 4006,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "3E",
+      "class": "standard",
+      "price": 66.52,
+      "status": "active",
+      "purchaseDate": "2026-06-13T19:11:39.775Z",
+      "qrCode": "QR5050d9qwgj"
+    },
+    {
+      "ticketId": 5051,
+      "ticketCode": "TKT-4009-5051",
+      "userId": 4009,
+      "runId": 201,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "3F",
+      "class": "standard",
+      "price": 66.52,
+      "status": "used",
+      "purchaseDate": "2026-06-13T19:43:31.369Z",
+      "qrCode": "QR5051qkvwnl"
+    },
+    {
+      "ticketId": 5052,
+      "ticketCode": "TKT-4009-5052",
+      "userId": 4009,
+      "runId": 202,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "4D",
+      "class": "standard",
+      "price": 271.8,
+      "status": "active",
+      "purchaseDate": "2026-06-13T20:07:54.096Z",
+      "qrCode": "QR5052bqux3s"
+    }
+  ],
+  "subscriptions": [
+    {
+      "subscriptionId": 2001,
+      "userId": 1004,
+      "fromStationId": 15,
+      "toStationId": 20,
+      "startDate": "2026-05-01",
+      "endDate": "2026-07-31",
+      "class": "standard",
+      "price": 220,
+      "status": "active"
+    },
+    {
+      "subscriptionId": 2002,
+      "userId": 2001,
+      "fromStationId": 11,
+      "toStationId": 20,
+      "startDate": "2026-06-01",
+      "endDate": "2026-08-31",
+      "class": "business",
+      "price": 480,
+      "status": "active"
+    }
+  ],
+  "additionalReservations": [
+    {
+      "reservationId": 3001,
+      "ticketId": 5001,
+      "type": "luggage",
+      "status": "confirmed",
+      "price": 5
+    },
+    {
+      "reservationId": 3002,
+      "ticketId": 5002,
+      "type": "luggage",
+      "status": "confirmed",
+      "price": 8
+    },
+    {
+      "reservationId": 3003,
+      "ticketId": 5005,
+      "type": "bike",
+      "status": "confirmed",
+      "price": 5
+    },
+    {
+      "reservationId": 3004,
+      "ticketId": 5007,
+      "type": "bike",
+      "status": "confirmed",
+      "price": 5
+    },
+    {
+      "reservationId": 3005,
+      "ticketId": 5009,
+      "type": "luggage",
+      "status": "confirmed",
+      "price": 8
+    },
+    {
+      "reservationId": 3006,
+      "ticketId": 5016,
+      "type": "bike",
+      "status": "confirmed",
+      "price": 5
+    },
+    {
+      "reservationId": 3007,
+      "ticketId": 5031,
+      "type": "bike",
+      "status": "confirmed",
+      "price": 5
+    },
+    {
+      "reservationId": 3008,
+      "ticketId": 5031,
+      "type": "bike",
+      "status": "confirmed",
+      "price": 5
+    },
+    {
+      "reservationId": 3009,
+      "ticketId": 5034,
+      "type": "bike",
+      "status": "confirmed",
+      "price": 5
+    },
+    {
+      "reservationId": 3010,
+      "ticketId": 5035,
+      "type": "bike",
+      "status": "confirmed",
+      "price": 5
+    },
+    {
+      "reservationId": 3011,
+      "ticketId": 5035,
+      "type": "bike",
+      "status": "confirmed",
+      "price": 5
+    },
+    {
+      "reservationId": 3012,
+      "ticketId": 5038,
+      "type": "bike",
+      "status": "confirmed",
+      "price": 5
+    },
+    {
+      "reservationId": 3013,
+      "ticketId": 5038,
+      "type": "luggage",
+      "status": "confirmed",
+      "price": 8
+    },
+    {
+      "reservationId": 3014,
+      "ticketId": 5043,
+      "type": "bike",
+      "status": "confirmed",
+      "price": 5
+    },
+    {
+      "reservationId": 3015,
+      "ticketId": 5052,
+      "type": "bike",
+      "status": "confirmed",
+      "price": 5
+    }
+  ],
+  "payments": [
+    {
+      "paymentId": 4001,
+      "userId": 1001,
+      "ticketId": 5001,
+      "subscriptionId": null,
+      "amount": 29.9,
+      "paymentDate": "2026-06-03T10:18:00",
+      "paymentMethod": "Visa",
+      "transactionId": "TXN4001",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4002,
+      "userId": 1002,
+      "ticketId": 5002,
+      "subscriptionId": null,
+      "amount": 89.9,
+      "paymentDate": "2026-06-04T14:32:00",
+      "paymentMethod": "PayPal",
+      "transactionId": "TXN4002",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4003,
+      "userId": 1003,
+      "ticketId": 5003,
+      "subscriptionId": null,
+      "amount": 19.9,
+      "paymentDate": "2026-06-04T09:48:00",
+      "paymentMethod": "Mastercard",
+      "transactionId": "TXN4003",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4004,
+      "userId": 1004,
+      "ticketId": 5004,
+      "subscriptionId": null,
+      "amount": 55,
+      "paymentDate": "2026-06-04T16:23:00",
+      "paymentMethod": "Apple Pay",
+      "transactionId": "TXN4004",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4005,
+      "userId": 1004,
+      "ticketId": null,
+      "subscriptionId": 2001,
+      "amount": 220,
+      "paymentDate": "2026-04-28T11:00:00",
+      "paymentMethod": "Google Pay",
+      "transactionId": "TXN4005",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4006,
+      "userId": 2001,
+      "ticketId": null,
+      "subscriptionId": 2002,
+      "amount": 480,
+      "paymentDate": "2026-05-30T09:00:00",
+      "paymentMethod": "Visa",
+      "transactionId": "TXN4006",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4007,
+      "userId": 4002,
+      "ticketId": 5005,
+      "subscriptionId": null,
+      "amount": 23.35,
+      "paymentDate": "2026-06-04T22:56:06.297Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4007",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4008,
+      "userId": 1004,
+      "ticketId": 5006,
+      "subscriptionId": null,
+      "amount": 18.5,
+      "paymentDate": "2026-05-20T09:35:00",
+      "paymentMethod": "Visa",
+      "transactionId": "TXN4008",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4009,
+      "userId": 1004,
+      "ticketId": 5007,
+      "subscriptionId": null,
+      "amount": 32,
+      "paymentDate": "2026-05-25T14:20:00",
+      "paymentMethod": "Mastercard",
+      "transactionId": "TXN4009",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4010,
+      "userId": 1004,
+      "ticketId": 5008,
+      "subscriptionId": null,
+      "amount": 45,
+      "paymentDate": "2026-05-30T11:50:00",
+      "paymentMethod": "PayPal",
+      "transactionId": "TXN4010",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4011,
+      "userId": 1004,
+      "ticketId": 5009,
+      "subscriptionId": null,
+      "amount": 28.9,
+      "paymentDate": "2026-05-28T18:05:00",
+      "paymentMethod": "Apple Pay",
+      "transactionId": "TXN4011",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4012,
+      "userId": 1004,
+      "ticketId": 5010,
+      "subscriptionId": null,
+      "amount": 22.3,
+      "paymentDate": "2026-05-22T07:25:00",
+      "paymentMethod": "Google Pay",
+      "transactionId": "TXN4012",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4013,
+      "userId": 1004,
+      "ticketId": 5011,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:33:14.935Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4013",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4014,
+      "userId": 1004,
+      "ticketId": 5012,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:34:28.055Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4014",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4015,
+      "userId": 1004,
+      "ticketId": 5013,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:34:28.922Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4015",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4016,
+      "userId": 1004,
+      "ticketId": 5014,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:36:28.790Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4016",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4017,
+      "userId": 1004,
+      "ticketId": 5015,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:43:01.387Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4017",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4018,
+      "userId": 1004,
+      "ticketId": 5016,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:43:04.712Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4018",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4019,
+      "userId": 1004,
+      "ticketId": 5017,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:43:06.718Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4019",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4020,
+      "userId": 1004,
+      "ticketId": 5018,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:43:26.578Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4020",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4021,
+      "userId": 1004,
+      "ticketId": 5019,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:43:30.003Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4021",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4022,
+      "userId": 1004,
+      "ticketId": 5020,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:43:30.187Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4022",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4023,
+      "userId": 1004,
+      "ticketId": 5021,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:43:30.360Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4023",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4024,
+      "userId": 1004,
+      "ticketId": 5022,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:43:30.540Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4024",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4025,
+      "userId": 1004,
+      "ticketId": 5023,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:43:30.735Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4025",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4026,
+      "userId": 1004,
+      "ticketId": 5024,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:45:19.616Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4026",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4027,
+      "userId": 1004,
+      "ticketId": 5025,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:45:20.155Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4027",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4028,
+      "userId": 1004,
+      "ticketId": 5026,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:45:20.314Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4028",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4029,
+      "userId": 1004,
+      "ticketId": 5027,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:45:20.475Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4029",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4030,
+      "userId": 1004,
+      "ticketId": 5028,
+      "subscriptionId": null,
+      "paymentDate": "2026-06-14T15:45:20.623Z",
+      "paymentMethod": "Credit Card",
+      "transactionId": "TXN4030",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4031,
+      "userId": 1004,
+      "ticketId": 5029,
+      "subscriptionId": null,
+      "amount": 10.74,
+      "paymentDate": "2026-06-14T15:50:45.786Z",
+      "paymentMethod": "Simulated",
+      "transactionId": "TXN4031",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4032,
+      "userId": 1004,
+      "ticketId": 5030,
+      "subscriptionId": null,
+      "amount": 10.74,
+      "paymentDate": "2026-06-14T15:52:26.456Z",
+      "paymentMethod": "Simulated",
+      "transactionId": "TXN4032",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4033,
+      "userId": 1003,
+      "ticketId": 5031,
+      "subscriptionId": null,
+      "amount": 18.35,
+      "paymentDate": "2026-06-14T18:34:14.607Z",
+      "paymentMethod": "Simulated",
+      "transactionId": "TXN4033",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4034,
+      "userId": 1004,
+      "ticketId": 5032,
+      "subscriptionId": null,
+      "amount": 12.8,
+      "paymentDate": "2026-06-14T19:26:47.486Z",
+      "paymentMethod": "Simulated",
+      "transactionId": "TXN4034",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4035,
+      "userId": 1004,
+      "ticketId": 5033,
+      "subscriptionId": null,
+      "amount": 10.74,
+      "paymentDate": "2026-06-14T20:00:50.979Z",
+      "paymentMethod": "Simulated",
+      "transactionId": "TXN4035",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4036,
+      "userId": 4005,
+      "ticketId": 5034,
+      "subscriptionId": null,
+      "amount": 18.35,
+      "paymentDate": "2026-06-07T08:55:29.382Z",
+      "paymentMethod": "Simulated",
+      "transactionId": "TXN4036",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4037,
+      "userId": 1004,
+      "ticketId": 5035,
+      "subscriptionId": null,
+      "amount": 21.47,
+      "paymentDate": "2026-06-09T21:21:24.178Z",
+      "paymentMethod": "Simulated",
+      "transactionId": "TXN4037",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4038,
+      "userId": 1004,
+      "ticketId": 5036,
+      "subscriptionId": null,
+      "amount": 61.519999999999996,
+      "paymentDate": "2026-06-14T08:01:57.975Z",
+      "paymentMethod": "Simulated",
+      "transactionId": "TXN4038",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4039,
+      "userId": 1004,
+      "ticketId": 5037,
+      "amount": 59.519999999999996,
+      "paymentDate": "2026-06-14T08:05:49.897Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4040,
+      "userId": 4006,
+      "ticketId": 5038,
+      "amount": 66.52,
+      "paymentDate": "2026-06-14T09:27:00.046Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4041,
+      "userId": 4006,
+      "ticketId": 5039,
+      "amount": 31.97,
+      "paymentDate": "2026-06-14T09:27:50.657Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4042,
+      "userId": 4006,
+      "ticketId": 5040,
+      "amount": 31.11,
+      "paymentDate": "2026-06-14T09:28:57.868Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4043,
+      "userId": 4006,
+      "ticketId": 5041,
+      "amount": 61.519999999999996,
+      "paymentDate": "2026-06-14T09:31:15.377Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4044,
+      "userId": 4006,
+      "ticketId": 5042,
+      "amount": 62.519999999999996,
+      "paymentDate": "2026-06-12T09:41:02.152Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4045,
+      "userId": 4006,
+      "ticketId": 5043,
+      "amount": 40.05,
+      "paymentDate": "2026-06-13T07:15:19.497Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4046,
+      "userId": 4006,
+      "ticketId": 5044,
+      "amount": 66.52,
+      "paymentDate": "2026-06-13T07:21:28.470Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4047,
+      "userId": 4006,
+      "ticketId": 5045,
+      "amount": 66.52,
+      "paymentDate": "2026-06-13T07:26:47.666Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4048,
+      "userId": 4006,
+      "ticketId": 5046,
+      "amount": 56.519999999999996,
+      "paymentDate": "2026-06-13T07:40:00.699Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4049,
+      "userId": 4006,
+      "ticketId": 5047,
+      "amount": 25.34,
+      "paymentDate": "2026-06-13T08:21:26.648Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4050,
+      "userId": 4007,
+      "ticketId": 5048,
+      "amount": 66.52,
+      "paymentDate": "2026-06-13T09:11:49.037Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4051,
+      "userId": 4007,
+      "ticketId": 5049,
+      "amount": 66.52,
+      "paymentDate": "2026-06-13T09:21:18.187Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4052,
+      "userId": 4006,
+      "ticketId": 5050,
+      "amount": 66.52,
+      "paymentDate": "2026-06-13T19:11:39.775Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4053,
+      "userId": 4009,
+      "ticketId": 5051,
+      "amount": 66.52,
+      "paymentDate": "2026-06-13T19:43:31.369Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4054,
+      "userId": 4009,
+      "ticketId": 5052,
+      "amount": 271.8,
+      "paymentDate": "2026-06-13T20:07:54.096Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    }
+  ],
+  "supportRequests": [
+    {
+      "requestId": 6001,
+      "userId": 1003,
+      "requestType": "refund",
+      "description": "Richiesta rimborso per cancellazione treno",
+      "status": "open",
+      "creationDate": "2026-06-04T09:20:00",
+      "resolution": null
+    },
+    {
+      "requestId": 6002,
+      "userId": 2002,
+      "requestType": "information",
+      "description": "Come posso cambiare la data del mio biglietto?",
+      "status": "closed",
+      "creationDate": "2026-05-25T14:10:00",
+      "resolution": "Spiegata procedura di modifica tramite area personale"
+    },
+    {
+      "requestId": 6003,
+      "userId": 4006,
+      "requestType": "refund",
+      "description": "Pagato 2 Volte\n",
+      "status": "open",
+      "creationDate": "2026-06-13T19:11:20.098Z",
+      "resolution": null
+    },
+    {
+      "requestId": 6004,
+      "userId": 4009,
+      "requestType": "refund",
+      "description": "Pagamento fatto 2 volte per il biglietto",
+      "status": "open",
+      "creationDate": "2026-06-13T19:39:24.331Z",
+      "resolution": null
+    }
+  ],
+  "notifications": [
+    {
+      "notificationId": 7001,
+      "userId": 1001,
+      "message": "Il tuo biglietto TKT-1001-001 è stato acquistato con successo.",
+      "type": "purchase_confirmation",
+      "date": "2026-06-03T10:18:00",
+      "read": false
+    },
+    {
+      "notificationId": 7002,
+      "userId": 1002,
+      "message": "Il tuo biglietto TKT-1002-002 è stato acquistato con successo.",
+      "type": "purchase_confirmation",
+      "date": "2026-06-04T14:32:00",
+      "read": true
+    },
+    {
+      "notificationId": 7003,
+      "userId": 1004,
+      "message": "Promozione: 20% di sconto sui prossimi acquisti con i tuoi punti fedeltà!",
+      "type": "promo",
+      "date": "2026-06-01T10:00:00",
+      "read": false
+    },
+    {
+      "notificationId": 7004,
+      "userId": 4007,
+      "message": "Benvenuto! Grazie per esserti registrato.",
+      "type": "info",
+      "date": "2026-06-13T09:20:46.780Z",
+      "read": true
+    },
+    {
+      "notificationId": 7005,
+      "userId": 4007,
+      "message": "Acquisto riuscito per 1 biglietto/i (ID: 5049)",
+      "type": "purchase_confirmation",
+      "date": "2026-06-13T09:21:18.187Z",
+      "read": false
+    },
+    {
+      "notificationId": 7006,
+      "userId": 4007,
+      "message": "Biglietto #5049 modificato con successo. Nuovi dettagli: 13:20 data 2026-06-14",
+      "type": "info",
+      "date": "2026-06-13T09:22:33.525Z",
+      "read": false
+    },
+    {
+      "notificationId": 7007,
+      "userId": 4007,
+      "message": "Password modificata con successo.",
+      "type": "security",
+      "date": "2026-06-13T09:22:52.520Z",
+      "read": false
+    },
+    {
+      "notificationId": 7008,
+      "userId": 4007,
+      "message": "È stata richiesta la procedura di recupero password. Segui il link inviato via email.",
+      "type": "security",
+      "date": "2026-06-13T09:23:19.326Z",
+      "read": false
+    },
+    {
+      "notificationId": 7009,
+      "userId": 4007,
+      "message": "Benvenuto! Grazie per esserti registrato.",
+      "type": "info",
+      "date": "2026-06-13T09:35:54.434Z",
+      "read": false
+    },
+    {
+      "notificationId": 7010,
+      "userId": 4006,
+      "message": "Acquisto riuscito per 1 biglietto/i (ID: 5050)",
+      "type": "purchase_confirmation",
+      "date": "2026-06-13T19:11:39.775Z",
+      "read": true
+    },
+    {
+      "notificationId": 7011,
+      "userId": 4008,
+      "message": "Benvenuto! Grazie per esserti registrato.",
+      "type": "info",
+      "date": "2026-06-13T19:25:28.161Z",
+      "read": false
+    },
+    {
+      "notificationId": 7012,
+      "userId": 4009,
+      "message": "Benvenuto! Grazie per esserti registrato.",
+      "type": "info",
+      "date": "2026-06-13T19:31:09.715Z",
+      "read": true
+    },
+    {
+      "notificationId": 7013,
+      "userId": 4009,
+      "message": "Password modificata con successo.",
+      "type": "security",
+      "date": "2026-06-13T19:33:10.312Z",
+      "read": true
+    },
+    {
+      "notificationId": 7014,
+      "userId": 4009,
+      "message": "Acquisto riuscito per 1 biglietto/i (ID: 5051)",
+      "type": "purchase_confirmation",
+      "date": "2026-06-13T19:43:31.369Z",
+      "read": true
+    },
+    {
+      "notificationId": 7015,
+      "userId": 4009,
+      "message": "Acquisto riuscito per 1 biglietto/i (ID: 5052)",
+      "type": "purchase_confirmation",
+      "date": "2026-06-13T20:07:54.096Z",
+      "read": true
+    },
+    {
+      "notificationId": 7016,
+      "userId": 4009,
+      "message": "Biglietto #5052 modificato con successo. Nuovi dettagli: 45:44 data 2026-05-50",
+      "type": "info",
+      "date": "2026-06-13T20:12:33.315Z",
+      "read": true
+    },
+    {
+      "notificationId": 7017,
+      "userId": 4009,
+      "message": "Biglietto #5052 modificato con successo. Nuovi dettagli: 00:00 data 2026-06-14",
+      "type": "info",
+      "date": "2026-06-13T20:13:30.836Z",
+      "read": true
+    },
+    {
+      "notificationId": 7018,
+      "userId": 4009,
+      "message": "È stata richiesta la procedura di recupero password. Segui il link inviato via email.",
+      "type": "security",
+      "date": "2026-06-14T09:29:02.582Z",
+      "read": true
+    }
+  ],
+  "shiftSchedules": [
+    {
+      "shiftId": 8001,
+      "staffId": 3001,
+      "date": "2026-06-14",
+      "startTime": "05:30",
+      "endTime": "14:00",
+      "trainRunId": 201,
+      "assignedRoute": "Bologna - Bolzano",
+      "startingPlace": "Bologna"
+    },
+    {
+      "shiftId": 8002,
+      "staffId": 3001,
+      "date": "2026-06-14",
+      "startTime": "14:30",
+      "endTime": "22:00",
+      "trainRunId": 205,
+      "assignedRoute": "Bologna - Bolzano",
+      "startingPlace": "Bologna"
+    },
+    {
+      "shiftId": 8003,
+      "staffId": 3002,
+      "date": "2026-06-14",
+      "startTime": "08:00",
+      "endTime": "17:00",
+      "trainRunId": null,
+      "assignedRoute": "Customer Support Desk",
+      "startingPlace": "Ufficio di Bologna"
+    }
+  ],
+  "loyaltyTransactions": [
+    {
+      "transactionId": 9001,
+      "userId": 1001,
+      "points": 24,
+      "reason": "Acquisto biglietto #5001",
+      "date": "2026-06-03T10:18:00"
+    },
+    {
+      "transactionId": 9002,
+      "userId": 1002,
+      "points": 89,
+      "reason": "Acquisto biglietto #5002",
+      "date": "2026-06-04T14:32:00"
+    },
+    {
+      "transactionId": 9003,
+      "userId": 1003,
+      "points": 19,
+      "reason": "Acquisto biglietto #5003",
+      "date": "2026-06-04T09:48:00"
+    },
+    {
+      "transactionId": 9004,
+      "userId": 1004,
+      "points": 55,
+      "reason": "Acquisto biglietto #5004",
+      "date": "2026-06-04T16:23:00"
+    },
+    {
+      "transactionId": 9005,
+      "userId": 1004,
+      "points": 220,
+      "reason": "Acquisto abbonamento #2001",
+      "date": "2026-04-28T11:00:00"
+    },
+    {
+      "transactionId": 9006,
+      "userId": 4002,
+      "points": 18,
+      "reason": "Acquisto biglietto #5005",
+      "date": "2026-06-04T22:56:06.297Z"
+    },
+    {
+      "transactionId": 9007,
+      "userId": 1004,
+      "points": 18,
+      "reason": "Acquisto biglietto #5006",
+      "date": "2026-05-20T09:35:00"
+    },
+    {
+      "transactionId": 9008,
+      "userId": 1004,
+      "points": 32,
+      "reason": "Acquisto biglietto #5007",
+      "date": "2026-05-25T14:20:00"
+    },
+    {
+      "transactionId": 9009,
+      "userId": 1004,
+      "points": 45,
+      "reason": "Acquisto biglietto #5008",
+      "date": "2026-05-30T11:50:00"
+    },
+    {
+      "transactionId": 9010,
+      "userId": 1004,
+      "points": 28,
+      "reason": "Acquisto biglietto #5009",
+      "date": "2026-05-28T18:05:00"
+    },
+    {
+      "transactionId": 9011,
+      "userId": 1004,
+      "points": 22,
+      "reason": "Acquisto biglietto #5010",
+      "date": "2026-05-22T07:25:00"
+    },
+    {
+      "transactionId": 9012,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5011",
+      "date": "2026-06-14T15:33:14.935Z"
+    },
+    {
+      "transactionId": 9013,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5012",
+      "date": "2026-06-14T15:34:28.055Z"
+    },
+    {
+      "transactionId": 9014,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5013",
+      "date": "2026-06-14T15:34:28.922Z"
+    },
+    {
+      "transactionId": 9015,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5014",
+      "date": "2026-06-14T15:36:28.790Z"
+    },
+    {
+      "transactionId": 9016,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5015",
+      "date": "2026-06-14T15:43:01.387Z"
+    },
+    {
+      "transactionId": 9017,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5016",
+      "date": "2026-06-14T15:43:04.712Z"
+    },
+    {
+      "transactionId": 9018,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5017",
+      "date": "2026-06-14T15:43:06.718Z"
+    },
+    {
+      "transactionId": 9019,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5018",
+      "date": "2026-06-14T15:43:26.578Z"
+    },
+    {
+      "transactionId": 9020,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5019",
+      "date": "2026-06-14T15:43:30.003Z"
+    },
+    {
+      "transactionId": 9021,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5020",
+      "date": "2026-06-14T15:43:30.187Z"
+    },
+    {
+      "transactionId": 9022,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5021",
+      "date": "2026-06-14T15:43:30.360Z"
+    },
+    {
+      "transactionId": 9023,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5022",
+      "date": "2026-06-14T15:43:30.540Z"
+    },
+    {
+      "transactionId": 9024,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5023",
+      "date": "2026-06-14T15:43:30.735Z"
+    },
+    {
+      "transactionId": 9025,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5024",
+      "date": "2026-06-14T15:45:19.616Z"
+    },
+    {
+      "transactionId": 9026,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5025",
+      "date": "2026-06-14T15:45:20.155Z"
+    },
+    {
+      "transactionId": 9027,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5026",
+      "date": "2026-06-14T15:45:20.314Z"
+    },
+    {
+      "transactionId": 9028,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5027",
+      "date": "2026-06-14T15:45:20.475Z"
+    },
+    {
+      "transactionId": 9029,
+      "userId": 1004,
+      "points": null,
+      "reason": "Acquisto biglietto #5028",
+      "date": "2026-06-14T15:45:20.623Z"
+    },
+    {
+      "transactionId": 9030,
+      "userId": 1004,
+      "points": 10,
+      "reason": "Acquisto biglietto #5029",
+      "date": "2026-06-14T15:50:45.786Z"
+    },
+    {
+      "transactionId": 9031,
+      "userId": 1004,
+      "points": 10,
+      "reason": "Acquisto biglietto #5030",
+      "date": "2026-06-14T15:52:26.456Z"
+    },
+    {
+      "transactionId": 9032,
+      "userId": 1003,
+      "points": 18,
+      "reason": "Acquisto biglietto #5031",
+      "date": "2026-06-14T18:34:14.607Z"
+    },
+    {
+      "transactionId": 9033,
+      "userId": 1004,
+      "points": 12,
+      "reason": "Acquisto biglietto #5032",
+      "date": "2026-06-14T19:26:47.486Z"
+    },
+    {
+      "transactionId": 9034,
+      "userId": 1004,
+      "points": 10,
+      "reason": "Acquisto biglietto #5033",
+      "date": "2026-06-14T20:00:50.979Z"
+    },
+    {
+      "transactionId": 9035,
+      "userId": 4005,
+      "points": 18,
+      "reason": "Acquisto biglietto #5034",
+      "date": "2026-06-07T08:55:29.382Z"
+    },
+    {
+      "transactionId": 9036,
+      "userId": 1004,
+      "points": 21,
+      "reason": "Acquisto biglietto #5035",
+      "date": "2026-06-09T21:21:24.178Z"
+    },
+    {
+      "transactionId": 9037,
+      "userId": 1004,
+      "points": 61,
+      "reason": "Acquisto biglietto #5036",
+      "date": "2026-06-14T08:01:57.975Z"
+    },
+    {
+      "transactionId": 9038,
+      "userId": 1004,
+      "points": -50,
+      "reason": "Utilizzo punti per sconto su acquisto #5036",
+      "date": "2026-06-14T08:01:57.975Z"
+    },
+    {
+      "transactionId": 9039,
+      "userId": 1004,
+      "points": -70,
+      "reason": "Utilizzo 70 punti per sconto su acquisto #5037",
+      "date": "2026-06-14T08:05:49.897Z"
+    },
+    {
+      "transactionId": 9041,
+      "userId": 4006,
+      "points": 66,
+      "reason": "Acquisto biglietti #5038",
+      "date": "2026-06-14T09:27:00.046Z"
+    },
+    {
+      "transactionId": 9043,
+      "userId": 4006,
+      "points": 31,
+      "reason": "Acquisto biglietti #5039",
+      "date": "2026-06-14T09:27:50.657Z"
+    },
+    {
+      "transactionId": 9044,
+      "userId": 4006,
+      "points": -1,
+      "reason": "Utilizzo 1 punti per sconto",
+      "date": "2026-06-14T09:28:57.868Z"
+    },
+    {
+      "transactionId": 9045,
+      "userId": 4006,
+      "points": -50,
+      "reason": "Utilizzo 50 punti per sconto",
+      "date": "2026-06-14T09:31:15.377Z"
+    },
+    {
+      "transactionId": 9046,
+      "userId": 4006,
+      "points": -40,
+      "reason": "Utilizzo 40 punti per sconto",
+      "date": "2026-06-12T09:41:02.152Z"
+    },
+    {
+      "transactionId": 9047,
+      "userId": 4006,
+      "points": -5,
+      "reason": "Utilizzo 5 punti per sconto",
+      "date": "2026-06-13T07:15:19.497Z"
+    },
+    {
+      "transactionId": 9049,
+      "userId": 4006,
+      "points": 66,
+      "reason": "Acquisto biglietti #5044",
+      "date": "2026-06-13T07:21:28.470Z"
+    },
+    {
+      "transactionId": 9051,
+      "userId": 4006,
+      "points": 66,
+      "reason": "Acquisto biglietti #5045",
+      "date": "2026-06-13T07:26:47.666Z"
+    },
+    {
+      "transactionId": 9052,
+      "userId": 4006,
+      "points": -100,
+      "reason": "Utilizzo 100 punti per sconto",
+      "date": "2026-06-13T07:40:00.699Z"
+    },
+    {
+      "transactionId": 9054,
+      "userId": 4006,
+      "points": 25,
+      "reason": "Acquisto biglietti #5047",
+      "date": "2026-06-13T08:21:26.648Z"
+    },
+    {
+      "transactionId": 9056,
+      "userId": 4007,
+      "points": 66,
+      "reason": "Acquisto biglietti #5048",
+      "date": "2026-06-13T09:11:49.037Z"
+    },
+    {
+      "transactionId": 9058,
+      "userId": 4007,
+      "points": 66,
+      "reason": "Acquisto biglietti #5049",
+      "date": "2026-06-13T09:21:18.187Z"
+    },
+    {
+      "transactionId": 9060,
+      "userId": 4006,
+      "points": 66,
+      "reason": "Acquisto biglietti #5050",
+      "date": "2026-06-13T19:11:39.775Z"
+    },
+    {
+      "transactionId": 9062,
+      "userId": 4009,
+      "points": 66,
+      "reason": "Acquisto biglietti #5051",
+      "date": "2026-06-13T19:43:31.369Z"
+    },
+    {
+      "transactionId": 9063,
+      "userId": 4009,
+      "points": -40,
+      "reason": "Utilizzo 40 punti per sconto",
+      "date": "2026-06-13T20:07:54.096Z"
+    }
+  ],
+  "seatReservations": [
+    {
+      "runId": 201,
+      "coachNumber": 2,
+      "seatNumber": "12B",
+      "ticketId": 5001,
+      "status": "reserved"
+    },
+    {
+      "runId": 211,
+      "coachNumber": 1,
+      "seatNumber": "8A",
+      "ticketId": 5002,
+      "status": "reserved"
+    },
+    {
+      "runId": 222,
+      "coachNumber": 2,
+      "seatNumber": "22C",
+      "ticketId": 5003,
+      "status": "reserved"
+    },
+    {
+      "runId": 203,
+      "coachNumber": 1,
+      "seatNumber": "5D",
+      "ticketId": 5004,
+      "status": "occupied"
+    },
+    {
+      "runId": 215,
+      "coachNumber": 2,
+      "seatNumber": "1A",
+      "ticketId": 5005,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "1A",
+      "ticketId": 9999,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "1B",
+      "ticketId": 9998,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 2,
+      "seatNumber": "2C",
+      "ticketId": 9997,
+      "status": "occupied"
+    },
+    {
+      "runId": 211,
+      "coachNumber": 1,
+      "seatNumber": "3D",
+      "ticketId": 9996,
+      "status": "occupied"
+    },
+    {
+      "runId": 211,
+      "coachNumber": 1,
+      "seatNumber": "3E",
+      "ticketId": 9995,
+      "status": "occupied"
+    },
+    {
+      "runId": 222,
+      "coachNumber": 2,
+      "seatNumber": "5B",
+      "ticketId": 9994,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "4A",
+      "ticketId": 9993,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "4B",
+      "ticketId": 9992,
+      "status": "occupied"
+    },
+    {
+      "runId": 203,
+      "coachNumber": 2,
+      "seatNumber": "10C",
+      "ticketId": 9991,
+      "status": "occupied"
+    },
+    {
+      "runId": 203,
+      "coachNumber": 2,
+      "seatNumber": "10D",
+      "ticketId": 9990,
+      "status": "occupied"
+    },
+    {
+      "runId": 211,
+      "coachNumber": 2,
+      "seatNumber": "7F",
+      "ticketId": 9989,
+      "status": "occupied"
+    },
+    {
+      "runId": 211,
+      "coachNumber": 2,
+      "seatNumber": "8F",
+      "ticketId": 9988,
+      "status": "occupied"
+    },
+    {
+      "runId": 222,
+      "coachNumber": 1,
+      "seatNumber": "12A",
+      "ticketId": 9987,
+      "status": "occupied"
+    },
+    {
+      "runId": 222,
+      "coachNumber": 1,
+      "seatNumber": "12B",
+      "ticketId": 9986,
+      "status": "occupied"
+    },
+    {
+      "runId": 215,
+      "coachNumber": 1,
+      "seatNumber": "2A",
+      "ticketId": 9985,
+      "status": "occupied"
+    },
+    {
+      "runId": 215,
+      "coachNumber": 1,
+      "seatNumber": "2B",
+      "ticketId": 9984,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 3,
+      "seatNumber": "5A",
+      "ticketId": 9983,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 3,
+      "seatNumber": "5B",
+      "ticketId": 9982,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5011,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5012,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5013,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5014,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5015,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5016,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5017,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5018,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5019,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5020,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5021,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5022,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5023,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5024,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5025,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5026,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5027,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "ticketId": 5028,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "1C",
+      "ticketId": 5029,
+      "status": "reserved"
+    },
+    {
+      "runId": 202,
+      "coachNumber": 1,
+      "seatNumber": "1A",
+      "ticketId": 5030,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "2A",
+      "ticketId": 5031,
+      "status": "reserved"
+    },
+    {
+      "runId": 241,
+      "coachNumber": 1,
+      "seatNumber": "1A",
+      "ticketId": 5032,
+      "status": "reserved"
+    },
+    {
+      "runId": 251,
+      "coachNumber": 1,
+      "seatNumber": "1A",
+      "ticketId": 5033,
+      "status": "reserved"
+    },
+    {
+      "runId": 262,
+      "coachNumber": 1,
+      "seatNumber": "1C",
+      "ticketId": 5034,
+      "status": "occupied"
+    },
+    {
+      "runId": 251,
+      "coachNumber": 1,
+      "seatNumber": "1B",
+      "ticketId": 5035,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "1D",
+      "ticketId": 5036,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "2B",
+      "ticketId": 5037,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "1E",
+      "ticketId": 5038,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "2D",
+      "ticketId": 5039,
+      "status": "occupied"
+    },
+    {
+      "runId": 271,
+      "coachNumber": 1,
+      "seatNumber": "7C",
+      "ticketId": 5040,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "3A",
+      "ticketId": 5041,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "3B",
+      "ticketId": 5042,
+      "status": "reserved"
+    },
+    {
+      "runId": 241,
+      "coachNumber": 1,
+      "seatNumber": "1B",
+      "ticketId": 5043,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "3C",
+      "ticketId": 5044,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "3D",
+      "ticketId": 5045,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "2E",
+      "ticketId": 5046,
+      "status": "reserved"
+    },
+    {
+      "runId": 291,
+      "coachNumber": 1,
+      "seatNumber": "1A",
+      "ticketId": 5047,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "1F",
+      "ticketId": 5048,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "2F",
+      "ticketId": 5049,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "3E",
+      "ticketId": 5050,
+      "status": "reserved"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "3F",
+      "ticketId": 5051,
+      "status": "occupied"
+    },
+    {
+      "runId": 201,
+      "coachNumber": 1,
+      "seatNumber": "4D",
+      "ticketId": 5052,
+      "status": "reserved"
+    }
+  ],
+  "travelClasses": [
+    "standard",
+    "business"
+  ],
+  "trainTypes": [
+    "Regionale",
+    "Regionale Veloce",
+    "Intercity",
+    "Frecciarossa"
+  ],
+  "passengerTypes": [
+    "adult",
+    "child"
+  ],
+  "ticketStatuses": [
+    "active",
+    "used",
+    "expired",
+    "cancelled"
+  ],
+  "subscriptionStatuses": [
+    "active",
+    "expired",
+    "cancelled"
+  ],
+  "reservationStatuses": [
+    "confirmed",
+    "cancelled"
+  ],
+  "paymentStatuses": [
+    "pending",
+    "completed",
+    "failed",
+    "refunded"
+  ],
+  "supportRequestTypes": [
+    "refund",
+    "information",
+    "complaint",
+    "other"
+  ],
+  "notificationTypes": [
+    "delay_alert",
+    "info",
+    "promo",
+    "purchase_confirmation",
+    "route_change"
+  ],
+  "accountStatuses": [
+    "active",
+    "blocked",
+    "deleted"
+  ],
+  "roles": [
+    "passenger",
+    "inspector",
+    "customer_support",
+    "administrator"
+  ]
+}
+>>>>>>> Stashed changes
