@@ -306,8 +306,8 @@
             });
             const matteoHomeMarker = L.circleMarker([44.42137, 11.91094], {radius: 1, color: 'red', fillColor: 'red', fillOpacity: 1}).addTo(map).bindPopup("casa Tegoli ;)");
             const robinHomeMarker = L.circleMarker([46.2969100, 10.6913600], {radius: 1, color: 'green', fillColor: 'green', fillOpacity: 1}).addTo(map).bindPopup("casa Robin ;)");
-            
-            const cateHomeMarker = L.circleMarker([45.7708093, 11.807883], {radius: 1, color: 'blue', fillColor: 'blue', fillOpacity: 1}).addTo(map).bindPopup("casa Cate ;)");
+            const virgyHomeMarker = L.circleMarker([40.4333, 17.7333], {radius: 1, color: 'orange', fillColor: 'orange', fillOpacity: 1}).addTo(map).bindPopup("casa Virgy ;)");
+            const cateHomeMarker = L.circleMarker([45.7708093, 11.807883], {radius: 1, color: 'yellow', fillColor: 'yellow', fillOpacity: 1}).addTo(map).bindPopup("casa Cate ;)");
         } catch (err) {
             document.getElementById('results').innerHTML = `<div class="error">❌ Errore caricamento stazioni: ${err.message}</div>`;
         }
