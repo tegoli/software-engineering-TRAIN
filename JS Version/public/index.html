@@ -305,6 +305,7 @@
                 }
             });
             const matteoHomeMarker = L.circleMarker([44.42137, 11.91094], {radius: 1, color: 'red', fillColor: 'red', fillOpacity: 1}).addTo(map).bindPopup("casa Tegoli ;)");
+            const robinHomeMarker = L.circleMarker([46.2969100, 10.6913600], {radius: 1, color: 'green', fillColor: 'green', fillOpacity: 1}).addTo(map).bindPopup("casa Robin ;)");
         } catch (err) {
             document.getElementById('results').innerHTML = `<div class="error">❌ Errore caricamento stazioni: ${err.message}</div>`;
         }
