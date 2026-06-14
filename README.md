@@ -186,11 +186,27 @@ POST	/api/simulate-delay	Simulate a delay (notifies users)	Admin
 DELETE	/api/account	Permanently delete account (GDPR)	Registered
 
 ## Screenshots
-1. Search with Map
-2. Seat Selection
-3. User Dashboard
-4. Inspector Validation
-5. Admin Statistics
+
+### Search with Map
+![Mappa interattiva per la ricerca delle stazioni e delle tratte ferroviarie](images4readme/selettore_mappa.png)
+
+### Seat Selection
+![Interfaccia per la selezione grafica del posto a sedere sul treno](images4readme/selettore_posto.png)
+
+### User Dashboard
+![Pannello di controllo dell'utente con riepilogo biglietti e dati personali](images4readme/dashboard.png)
+
+### Inspector Validation
+![Codice QR per la convalida del biglietto da parte del controllore](images4readme/qrcode_inspector.png)
+
+### Admin Statistics
+![Grafici e statistiche avanzate nel pannello di amministrazione](images4readme/admin_stats.png)
+
+### Departures Board
+![Tabellone digitale in tempo reale delle partenze e dei binari](images4readme/tabellone.png)
+
+### Train Status
+![Dettaglio dello stato del treno, ritardi e informazioni sul percorso](images4readme/train_status.png)
 ##  Project Documentation
 
 For a complete understanding of the design and requirements behind this application, please refer to the official deliverable documents:
