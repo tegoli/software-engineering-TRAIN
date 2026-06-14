@@ -4,176 +4,535 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Train App - Cerca treni</title>
+    <link rel="icon" type="image/png" href="images/104okok.png">
+
+    <link rel="icon" type="image/png" href="images/104okok.png">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
+        * { box-sizing: border-box; font-family: system-ui, 'Segoe UI', sans-serif; }
         body { background: #f0f2f5; margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: auto; background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        nav { display: flex; gap: 20px; margin-bottom: 30px; border-bottom: 1px solid #ddd; padding-bottom: 12px; flex-wrap: wrap; }
+        .container { max-width: 1300px; margin: auto; background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        nav { display: flex; gap: 20px; margin-bottom: 30px; border-bottom: 1px solid #ddd; padding-bottom: 12px; flex-wrap: wrap; align-items: center; }
         nav a { text-decoration: none; color: #0066cc; font-weight: 500; }
+        .lang-selector { margin-left: auto; }
+        .lang-selector select { padding: 5px 8px; border-radius: 20px; background: #e9ecef; border: 1px solid #ccc; cursor: pointer; width: auto; }
         h1 { color: #1e3c72; margin-top: 0; }
         .search-form { background: #e9ecef; padding: 20px; border-radius: 16px; margin-bottom: 30px; }
         .form-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
         .form-group { flex: 1; min-width: 150px; }
-        label { display: block; font-weight: 600; margin-bottom: 5px; }
-        input, select, button { padding: 10px; border-radius: 8px; border: 1px solid #ccc; width: 100%; }
-        button { background: #0066cc; color: white; border: none; cursor: pointer; font-weight: bold; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
+        input, select, button { padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; width: 100%; }
+        button { background: #0066cc; color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #004d99; }
         .map-row { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-        #map { height: 400px; flex: 2; border-radius: 16px; border: 1px solid #ccc; }
-        .station-info { flex: 1; background: #f8f9fa; border-radius: 16px; padding: 16px; }
-        .train-card { background: white; border: 1px solid #ddd; border-radius: 12px; padding: 15px; margin-bottom: 12px; }
-        .error { color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 8px; }
+        #map { height: 400px; flex: 2; border-radius: 16px; border: 1px solid #ccc; background: #f8f9fa; }
+        .station-info { flex: 1; background: #f8f9fa; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .filters { background: #f8f9fa; border-radius: 16px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; }
+        .filter-group { flex: 1; min-width: 150px; }
+        .results { margin-top: 20px; }
+        .train-card { background: white; border: 1px solid #ddd; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .train-card h3 { margin: 0 0 8px; }
+        .transfer-info { background: #fff3e0; padding: 5px 10px; border-radius: 20px; display: inline-block; margin: 5px 0; font-size: 0.8rem; }
+        .error { color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 8px; margin-top: 10px; }
+        .info { background: #e3f2fd; padding: 10px; border-radius: 8px; margin: 10px 0; }
+        .delay-info { padding: 5px; margin-top: 5px; border-radius: 8px; }
+        @media (max-width: 768px) { .map-row { flex-direction: column; } .lang-selector { margin-left: 0; } }
     </style>
 </head>
 <body>
 <div class="container">
     <nav>
-        <a href="index.html">🏠 Cerca treni</a>
-        <a href="login.html">🔐 Login</a>
-        <a href="dashboard.html">📋 Dashboard</a>
-        <a href="purchase.html">🎫 Acquista</a>
-        <a href="inspector.html">👮 Ispettore</a>
-        <a href="admin.html">📊 Admin</a>
-        <a href="support.html">💬 Supporto</a>
+        <a href="index.html" data-i18n="home">🏠 Cerca treni</a>
+        <a href="login.html" data-i18n="login">🔐 Login</a>
+        <a href="dashboard.html" data-i18n="dashboard">📋 Dashboard</a>
+        <a href="purchase.html" data-i18n="purchase">🎫 Acquista</a>
+        <a href="inspector.html" data-i18n="inspector">👮 Ispettore</a>
+        <a href="admin.html" data-i18n="admin">📊 Admin</a>
+        <a href="support.html" data-i18n="support">💬 Supporto</a>
+        <a href="train-status.html" data-i18n="status">🚆 Stato treno</a>
+        <a href="subscription.html" data-i18n="subscription">🎫 Abbonamenti</a>
+        <a href="tabellone.html" data-i18n="tabellone">🚉 Tabellone</a>
+        <a href="notifications.html" data-i18n="notifications">🔔 Notifiche</a>
+        <div class="lang-selector">
+            <select id="langSelect">
+                <option value="it">🇮🇹 IT</option>
+                <option value="en">🇬🇧 EN</option>
+                <option value="de">🇩🇪 DE</option>
+            </select>
+        </div>
     </nav>
-
-    <h1>🚆 Cerca il tuo treno</h1>
+    
+    <div style="display: flex; justify-content: center; align-items: center; height: 50vh;">
+  
+        <style>
+          @keyframes pulsante {
+            0% { transform: scale(0.9); }
+            25%{ transform: scale(0.5); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(0.9); }
+          }
+        </style>
+      
+        <img src="images/104okok.png" alt="Logo" style="animation: pulsante 3s infinite ease-in-out;">
+      
+      </div>
+    <h1 data-i18n="title">🚆 Cerca il tuo treno</h1>
 
     <div class="search-form">
         <div class="form-row">
             <div class="form-group">
-                <label>Partenza</label>
-                <input list="stationsList" id="fromInput" placeholder="Trento" value="Trento">
-                <datalist id="stationsList"></datalist>
+                <label data-i18n="from_label">Partenza</label>
+                <input list="stationsList" id="fromInput" placeholder="Bologna Centrale" value="Bologna Centrale" autocomplete="off">
             </div>
             <div class="form-group">
-                <label>Arrivo</label>
-                <input list="stationsList" id="toInput" placeholder="Rovereto" value="Rovereto">
+                <label data-i18n="to_label">Arrivo</label>
+                <input list="stationsList" id="toInput" placeholder="Bolzano" value="Bolzano" autocomplete="off">
             </div>
             <div class="form-group">
-                <label>Data</label>
+                <label data-i18n="date_label">Data</label>
                 <input type="date" id="dateInput">
             </div>
             <div class="form-group">
-                <label>Classe</label>
+                <label data-i18n="class_label">Classe</label>
                 <select id="classSelect">
-                    <option value="standard">Standard</option>
-                    <option value="business">Business</option>
+                    <option value="standard" data-i18n="standard">Standard</option>
+                    <option value="business" data-i18n="business">Business</option>
                 </select>
             </div>
             <div class="form-group">
-                <button id="searchBtn">Cerca</button>
+                <label><input type="checkbox" id="allowTransfers"> <span data-i18n="allow_transfers">Consenti cambi (max 1)</span></label>
             </div>
+            <div class="form-group">
+                <button id="searchBtn" data-i18n="search_btn">Cerca</button>
+            </div>
+        </div>
+        <datalist id="stationsList"></datalist>
+    </div>
+
+    <div class="filters">
+        <div class="filter-group">
+            <label data-i18n="sort_label">Ordina per</label>
+            <select id="sortBy">
+                <option value="departure" data-i18n="sort_departure">Orario partenza</option>
+                <option value="price" data-i18n="sort_price">Prezzo (crescente)</option>
+                <option value="duration" data-i18n="sort_duration">Durata (crescente)</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label data-i18n="time_filter_label">Fascia oraria partenza</label>
+            <select id="timeFilter">
+                <option value="" data-i18n="no_filter">Nessun filtro</option>
+                <option value="after" data-i18n="after">Dopo le ore</option>
+                <option value="range" data-i18n="range">Tra le ore</option>
+                <option value="arrival_by" data-i18n="arrival_by">Arrivo entro le ore</option>
+            </select>
+        </div>
+        <div class="filter-group" id="timeValueGroup" style="display:none;">
+            <label data-i18n="time_label">Orario (HH:MM)</label>
+            <input type="time" id="timeValue" step="60">
+        </div>
+        <div class="filter-group" id="timeRangeGroup" style="display:none;">
+            <label data-i18n="from_time">Da</label>
+            <input type="time" id="timeFrom" step="60">
+            <label data-i18n="to_time">A</label>
+            <input type="time" id="timeTo" step="60">
+        </div>
+        <div class="filter-group">
+            <label data-i18n="smart_filter_label">Filtra per</label>
+            <select id="smartFilter">
+                <option value="" data-i18n="none">Nessuno</option>
+                <option value="delay" data-i18n="less_delay">Minore probabilità di ritardo</option>
+                <option value="crowding" data-i18n="less_crowding">Minore affollamento</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <button id="applyFiltersBtn" data-i18n="apply_filters">Applica filtri</button>
         </div>
     </div>
 
     <div class="map-row">
         <div id="map"></div>
         <div class="station-info">
-            <h3>🗺️ Seleziona stazioni sulla mappa</h3>
-            <p>Clicca su un marker → poi usa i pulsanti.</p>
-            <button id="setFromMarker">Imposta come partenza</button>
-            <button id="setToMarker">Imposta come arrivo</button>
-            <p id="selectedStationInfo"></p>
+            <h3 data-i18n="map_title">🗺️ Seleziona stazioni sulla mappa</h3>
+            <p data-i18n="map_help">Clicca su un marker, poi usa i pulsanti.</p>
+            <button id="setFromMarker" data-i18n="set_departure">📌 Imposta come partenza</button>
+            <button id="setToMarker" data-i18n="set_arrival">📍 Imposta come arrivo</button>
+            <div id="selectedStationInfo" class="info" data-i18n="no_station">Nessuna stazione selezionata</div>
         </div>
     </div>
 
-    <div id="results"><p>🔍 I risultati appariranno qui...</p></div>
+    <div id="results" class="results">
+        <p data-i18n="waiting_results">🔍 I risultati appariranno qui...</p>
+    </div>
+</div>
+
+<div id="cookieBanner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: white; padding: 15px; text-align: center; z-index: 1000; display: none;">
+    <span data-i18n="cookie_text">🍪 Questo sito utilizza cookie per migliorare l'esperienza.</span>
+    <button id="acceptCookies" style="margin-left: 15px;" data-i18n="accept">Accetta</button>
+    <button id="rejectCookies" data-i18n="reject">Rifiuta</button>
 </div>
 
 <script>
-    let map, stations = [], selectedStation = null;
+    // -------------------- TRADUZIONI (solo per elementi statici) --------------------
+    const translations = {
+        it: {
+            home: "🏠 Cerca treni", login: "🔐 Login", dashboard: "📋 Dashboard", purchase: "🎫 Acquista",
+            inspector: "👮 Ispettore", admin: "📊 Admin", support: "💬 Supporto", status: "🚆 Stato treno",
+            subscription: "🎫 Abbonamenti", tabellone: "🚉 Tabellone", title: "🚆 Cerca il tuo treno",
+            from_label: "Partenza", to_label: "Arrivo", date_label: "Data", class_label: "Classe",
+            standard: "Standard", business: "Business", allow_transfers: "Consenti cambi (max 1)",
+            search_btn: "Cerca", sort_label: "Ordina per", sort_departure: "Orario partenza",
+            sort_price: "Prezzo (crescente)", sort_duration: "Durata (crescente)",
+            time_filter_label: "Fascia oraria partenza", no_filter: "Nessun filtro", after: "Dopo le ore",
+            range: "Tra le ore", arrival_by: "Arrivo entro le ore", time_label: "Orario (HH:MM)",
+            from_time: "Da", to_time: "A", smart_filter_label: "Filtra per", none: "Nessuno",
+            less_delay: "Minore probabilità di ritardo", less_crowding: "Minore affollamento",
+            apply_filters: "Applica filtri", map_title: "🗺️ Seleziona stazioni sulla mappa",
+            map_help: "Clicca su un marker, poi usa i pulsanti.", set_departure: "📌 Imposta come partenza",
+            set_arrival: "📍 Imposta come arrivo", no_station: "Nessuna stazione selezionata",
+            waiting_results: "🔍 I risultati appariranno qui...",
+            cookie_text: "🍪 Questo sito utilizza cookie per migliorare l'esperienza.",
+            accept: "Accetta", reject: "Rifiuta"
+        },
+        en: {
+            home: "🏠 Search trains", login: "🔐 Login", dashboard: "📋 Dashboard", purchase: "🎫 Buy",
+            inspector: "👮 Inspector", admin: "📊 Admin", support: "💬 Support", status: "🚆 Train status",
+            subscription: "🎫 Subscriptions", tabellone: "🚉 Departures", title: "🚆 Search your train",
+            from_label: "Departure", to_label: "Arrival", date_label: "Date", class_label: "Class",
+            standard: "Standard", business: "Business", allow_transfers: "Allow changes (max 1)",
+            search_btn: "Search", sort_label: "Sort by", sort_departure: "Departure time",
+            sort_price: "Price (ascending)", sort_duration: "Duration (ascending)",
+            time_filter_label: "Time filter", no_filter: "No filter", after: "After",
+            range: "Between", arrival_by: "Arrive by", time_label: "Time (HH:MM)",
+            from_time: "From", to_time: "To", smart_filter_label: "Filter by", none: "None",
+            less_delay: "Less delay probability", less_crowding: "Less crowding",
+            apply_filters: "Apply filters", map_title: "🗺️ Select stations on the map",
+            map_help: "Click a marker, then use buttons.", set_departure: "📌 Set as departure",
+            set_arrival: "📍 Set as arrival", no_station: "No station selected",
+            waiting_results: "🔍 Results will appear here...",
+            cookie_text: "🍪 This site uses cookies to improve your experience.",
+            accept: "Accept", reject: "Reject"
+        },
+        de: {
+            home: "🏠 Zug suchen", login: "🔐 Anmelden", dashboard: "📋 Dashboard", purchase: "🎫 Kaufen",
+            inspector: "👮 Schaffner", admin: "📊 Admin", support: "💬 Support", status: "🚆 Zugstatus",
+            subscription: "🎫 Abos", tabellone: "🚉 Abfahrten", title: "🚆 Suche deinen Zug",
+            from_label: "Abfahrt", to_label: "Ankunft", date_label: "Datum", class_label: "Klasse",
+            standard: "Standard", business: "Business", allow_transfers: "Umstiege erlauben (max 1)",
+            search_btn: "Suchen", sort_label: "Sortieren nach", sort_departure: "Abfahrtszeit",
+            sort_price: "Preis (aufsteigend)", sort_duration: "Dauer (aufsteigend)",
+            time_filter_label: "Zeitfilter", no_filter: "Kein Filter", after: "Nach",
+            range: "Zwischen", arrival_by: "Ankunft bis", time_label: "Uhrzeit (HH:MM)",
+            from_time: "Von", to_time: "Bis", smart_filter_label: "Filtern nach", none: "Keine",
+            less_delay: "Geringere Verspätungswahrscheinlichkeit", less_crowding: "Weniger überfüllt",
+            apply_filters: "Filter anwenden", map_title: "🗺️ Wähle Stationen auf der Karte",
+            map_help: "Klicke auf einen Marker, dann nutze die Buttons.", set_departure: "📌 Als Abfahrt setzen",
+            set_arrival: "📍 Als Ankunft setzen", no_station: "Keine Station ausgewählt",
+            waiting_results: "🔍 Ergebnisse erscheinen hier...",
+            cookie_text: "🍪 Diese Website verwendet Cookies, um die Erfahrung zu verbessern.",
+            accept: "Akzeptieren", reject: "Ablehnen"
+        }
+    };
 
-    async function initMap() {
-        // Inizializza mappa
-        map = L.map('map').setView([46.0667, 11.1167], 8);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> & CartoDB'
-        }).addTo(map);
-
-        // Carica stazioni dal backend
-        const res = await fetch('/api/stations');
-        stations = await res.json();
-
-        // Popola datalist per gli input
-        const datalist = document.getElementById('stationsList');
-        stations.forEach(s => {
-            const option = document.createElement('option');
-            option.value = s.name;
-            datalist.appendChild(option);
+    let currentLang = localStorage.getItem('lang') || 'it';
+    function setLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem('lang', lang);
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang] && translations[lang][key]) {
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+                    if (el.hasAttribute('placeholder')) el.placeholder = translations[lang][key];
+                } else {
+                    el.innerText = translations[lang][key];
+                }
+            }
         });
+        document.querySelectorAll('select option[data-i18n]').forEach(opt => {
+            const key = opt.getAttribute('data-i18n');
+            if (translations[lang] && translations[lang][key]) opt.innerText = translations[lang][key];
+        });
+        const token = localStorage.getItem('token');
+        if (token) {
+            fetch('/api/language', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ language: lang }) }).catch(e => console.warn);
+        }
+    }
+    // Inizializza lingua dopo che tutto è definito (evita chiamate anticipate)
+    // La lingua verrà applicata al caricamento della pagina e al cambio select
 
-        // Aggiungi marker sulla mappa
-        stations.forEach(station => {
-            const marker = L.marker([station.latitude, station.longitude]).addTo(map);
-            marker.bindPopup(`<b>${station.name}</b><br>${station.city}`);
-            marker.on('click', () => {
-                selectedStation = station;
-                document.getElementById('selectedStationInfo').innerHTML = `Selezionata: ${station.name}`;
+    // -------------------- TUTTA LA LOGICA ORIGINALE (MAPPA, RICERCA, FILTRI) --------------------
+    let map, stations = [], selectedStation = null;
+    let stationNames = [];
+    let currentTrains = [];
+    let filteredTrains = [];
+
+    const prefillFrom = localStorage.getItem('prefillFrom');
+    const prefillTo = localStorage.getItem('prefillTo');
+    if (prefillFrom) document.getElementById('fromInput').value = prefillFrom;
+    if (prefillTo) document.getElementById('toInput').value = prefillTo;
+    localStorage.removeItem('prefillFrom');
+    localStorage.removeItem('prefillTo');
+
+    async function loadStationsAndInitMap() {
+        try {
+            const res = await fetch('/api/stations');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            stations = await res.json();
+            stationNames = stations.map(s => s.name);
+
+            const datalist = document.getElementById('stationsList');
+            datalist.innerHTML = '';
+            stationNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                datalist.appendChild(option);
+            });
+
+            map = L.map('map').setView([46.0667, 11.1167], 8);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> & CartoDB'
+            }).addTo(map);
+
+            stations.forEach(station => {
+                if (station.latitude && station.longitude) {
+                    const marker = L.marker([station.latitude, station.longitude]).addTo(map);
+                    marker.bindPopup(`<b>${station.name}</b><br>${station.city}`);
+                    marker.on('click', () => {
+                        selectedStation = station;
+                        document.getElementById('selectedStationInfo').innerHTML = `✅ Selezionata: <strong>${station.name}</strong> (${station.city})`;
+                    });
+                }
+            });
+        } catch (err) {
+            document.getElementById('results').innerHTML = `<div class="error">❌ Errore caricamento stazioni: ${err.message}</div>`;
+        }
+    }
+
+    function validateStations(from, to) {
+        if (!stationNames.includes(from)) {
+            alert(`❌ Stazione di partenza "${from}" non valida.`);
+            return false;
+        }
+        if (!stationNames.includes(to)) {
+            alert(`❌ Stazione di arrivo "${to}" non valida.`);
+            return false;
+        }
+        if (from === to) {
+            alert('❌ Partenza e arrivo devono essere diverse.');
+            return false;
+        }
+        return true;
+    }
+
+    async function searchTrains() {
+        const from = document.getElementById('fromInput').value.trim();
+        const to = document.getElementById('toInput').value.trim();
+        const date = document.getElementById('dateInput').value;
+        const travelClass = document.getElementById('classSelect').value;
+        const allowTransfers = document.getElementById('allowTransfers').checked;
+
+        if (!validateStations(from, to)) return;
+
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = '<p>⏳ Ricerca in corso...</p>';
+
+        try {
+            const endpoint = allowTransfers ? '/api/search-advanced' : '/api/search';
+            const body = allowTransfers ? 
+                { departureStationName: from, arrivalStationName: to, date, travelClass, maxTransfers: 1 } :
+                { departureStationName: from, arrivalStationName: to, date, travelClass };
+
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            currentTrains = data.trains || [];
+            applyFiltersAndRender();
+        } catch (err) {
+            resultsDiv.innerHTML = `<div class="error">Errore: ${err.message}</div>`;
+        }
+    }
+
+    function applyFiltersAndRender() {
+        let trains = [...currentTrains];
+        
+        // Ordinamento
+        const sortBy = document.getElementById('sortBy').value;
+        if (sortBy === 'price') {
+            trains.sort((a,b) => a.price - b.price);
+        } else if (sortBy === 'duration') {
+            trains.sort((a,b) => (a.durationMinutes || 0) - (b.durationMinutes || 0));
+        } else {
+            trains.sort((a,b) => new Date(a.departureTime) - new Date(b.departureTime));
+        }
+        const smart = document.getElementById('smartFilter').value;
+        if (smart === 'delay') trains.sort((a,b) => (a.delayProbability || 0) - (b.delayProbability || 0));
+        if (smart === 'crowding') trains.sort((a,b) => (a.crowdingProbability || 0) - (b.crowdingProbability || 0));
+        
+        // Filtro orario
+        const timeFilter = document.getElementById('timeFilter').value;
+        const timeValue = document.getElementById('timeValue').value;
+        const timeFrom = document.getElementById('timeFrom').value;
+        const timeTo = document.getElementById('timeTo').value;
+        
+        if (timeFilter === 'after' && timeValue) {
+            const [hour, minute] = timeValue.split(':');
+            const limit = parseInt(hour)*60 + parseInt(minute);
+            trains = trains.filter(t => {
+                const d = new Date(t.departureTime);
+                return d.getHours()*60 + d.getMinutes() >= limit;
+            });
+        } else if (timeFilter === 'range' && timeFrom && timeTo) {
+            const [fh, fm] = timeFrom.split(':');
+            const [th, tm] = timeTo.split(':');
+            const low = parseInt(fh)*60 + parseInt(fm);
+            const high = parseInt(th)*60 + parseInt(tm);
+            trains = trains.filter(t => {
+                const d = new Date(t.departureTime);
+                const m = d.getHours()*60 + d.getMinutes();
+                return m >= low && m <= high;
+            });
+        } else if (timeFilter === 'arrival_by' && timeValue) {
+            const [hour, minute] = timeValue.split(':');
+            const limit = parseInt(hour)*60 + parseInt(minute);
+            trains = trains.filter(t => {
+                const a = new Date(t.arrivalTime);
+                return a.getHours()*60 + a.getMinutes() <= limit;
+            });
+        }
+        
+        filteredTrains = trains;
+        renderResults();
+    }
+    
+    function renderResults() {
+        const resultsDiv = document.getElementById('results');
+        if (filteredTrains.length === 0) {
+            resultsDiv.innerHTML = '<div class="error">❌ Nessun treno trovato con i filtri selezionati.</div>';
+            return;
+        }
+        
+        resultsDiv.innerHTML = `<h3>✈️ Trovati ${filteredTrains.length} treni:</h3>`;
+        for (const t of filteredTrains) {
+            let transferHtml = '';
+            if (t.transfers && t.transfers > 0) {
+                transferHtml = `<div class="transfer-info">🔄 ${t.transfers} cambio a ${t.transferStation} (attesa ${t.transferDuration} min)</div>`;
+            }
+            let delayHtml = '';
+            if (t.currentDelay && t.currentDelay > 0) {
+                delayHtml += `<div class="delay-info" style="background:#fff3e0;">⚠️ Ritardo attuale: ${t.currentDelay} minuti</div>`;
+            }
+            if (t.predictedDelay !== undefined && t.predictedDelay !== null) {
+                delayHtml += `<div class="delay-info" style="background:#e3f2fd;">📊 Previsione ritardo: ${t.predictedDelay} minuti</div>`;
+            }
+            const card = document.createElement('div');
+            card.className = 'train-card';
+            card.innerHTML = `
+                <h3>🚆 ${t.trainCode} (${t.trainType}) - ${t.from} → ${t.to}</h3>
+                <div>Partenza: ${new Date(t.departureTime).toLocaleString()} | Arrivo: ${new Date(t.arrivalTime).toLocaleString()}</div>
+                <div>Durata: ${t.duration} | Prezzo: € ${t.price.toFixed(2)} (${t.travelClass})</div>
+                ${transferHtml}
+                ${delayHtml}
+                <button class="select-btn" data-train='${JSON.stringify(t)}'>🎫 Seleziona e acquista</button>
+            `;
+            resultsDiv.appendChild(card);
+        }
+        document.querySelectorAll('.select-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const train = JSON.parse(btn.getAttribute('data-train'));
+                selectTrain(train);
             });
         });
     }
-
+    
+    window.selectTrain = function(train) {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Devi effettuare il login per acquistare un biglietto.');
+            window.location.href = 'login.html';
+            return;
+        }
+        let runId = train.id;
+        if (!runId && train.segments && train.segments.length) {
+            runId = train.segments[0].runId;
+        }
+        const runData = {
+            runId: runId,
+            from: train.from,
+            to: train.to,
+            price: train.price,
+            travelClass: train.travelClass,
+            trainCode: train.trainCode,
+            transfers: train.transfers,
+            transferStation: train.transferStation,
+            segments: train.segments
+        };
+        localStorage.setItem('selectedRun', JSON.stringify(runData));
+        window.location.href = 'purchase.html';
+    };
+    
+    function setupFilterUI() {
+        const timeFilterSelect = document.getElementById('timeFilter');
+        const timeValueGroup = document.getElementById('timeValueGroup');
+        const timeRangeGroup = document.getElementById('timeRangeGroup');
+        
+        timeFilterSelect.addEventListener('change', () => {
+            const val = timeFilterSelect.value;
+            timeValueGroup.style.display = 'none';
+            timeRangeGroup.style.display = 'none';
+            if (val === 'after' || val === 'arrival_by') {
+                timeValueGroup.style.display = 'block';
+                document.getElementById('timeValue').value = '';
+            } else if (val === 'range') {
+                timeRangeGroup.style.display = 'block';
+            }
+        });
+        
+        document.getElementById('applyFiltersBtn').addEventListener('click', applyFiltersAndRender);
+        document.getElementById('sortBy').addEventListener('change', applyFiltersAndRender);
+    }
+    
     document.getElementById('setFromMarker').onclick = () => {
         if (selectedStation) {
             document.getElementById('fromInput').value = selectedStation.name;
-            alert(`Partenza impostata a ${selectedStation.name}`);
-        } else alert('Clicca prima su una stazione nella mappa');
+            alert(`✅ Partenza impostata a ${selectedStation.name}`);
+        } else alert('⚠️ Clicca prima su un marker sulla mappa.');
     };
     document.getElementById('setToMarker').onclick = () => {
         if (selectedStation) {
             document.getElementById('toInput').value = selectedStation.name;
-            alert(`Arrivo impostato a ${selectedStation.name}`);
-        } else alert('Clicca prima su una stazione nella mappa');
+            alert(`✅ Arrivo impostato a ${selectedStation.name}`);
+        } else alert('⚠️ Clicca prima su un marker sulla mappa.');
     };
     document.getElementById('dateInput').valueAsDate = new Date();
-
-    document.getElementById('searchBtn').onclick = async () => {
-        const from = document.getElementById('fromInput').value;
-        const to = document.getElementById('toInput').value;
-        const date = document.getElementById('dateInput').value;
-        const travelClass = document.getElementById('classSelect').value;
-        const resultsDiv = document.getElementById('results');
-
-        resultsDiv.innerHTML = '<p>⏳ Caricamento...</p>';
-
-        try {
-            const res = await fetch('/api/search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ departureStationName: from, arrivalStationName: to, date, travelClass })
-            });
-            const data = await res.json();
-            if (data.trains && data.trains.length) {
-                resultsDiv.innerHTML = `<h3>✈️ Trovati ${data.trains.length} treni:</h3>` + data.trains.map(t => `
-                    <div class="train-card">
-                        <strong>${t.trainCode} (${t.trainType})</strong> - ${t.from} → ${t.to}<br>
-                        Partenza: ${new Date(t.departureTime).toLocaleString()} | Arrivo: ${new Date(t.arrivalTime).toLocaleString()}<br>
-                        Durata: ${t.duration} | Prezzo: € ${t.price.toFixed(2)} (${t.travelClass})<br>
-                        <button onclick="selectTrain(${t.id}, '${t.from}', '${t.to}', ${t.price}, '${t.travelClass}')">Seleziona e acquista</button>
-                    </div>
-                `).join('');
-            } else {
-                resultsDiv.innerHTML = '<div class="error">❌ Nessun treno trovato per questa tratta. Verifica le stazioni o la data.</div>';
-            }
-        } catch (err) {
-            resultsDiv.innerHTML = `<div class="error">Errore di rete: ${err.message}</div>`;
-        }
+    document.getElementById('searchBtn').onclick = searchTrains;
+    
+    loadStationsAndInitMap();
+    setupFilterUI();
+    
+    // Applica lingua dopo che tutti gli elementi sono nel DOM e le funzioni definite
+    document.getElementById('langSelect').value = currentLang;
+    setLanguage(currentLang);
+    document.getElementById('langSelect').addEventListener('change', (e) => setLanguage(e.target.value));
+    
+    // Cookie banner
+    if (!localStorage.getItem('cookieChoice')) {
+        document.getElementById('cookieBanner').style.display = 'block';
+    }
+    document.getElementById('acceptCookies').onclick = () => {
+        localStorage.setItem('cookieChoice', 'accepted');
+        document.getElementById('cookieBanner').style.display = 'none';
+        alert('Grazie, i tuoi dati verranno usati per la ricerca del gruppo 104 in un server molto sicuro (quello di Matteo)');
     };
-
-    window.selectTrain = (runId, from, to, price, travelClass) => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            alert('Devi fare login per acquistare');
-            window.location.href = 'login.html';
-            return;
-        }
-        localStorage.setItem('selectedRun', JSON.stringify({ runId, from, to, price, travelClass }));
-        window.location.href = 'purchase.html';
+    document.getElementById('rejectCookies').onclick = () => {
+        localStorage.setItem('cookieChoice', 'rejected');
+        document.getElementById('cookieBanner').style.display = 'none';
+        alert('ok, chill va bene lo stesso :(');
     };
-
-    initMap();
 </script>
 </body>
 </html>

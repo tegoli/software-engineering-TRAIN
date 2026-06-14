@@ -1,15 +1,27 @@
 import { TravelDocument } from './TravelDocument.js';
+import { TicketManagementController } from '../controllers/TicketManagementController.js';
 
 export class Ticket extends TravelDocument {
-    constructor(...args) {
-        super(...args);
-        this.ticketId = null;
-        this.departureTime = null;
-        this.arrivalTime = null;
-        this.passengerType = null;
+    /** @type {number} */ ticketId;
+    /** @type {Date} */ departureTime;
+    /** @type {Date} */ arrivalTime;
+    /** @type {string} */ passengerType; // 'adult', 'child'
+
+    calculateTimeRemaining(currentTime) {
+        return this.departureTime - currentTime;
     }
-    calculateTimeRemaining(currentTime) { return 0; }
-    allowFullModification() { return false; }
-    restrictToTimeOnly() { }
-    updateTicket(newDetails) { }
+
+    allowFullModification() {
+        const hoursLeft = this.calculateTimeRemaining(new Date()) / (1000 * 3600);
+        return hoursLeft > 24;
+    }
+
+    restrictToTimeOnly() {
+        const hoursLeft = this.calculateTimeRemaining(new Date()) / (1000 * 3600);
+        return hoursLeft <= 24 && hoursLeft > 0;
+    }
+
+    async updateTicket(newDetails) {
+        return TicketManagementController.updateTicket(this.ticketId, newDetails);
+    }
 }

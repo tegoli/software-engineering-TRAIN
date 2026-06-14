@@ -1,7 +1,13 @@
+/**
+ * @file Represents the result of a ticket validation.
+ */
 export class ValidationResult {
-    constructor(valid, alreadyValidated, message) {
+    /** @type {boolean} */ valid = false;
+    /** @type {boolean} */ alreadyValidated = false;
+    /** @type {string} */ message = '';
+
+    constructor(valid = false, message = '') {
         this.valid = valid;
-        this.alreadyValidated = alreadyValidated;
         this.message = message;
     }
 }

@@ -1,11 +1,16 @@
 export class SupportRequest {
-    constructor(requestId, requestType, description, status, creationDate) {
-        this.requestId = requestId;
-        this.requestType = requestType;
-        this.description = description;
-        this.status = status;
-        this.creationDate = creationDate;
+    /** @type {number} */ requestId;
+    /** @type {string} */ requestType; // 'refund', 'info', 'complaint'
+    /** @type {string} */ description;
+    /** @type {string} */ status; // 'open', 'closed'
+    /** @type {Date} */ creationDate;
+
+    submit() {
+        this.status = 'open';
+        // save to DB
     }
-    submit() { console.log('Richiesta supporto inviata'); }
-    close() { this.status = 'CLOSED'; }
+
+    close() {
+        this.status = 'closed';
+    }
 }

@@ -1,6 +1,8 @@
+/**
+ * @brief Admin dashboard view.
+ */
 export class Dashboard {
-    constructor(dashboardId, title) {
-        this.dashboardId = dashboardId;
-        this.title = title;
-    }
+    /** @type {number} */ dashboardId;
+    /** @type {string} */ title;
+    /** @type {object} */ statistics;
 }

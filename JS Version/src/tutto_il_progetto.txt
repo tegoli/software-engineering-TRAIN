@@ -1,0 +1,2837 @@
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\AccountController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:00               901 AccountController.js
+               1 File(s)            901 bytes
+               0 Dir(s)  119'347'023'872 bytes free
+/**
+ * @file Account management (password recovery, deletion).
+ */
+import { readDB, writeDB, hashPassword } from '../database/db.js';
+
+export const AccountController = {
+    async changePassword(userId, oldPass, newPass) {
+        const db = readDB();
+        const user = db.users.find(u => u.userId === userId);
+        if (!user || user.passwordHash !== hashPassword(oldPass)) return false;
+        if (newPass.length < 8) return false;
+        user.passwordHash = hashPassword(newPass);
+        writeDB(db);
+        return true;
+    },
+
+    async deleteAccount(userId) {
+        const db = readDB();
+        db.users = db.users.filter(u => u.userId !== userId);
+        db.tickets = db.tickets.filter(t => t.userId !== userId);
+        writeDB(db);
+        return true;
+    },
+
+    async requestRecovery(email) {
+        // send reset link
+        return true;
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\AdminController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  14:06             3'793 AdminController.js
+               1 File(s)          3'793 bytes
+               0 Dir(s)  119'347'019'776 bytes free
+import { readDB, writeDB, createNotification } from '../database/db.js';
+
+export const AdminController = {
+    getStats(req, res) {
+        const db = readDB();
+        const totalRevenue = db.payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+        const totalBookings = db.tickets.length;
+        const delayedRuns = db.trainRuns.filter(r => r.status === 'delayed').length;
+        const activeUsers = db.users.filter(u => u.accountStatus === 'active' && u.role === 'passenger').length;
+
+        // Statistiche biglietti (tratte più comprate)
+        const routeCount = {};
+        for (const ticket of db.tickets) {
+            const run = db.trainRuns.find(r => r.runId === ticket.runId);
+            if (run) {
+                const route = db.routes.find(r => r.routeId === run.routeId);
+                if (route) routeCount[route.routeName] = (routeCount[route.routeName] || 0) + 1;
+            }
+        }
+        const topRoutes = Object.entries(routeCount).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([name,count])=>({ name, count }));
+
+        // Stazioni più trafficate (biglietti)
+        const stationCount = {};
+        for (const run of db.trainRuns) {
+            const route = db.routes.find(r => r.routeId === run.routeId);
+            if (route) {
+                for (const stop of route.stops) {
+                    const station = db.stations.find(s => s.stationId === stop.stationId);
+                    if (station) stationCount[station.name] = (stationCount[station.name] || 0) + 1;
+                }
+            }
+        }
+        const topStations = Object.entries(stationCount).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([name,count])=>({ name, count }));
+
+        // STATISTICHE ABBONAMENTI
+        const activeSubscriptions = db.subscriptions.filter(s => s.status === 'active').length;
+        const subscriptionRouteCount = {};
+        for (const sub of db.subscriptions) {
+            const route = db.routes.find(r => r.routeId === sub.routeId);
+            if (route) subscriptionRouteCount[route.routeName] = (subscriptionRouteCount[route.routeName] || 0) + 1;
+        }
+        const topSubscriptionRoutes = Object.entries(subscriptionRouteCount).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([name,count])=>({ name, count }));
+
+        res.json({
+            revenue: totalRevenue,
+            bookings: totalBookings,
+            delayedTrains: delayedRuns,
+            activeUsers,
+            topRoutes,
+            topStations,
+            activeSubscriptions,
+            topSubscriptionRoutes
+        });
+    },
+
+    simulateDelay(req, res) {
+        const { runId, delayMinutes } = req.body;
+        const db = readDB();
+        const run = db.trainRuns.find(r => r.runId === runId);
+        if (!run) return res.status(404).json({ success: false, error: 'Run non trovato' });
+        run.status = 'delayed';
+        run.currentDelayMinutes = delayMinutes;
+        const train = db.trains.find(t => t.trainId === run.trainId);
+        const affectedTickets = db.tickets.filter(t => t.runId === runId && t.status === 'active');
+        const userIds = [...new Set(affectedTickets.map(t => t.userId))];
+        for (const userId of userIds) {
+            createNotification(userId, `Il treno della corsa ${runId} (${train?.trainCode || '?'}) ha un ritardo di ${delayMinutes} minuti.`, 'delay_alert');
+            const user = db.users.find(u => u.userId === userId);
+            console.log(`[SIMULAZIONE EMAIL] A ${user?.email}: Ritardo di ${delayMinutes} minuti sul treno ${train?.trainCode || '?'}`);
+        }
+        writeDB(db);
+        res.json({ success: true, message: `Ritardo di ${delayMinutes} minuti simulato. Notifiche inviate a ${userIds.length} utenti.` });
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\ApplicationInterface.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  22:51               378 ApplicationInterface.js
+               1 File(s)            378 bytes
+               0 Dir(s)  119'347'015'680 bytes free
+export class ApplicationInterface {
+    displayDashboard(stats) { console.log('Dashboard mostrata', stats); }
+    displayData(data, filters) { console.log('Dati filtrati', data); }
+    showError(message) { console.error(message); }
+    showConfirmation(message) { return confirm(message); } // solo browser
+    updatedUI(lang) { console.log(`UI aggiornata a ${lang}`); }
+} 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\AuthController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  14:09             4'472 AuthController.js
+               1 File(s)          4'472 bytes
+               0 Dir(s)  119'347'015'680 bytes free
+import { readDB, writeDB, hashPassword, createNotification } from '../database/db.js';
+import { generateToken } from '../utils/crypto.js';
+
+const sessions = new Map();
+
+export const AuthController = {
+    authenticate(req, res, next) {
+        const auth = req.headers.authorization;
+        console.log('🔐 Auth header:', auth);  // ← aggiungi questa riga
+        if (!auth || !auth.startsWith('Bearer ')) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        const token = auth.slice(7);
+        const session = sessions.get(token);
+        if (!session) {
+            console.log('❌ Token non trovato nelle sessioni:', token);  // ← aggiungi
+            return res.status(401).json({ error: 'Invalid token' });
+        }
+        req.user = session;
+        next();
+    },
+
+    login(req, res) {
+        const { email, password } = req.body;
+        const db = readDB();
+        const user = db.users.find(u => u.email === email);
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Credenziali errate' });
+        }
+        if (user.accountStatus === 'blocked') {
+            return res.status(401).json({ success: false, message: 'Account bloccato per troppi tentativi falliti. Contatta il supporto.' });
+        }
+        if (user.passwordHash !== hashPassword(password)) {
+            user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+            if (user.failedLoginAttempts >= 5) {
+                user.accountStatus = 'blocked';
+                writeDB(db);
+                return res.status(401).json({ success: false, message: 'Account bloccato per troppi tentativi falliti.' });
+            }
+            writeDB(db);
+            return res.status(401).json({ success: false, message: 'Credenziali errate' });
+        }
+        user.failedLoginAttempts = 0;
+        writeDB(db);
+        const token = generateToken();
+        sessions.set(token, { userId: user.userId, role: user.role });
+        res.json({ success: true, token, user: { id: user.userId, name: user.name, role: user.role } });
+    },
+
+    register(req, res) {
+        const { name, surname, email, password } = req.body;
+        const db = readDB();
+        if (db.users.find(u => u.email === email)) {
+            return res.status(400).json({ success: false, message: 'Email già registrata' });
+        }
+        if (!password || password.length < 8) {
+            return res.status(400).json({ success: false, message: 'Password minima 8 caratteri' });
+        }
+        const newId = Math.max(...db.users.map(u => u.userId), 0) + 1;
+        db.users.push({
+            userId: newId, name, surname, email,
+            passwordHash: hashPassword(password), role: 'passenger',
+            preferredLanguage: 'it', loyaltyPoints: 0, failedLoginAttempts: 0,
+            accountStatus: 'active'
+        });
+        createNotification(newId, 'Benvenuto! Grazie per esserti registrato.', 'info');
+        writeDB(db);
+        res.json({ success: true, message: 'Registrazione completata' });
+    },
+
+    setLanguage(req, res) {
+        const { language } = req.body;
+        // Se non c'è utente autenticato, salva la lingua solo in localStorage (client side)
+        // Ma il client manda comunque la richiesta con token se loggato.
+        // Controlliamo se req.user esiste (autenticazione opzionale)
+        if (req.user && req.user.userId) {
+            const db = readDB();
+            const user = db.users.find(u => u.userId === req.user.userId);
+            if (user) {
+                user.preferredLanguage = language;
+                writeDB(db);
+            }
+        }
+        // Anche se non loggato, rispondiamo successo (il client gestisce)
+        res.json({ success: true });
+    },
+
+    recoverPassword(req, res) {
+        const { email } = req.body;
+        const db = readDB();
+        const user = db.users.find(u => u.email === email);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Email non registrata' });
+        }
+        createNotification(user.userId, 'È stata richiesta la procedura di recupero password. Segui il link inviato via email.', 'security');
+        writeDB(db);
+        res.json({ success: true, message: `Email di reset inviata a ${email}` });
+    },
+
+    sessionCount() {
+        return sessions.size;
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\InspectorController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  14:40             3'195 InspectorController.js
+               1 File(s)          3'195 bytes
+               0 Dir(s)  119'347'011'584 bytes free
+import { readDB, writeDB } from '../database/db.js';
+
+export const InspectorController = {
+    validateTicket(req, res) {
+        const { ticketId } = req.body;
+        const db = readDB();
+        
+        // Prima cerca tra i biglietti
+        let ticket = db.tickets.find(t => t.ticketId === ticketId);
+        let isSubscription = false;
+        let subscription = null;
+        
+        if (!ticket) {
+            // Se non è un biglietto, cerca tra gli abbonamenti
+            subscription = db.subscriptions.find(s => s.subscriptionId === ticketId);
+            if (subscription) {
+                isSubscription = true;
+                ticket = subscription; // per uniformità
+            }
+        }
+        
+        if (!ticket) {
+            return res.json({ valid: false, message: 'Documento non trovato' });
+        }
+        
+        // Se è un abbonamento, controlla la validità temporale
+        if (isSubscription) {
+            const today = new Date();
+            const endDate = new Date(subscription.endDate);
+            const startDate = new Date(subscription.startDate);
+            if (subscription.status !== 'active' || today > endDate || today < startDate) {
+                return res.json({ valid: false, message: 'Abbonamento non valido o scaduto' });
+            }
+            // Abbonamento valido: non si "usa" come un biglietto, rimane attivo.
+            // Opzionale: puoi registrare un log di validazione.
+            return res.json({ valid: true, message: 'Abbonamento valido', type: 'subscription' });
+        }
+        
+        // Biglietto normale
+        if (ticket.status !== 'active') {
+            return res.json({ valid: false, message: 'Biglietto già utilizzato o scaduto' });
+        }
+        
+        // Marca come usato
+        ticket.status = 'used';
+        const seatRes = db.seatReservations.find(sr => sr.ticketId === ticketId);
+        if (seatRes) seatRes.status = 'occupied';
+        writeDB(db);
+        res.json({ valid: true, message: 'Biglietto valido e marcato come utilizzato', type: 'ticket' });
+    },
+
+    getSchedule(req, res) {
+        const inspectorId = parseInt(req.params.inspectorId);
+        // Verifica che l'utente autenticato sia l'ispettore stesso o un admin
+        if (req.user.userId !== inspectorId && req.user.role !== 'administrator') {
+            return res.status(403).json({ error: 'Accesso negato' });
+        }
+        const db = readDB();
+        const shifts = db.shiftSchedules.filter(s => s.staffId === inspectorId);
+        const enriched = shifts.map(s => {
+            const run = db.trainRuns.find(r => r.runId === s.trainRunId);
+            const route = db.routes.find(r => r.routeId === run?.routeId);
+            const train = db.trains.find(t => t.trainId === run?.trainId);
+            return {
+                date: s.date,
+                startTime: s.startTime,
+                endTime: s.endTime,
+                route: s.assignedRoute,
+                trainCode: train?.trainCode,
+                trainType: train?.trainType
+            };
+        });
+        res.json({ shifts: enriched });
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\LanguageController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:00               490 LanguageController.js
+               1 File(s)            490 bytes
+               0 Dir(s)  119'347'007'488 bytes free
+/**
+ * @file Manages UI language switching.
+ */
+export const LanguageController = {
+    changeLanguage(lang) {
+        // update global state
+        return lang;
+    },
+
+    async savePreference(userId, lang) {
+        const { readDB, writeDB } = await import('../database/db.js');
+        const db = readDB();
+        const user = db.users.find(u => u.userId === userId);
+        if (user) user.preferredLanguage = lang;
+        writeDB(db);
+        return true;
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\NotificationController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:34               712 NotificationController.js
+               1 File(s)            712 bytes
+               0 Dir(s)  119'347'007'488 bytes free
+import { readDB, writeDB } from '../database/db.js';
+
+export const NotificationController = {
+    getNotifications(req, res) {
+        const db = readDB();
+        const userNotifs = db.notifications.filter(n => n.userId === req.user.userId);
+        res.json({ notifications: userNotifs });
+    },
+
+    markAsRead(req, res) {
+        const notifId = parseInt(req.params.id);
+        const db = readDB();
+        const notif = db.notifications.find(n => n.notificationId === notifId && n.userId === req.user.userId);
+        if (!notif) return res.status(404).json({ error: 'Notifica non trovata' });
+        notif.read = true;
+        writeDB(db);
+        res.json({ success: true });
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\ScheduleController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:06             1'030 ScheduleController.js
+               1 File(s)          1'030 bytes
+               0 Dir(s)  119'347'007'488 bytes free
+import { readDB } from '../database/db.js';
+
+export const ScheduleController = {
+    getSchedule(req, res) {
+        const inspectorId = parseInt(req.params.inspectorId);
+        if (req.user.userId !== inspectorId) {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+        const db = readDB();
+        const shifts = db.shiftSchedules.filter(s => s.staffId === inspectorId);
+        const enriched = shifts.map(s => {
+            const run = db.trainRuns.find(r => r.runId === s.trainRunId);
+            const route = db.routes.find(r => r.routeId === run?.routeId);
+            const train = db.trains.find(t => t.trainId === run?.trainId);
+            return {
+                date: s.date,
+                startTime: s.startTime,
+                endTime: s.endTime,
+                route: s.assignedRoute,
+                trainCode: train?.trainCode,
+                trainType: train?.trainType
+            };
+        });
+        res.json({ shifts: enriched });
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\StationBoardController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:34             1'385 StationBoardController.js
+               1 File(s)          1'385 bytes
+               0 Dir(s)  119'347'003'392 bytes free
+import { readDB } from '../database/db.js';
+
+export const StationBoardController = {
+    getDepartures(req, res) {
+        const stationId = parseInt(req.params.stationId);
+        const requestedDate = req.query.date || new Date().toISOString().slice(0,10);
+        const db = readDB();
+        const departures = [];
+        for (const run of db.trainRuns) {
+            if (run.departureDateTime.slice(0,10) !== requestedDate) continue;
+            const route = db.routes.find(r => r.routeId === run.routeId);
+            const stop = route?.stops.find(s => s.stationId === stationId && s.scheduledDeparture);
+            if (!stop) continue;
+            const train = db.trains.find(t => t.trainId === run.trainId);
+            const destinationStop = route.stops[route.stops.length-1];
+            const destStation = db.stations.find(s => s.stationId === destinationStop.stationId);
+            departures.push({
+                trainCode: train.trainCode,
+                destination: destStation.name,
+                scheduledDeparture: stop.scheduledDeparture,
+                track: stop.trackNumber,
+                status: run.status,
+                delay: run.currentDelayMinutes || 0
+            });
+        }
+        departures.sort((a,b) => a.scheduledDeparture.localeCompare(b.scheduledDeparture));
+        res.json(departures);
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\StatisticsController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:06               660 StatisticsController.js
+               1 File(s)            660 bytes
+               0 Dir(s)  119'347'003'392 bytes free
+import { readDB } from '../database/db.js';
+
+export const StatisticsController = {
+    getStatistics(req, res) {
+        const db = readDB();
+        const totalRevenue = db.payments.reduce((sum, p) => sum + p.amount, 0);
+        const totalBookings = db.tickets.length;
+        const delayedRuns = db.trainRuns.filter(r => r.status === 'delayed').length;
+        const activeUsers = db.users.filter(u => u.accountStatus === 'active' && u.role === 'passenger').length;
+        res.json({
+            revenue: totalRevenue,
+            bookings: totalBookings,
+            delayedTrains: delayedRuns,
+            activeUsers
+        });
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\SubscriptionController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  14:24             4'415 SubscriptionController.js
+               1 File(s)          4'415 bytes
+               0 Dir(s)  119'347'003'392 bytes free
+import { readDB, writeDB, createNotification } from '../database/db.js';
+import { calculatePrice } from '../utils/geo.js';
+
+export const SubscriptionController = {
+    getRoutes(req, res) {
+        const db = readDB();
+        const routes = db.routes.map(route => ({
+            routeId: route.routeId,
+            name: route.routeName,
+            fromStation: db.stations.find(s => s.stationId === route.stops[0].stationId)?.name,
+            toStation: db.stations.find(s => s.stationId === route.stops[route.stops.length-1].stationId)?.name
+        }));
+        res.json(routes);
+    },
+
+    getPrice(req, res) {
+        const { routeId, months, class: travelClass } = req.query;
+        const db = readDB();
+        const route = db.routes.find(r => r.routeId === parseInt(routeId));
+        if (!route) return res.status(404).json({ error: 'Tratta non trovata' });
+        const fromStation = db.stations.find(s => s.stationId === route.stops[0].stationId);
+        const toStation = db.stations.find(s => s.stationId === route.stops[route.stops.length-1].stationId);
+        const monthlyPrice = calculatePrice(fromStation, toStation, travelClass, 'Regionale');
+        const totalPrice = monthlyPrice * parseInt(months);
+        res.json({ price: totalPrice });
+    },
+
+    purchase(req, res) {
+        const { routeId, durationMonths, travelClass } = req.body;
+        const userId = req.user.userId;
+        const db = readDB();
+
+        const user = db.users.find(u => u.userId === userId);
+        if (!user) return res.status(400).json({ success: false, message: 'Utente non valido' });
+
+        // Assicurati che routeId sia un numero
+        const parsedRouteId = parseInt(routeId);
+        const route = db.routes.find(r => r.routeId === parsedRouteId);
+        if (!route) {
+            const availableRoutes = db.routes.map(r => `${r.routeId}: ${r.routeName}`).join(', ');
+            console.error(`Route not found: ${routeId} (parsed: ${parsedRouteId}). Available: ${availableRoutes}`);
+            return res.status(400).json({
+                success: false,
+                message: `Tratta con ID ${routeId} non trovata. Tratte disponibili: ${availableRoutes}`
+            });
+        }
+
+        const fromStation = db.stations.find(s => s.stationId === route.stops[0].stationId);
+        const toStation = db.stations.find(s => s.stationId === route.stops[route.stops.length-1].stationId);
+        const monthlyPrice = calculatePrice(fromStation, toStation, travelClass, 'Regionale');
+        const totalPrice = monthlyPrice * durationMonths;
+
+        const startDate = new Date();
+        const endDate = new Date();
+        endDate.setMonth(endDate.getMonth() + durationMonths);
+
+        const newSubId = Math.max(...db.subscriptions.map(s => s.subscriptionId), 0) + 1;
+        const subscription = {
+            subscriptionId: newSubId,
+            userId,
+            routeId: parsedRouteId,
+            startDate: startDate.toISOString().slice(0,10),
+            endDate: endDate.toISOString().slice(0,10),
+            class: travelClass,
+            price: totalPrice,
+            status: 'active',
+            qrCode: `SUB${newSubId}${Math.random().toString(36).substring(2,8)}`
+        };
+        db.subscriptions.push(subscription);
+
+        const pointsEarned = Math.floor(totalPrice);
+        user.loyaltyPoints += pointsEarned;
+        db.loyaltyTransactions.push({
+            transactionId: Math.max(...db.loyaltyTransactions.map(l => l.transactionId), 0) + 1,
+            userId,
+            points: pointsEarned,
+            reason: `Acquisto abbonamento #${newSubId}`,
+            date: new Date().toISOString()
+        });
+
+        db.payments.push({
+            paymentId: Math.max(...db.payments.map(p => p.paymentId), 0) + 1,
+            userId,
+            subscriptionId: newSubId,
+            amount: totalPrice,
+            paymentDate: new Date().toISOString(),
+            paymentMethod: 'Carta di credito (simulata)',
+            status: 'completed'
+        });
+
+        createNotification(userId, `Abbonamento #${newSubId} (${route.routeName}) acquistato con successo. Valido fino al ${endDate.toLocaleDateString()}. Prezzo: €${totalPrice.toFixed(2)}`, 'subscription');
+        writeDB(db);
+        res.json({ success: true, subscriptionId: newSubId });
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\SupportController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:34               678 SupportController.js
+               1 File(s)            678 bytes
+               0 Dir(s)  119'346'995'200 bytes free
+import { readDB, writeDB } from '../database/db.js';
+
+export const SupportController = {
+    submit(req, res) {
+        const { requestType, ticketRef, description } = req.body;
+        const db = readDB();
+        const newId = Math.max(...db.supportRequests.map(r => r.requestId), 0) + 1;
+        db.supportRequests.push({
+            requestId: newId,
+            userId: req.user.userId,
+            requestType,
+            description,
+            status: 'open',
+            creationDate: new Date().toISOString(),
+            resolution: null
+        });
+        writeDB(db);
+        res.json({ success: true, message: 'Richiesta inviata' });
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\TicketManagementController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:00               749 TicketManagementController.js
+               1 File(s)            749 bytes
+               0 Dir(s)  119'346'995'200 bytes free
+/**
+ * @file Manages ticket modifications (FR 16).
+ */
+import { readDB, writeDB } from '../database/db.js';
+
+export const TicketManagementController = {
+    async getTicketForModify(ticketId) {
+        const db = readDB();
+        const ticket = db.tickets.find(t => t.ticketId === ticketId);
+        if (!ticket) throw new Error('Ticket not found');
+        return ticket;
+    },
+
+    async updateTicket(newDetails) {
+        const db = readDB();
+        const index = db.tickets.findIndex(t => t.ticketId === newDetails.ticketId);
+        if (index === -1) throw new Error('Ticket not found');
+        db.tickets[index] = { ...db.tickets[index], ...newDetails };
+        writeDB(db);
+        return { success: true };
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\TicketPurchaseController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  14:30             9'152 TicketPurchaseController.js
+               1 File(s)          9'152 bytes
+               0 Dir(s)  119'346'995'200 bytes free
+import { readDB, writeDB, createNotification } from '../database/db.js';
+
+export const TicketPurchaseController = {
+    getSeatMap(req, res) {
+        const runId = parseInt(req.params.runId);
+        const db = readDB();
+        const run = db.trainRuns.find(r => r.runId === runId);
+        if (!run) return res.status(404).json({ error: 'Run not found' });
+        const train = db.trains.find(t => t.trainId === run.trainId);
+        if (!train) return res.status(404).json({ error: 'Train not found' });
+
+        const reservations = db.seatReservations.filter(sr => sr.runId === runId);
+        const takenSeats = new Set(reservations.map(sr => sr.seatNumber));
+
+        const coaches = [];
+        if (train.coaches && train.coaches.length) {
+            for (const coach of train.coaches) {
+                const totalSeats = coach.totalSeats || 60;
+                const seatsPerRow = 6;
+                const rows = Math.ceil(totalSeats / seatsPerRow);
+                const seats = [];
+                const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+                for (let row = 1; row <= rows; row++) {
+                    for (let i = 0; i < seatsPerRow; i++) {
+                        if (seats.length >= totalSeats) break;
+                        const seatNumber = `${row}${letters[i]}`;
+                        const status = takenSeats.has(seatNumber) ? 'taken' : 'free';
+                        seats.push({ seatNumber, status });
+                    }
+                }
+                coaches.push({ coachNumber: coach.coachNumber, coachClass: coach.coachClass || 'standard', seats });
+            }
+        } else {
+            const totalSeats = 60;
+            const seatsPerRow = 6;
+            const rows = Math.ceil(totalSeats / seatsPerRow);
+            const seats = [];
+            const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+            for (let row = 1; row <= rows; row++) {
+                for (let i = 0; i < seatsPerRow; i++) {
+                    if (seats.length >= totalSeats) break;
+                    const seatNumber = `${row}${letters[i]}`;
+                    const status = takenSeats.has(seatNumber) ? 'taken' : 'free';
+                    seats.push({ seatNumber, status });
+                }
+            }
+            coaches.push({ coachNumber: 1, coachClass: 'standard', seats });
+        }
+        res.json({ runId, coaches });
+    },
+
+    purchase(req, res) {
+        const { runId, passengers, extras, usedPoints = 0, bikeCount = 0, luggageCount = 0, luggageSize = 'small' } = req.body;
+        const userId = req.user.userId;
+        const db = readDB();
+        const user = db.users.find(u => u.userId === userId);
+        if (!user) return res.status(400).json({ success: false, message: 'Utente non valido' });
+    
+        // Recupera abbonamenti attivi dell'utente (data odierna compresa)
+        const today = new Date();
+        const activeSubscriptions = db.subscriptions.filter(s => 
+            s.userId === userId && 
+            s.status === 'active' && 
+            new Date(s.endDate) >= today
+        );
+    
+        // Calcola il prezzo base totale considerando gli sconti abbonamento
+        let totalBasePrice = 0;
+        const passengersWithDiscount = [];
+        let subscriberDiscountApplied = false;
+    
+        for (let idx = 0; idx < passengers.length; idx++) {
+            const passenger = passengers[idx];
+            let ticketPrice = passenger.price;
+            
+            // Solo per il primo passeggero (l'abbonato) verifichiamo se ha un abbonamento per la tratta
+            if (idx === 0 && !subscriberDiscountApplied) {
+                const matchingSub = activeSubscriptions.find(sub => {
+                    const route = db.routes.find(r => r.routeId === sub.routeId);
+                    if (!route) return false;
+                    const fromStation = db.stations.find(s => s.stationId === route.stops[0].stationId);
+                    const toStation = db.stations.find(s => s.stationId === route.stops[route.stops.length-1].stationId);
+                    return fromStation?.name.toLowerCase() === passenger.fromStation?.toLowerCase() &&
+                           toStation?.name.toLowerCase() === passenger.toStation?.toLowerCase();
+                });
+                if (matchingSub) {
+                    ticketPrice = 0;
+                    subscriberDiscountApplied = true;
+                    // Opzionale: registra l'utilizzo dell'abbonamento (puoi aggiungere un campo usedCount)
+                }
+            }
+            
+            totalBasePrice += ticketPrice;
+            passengersWithDiscount.push({ ...passenger, effectivePrice: ticketPrice });
+        }
+    
+        // Calcola extra (bici, bagagli) – questi NON sono scontati dall'abbonamento
+        let bikePrice = 5;
+        let luggagePrice = luggageSize === 'small' ? 5 : (luggageSize === 'medium' ? 8 : 12);
+        totalBasePrice += (bikeCount * bikePrice * passengers.length) + (luggageCount * luggagePrice * passengers.length);
+    
+        // Applica punti fedeltà (sconto standard)
+        let pointsToUse = Math.min(usedPoints, user.loyaltyPoints || 0);
+        if (pointsToUse < 0) pointsToUse = 0;
+        const discount = pointsToUse * 0.10;
+        const finalPrice = Math.max(0, totalBasePrice - discount);
+        const pointsEarned = (pointsToUse === 0) ? Math.floor(finalPrice) : 0;
+        user.loyaltyPoints = user.loyaltyPoints - pointsToUse + pointsEarned;
+    
+        const now = new Date().toISOString();
+        const ticketsCreated = [];
+        let remainingDiscount = discount;
+    
+        for (let idx = 0; idx < passengers.length; idx++) {
+            const passenger = passengers[idx];
+            let ticketPrice = passengersWithDiscount[idx].effectivePrice;
+            // Applica eventuale sconto residuo dai punti fedeltà
+            if (remainingDiscount > 0 && ticketPrice > 0) {
+                const disc = Math.min(remainingDiscount, ticketPrice);
+                ticketPrice -= disc;
+                remainingDiscount -= disc;
+            }
+            // Controllo disponibilità posto
+            const existing = db.seatReservations.find(sr => sr.runId === runId && sr.seatNumber === passenger.seatNumber);
+            if (existing && existing.status !== 'free') {
+                return res.status(409).json({ success: false, message: `Posto ${passenger.seatNumber} occupato` });
+            }
+            const newTicketId = Math.max(...db.tickets.map(t => t.ticketId), 0) + 1;
+            const newTicket = {
+                ticketId: newTicketId, ticketCode: `TKT-${userId}-${newTicketId}`, userId, runId,
+                fromStopOrder: passenger.fromStopOrder || 1, toStopOrder: passenger.toStopOrder || 4,
+                passengerType: passenger.passengerType || 'adult', seatNumber: passenger.seatNumber,
+                class: passenger.travelClass || 'standard', price: ticketPrice, status: 'active',
+                purchaseDate: now, qrCode: `QR${newTicketId}${Math.random().toString(36).substring(2,8)}`
+            };
+            db.tickets.push(newTicket);
+            ticketsCreated.push(newTicketId);
+            // Registra pagamento (anche se prezzo 0)
+            const newPaymentId = Math.max(...db.payments.map(p => p.paymentId), 0) + 1;
+            db.payments.push({ paymentId: newPaymentId, userId, ticketId: newTicketId, amount: ticketPrice, paymentDate: now, paymentMethod: 'Simulated', status: 'completed' });
+            db.seatReservations.push({ runId, coachNumber: 1, seatNumber: passenger.seatNumber, ticketId: newTicketId, status: 'reserved' });
+        }
+    
+        // Registra transazioni punti fedeltà
+        const transId = Math.max(...db.loyaltyTransactions.map(l => l.transactionId), 0) + 1;
+        if (pointsToUse > 0) {
+            db.loyaltyTransactions.push({ transactionId: transId, userId, points: -pointsToUse, reason: `Utilizzo ${pointsToUse} punti per sconto`, date: now });
+        }
+        if (pointsEarned > 0) {
+            db.loyaltyTransactions.push({ transactionId: transId + 1, userId, points: pointsEarned, reason: `Acquisto biglietti #${ticketsCreated.join(',')}`, date: now });
+        }
+    
+        // Extra (bagagli, bici)
+        if (extras && extras.length && ticketsCreated.length) {
+            for (const extra of extras) {
+                const newResId = Math.max(...db.additionalReservations.map(r => r.reservationId), 0) + 1;
+                db.additionalReservations.push({ reservationId: newResId, ticketId: ticketsCreated[0], type: extra.type, status: 'confirmed', price: extra.price });
+            }
+        }
+    
+        createNotification(userId, `Acquisto riuscito per ${passengers.length} biglietto/i (ID: ${ticketsCreated.join(', ')})`, 'purchase_confirmation');
+        writeDB(db);
+        res.json({ success: true, tickets: ticketsCreated, discountApplied: discount, usedPoints: pointsToUse, finalPrice, subscriptionUsed: subscriberDiscountApplied });
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\TrainSearchController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:32            18'040 TrainSearchController.js
+               1 File(s)         18'040 bytes
+               0 Dir(s)  119'346'987'008 bytes free
+import { readDB } from '../database/db.js';
+import { calculatePrice } from '../utils/geo.js';
+
+function getDelayPrediction(runId, db) {
+    const predictions = db.delayPredictions || [];
+    const historical = predictions.filter(dp => dp.runId === runId).map(dp => dp.predictedDelayMinutes);
+    if (historical.length) {
+        return historical[Math.floor(Math.random() * historical.length)];
+    }
+    return Math.floor(Math.random() * 31);
+}
+
+export const TrainSearchController = {
+    search(req, res) {
+        const { departureStationName, arrivalStationName, date, travelClass } = req.body;
+        const db = readDB();
+        const fromStation = db.stations.find(s => s.name.toLowerCase() === departureStationName.toLowerCase());
+        const toStation = db.stations.find(s => s.name.toLowerCase() === arrivalStationName.toLowerCase());
+        if (!fromStation || !toStation) return res.json({ trains: [] });
+        const searchDate = new Date(date);
+        const results = [];
+        for (const run of db.trainRuns) {
+            const route = db.routes.find(r => r.routeId === run.routeId);
+            if (!route) continue;
+            const fromStop = route.stops.find(stop => stop.stationId === fromStation.stationId);
+            const toStop = route.stops.find(stop => stop.stationId === toStation.stationId);
+            if (!fromStop || !toStop || fromStop.stopOrder >= toStop.stopOrder) continue;
+            const runDate = new Date(run.departureDateTime);
+            if (runDate.toDateString() !== searchDate.toDateString()) continue;
+            if (run.status === 'cancelled') continue;
+            const train = db.trains.find(t => t.trainId === run.trainId);
+            if (!train) continue;
+            if (!train.serviceClasses.includes(travelClass)) continue;
+
+            const departureDateTime = new Date(runDate);
+            const [depHour, depMin] = fromStop.scheduledDeparture.split(':');
+            departureDateTime.setHours(parseInt(depHour), parseInt(depMin), 0);
+            const arrivalDateTime = new Date(runDate);
+            const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
+            arrivalDateTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
+            if (arrivalDateTime < departureDateTime) arrivalDateTime.setDate(arrivalDateTime.getDate() + 1);
+            const durationMs = arrivalDateTime - departureDateTime;
+            const durationMinutes = Math.round(durationMs / 60000);
+            const price = calculatePrice(fromStation, toStation, travelClass, train.trainType);
+            const currentDelay = run.currentDelayMinutes || 0;
+            const predictedDelay = getDelayPrediction(run.runId, db);
+            // Calcolo probabilità ritardo e affollamento (semplificato)
+            let totalSeats = 0;
+            if (train.coaches && train.coaches.length) {
+                totalSeats = train.coaches.reduce((sum, c) => sum + (c.totalSeats || 0), 0);
+            } else {
+                totalSeats = 60;
+            }
+            const occupancySnapshots = db.occupancySnapshots ? db.occupancySnapshots.filter(o => o.runId === run.runId) : [];
+            const occupiedSeats = occupancySnapshots.reduce((sum, o) => sum + (o.occupiedSeats || 0), 0);
+            const crowdingProbability = totalSeats > 0 ? Math.min(100, Math.round((occupiedSeats / totalSeats) * 100)) : 0;
+            const delayProbability = run.status === 'delayed' ? Math.min(80, 20 + (run.currentDelayMinutes || 0)) : Math.max(0, 5 - (run.currentDelayMinutes || 0));
+
+            results.push({
+                id: run.runId, from: fromStation.name, to: toStation.name,
+                departureTime: departureDateTime.toISOString(),
+                arrivalTime: arrivalDateTime.toISOString(),
+                duration: `${Math.floor(durationMinutes/60)}h ${durationMinutes%60}m`,
+                price, trainType: train.trainType, trainCode: train.trainCode, travelClass,
+                delayProbability, crowdingProbability, currentDelay,
+                predictedDelay
+            });
+        }
+        res.json({ trains: results });
+    },
+
+    searchAdvanced(req, res) {
+        // Copia esatta dal tuo app.js (ricerca con cambi)
+        const { departureStationName, arrivalStationName, date, travelClass, maxTransfers = 1 } = req.body;
+        const db = readDB();
+
+        const fromStation = db.stations.find(s => s.name.toLowerCase() === departureStationName.toLowerCase());
+        const toStation = db.stations.find(s => s.name.toLowerCase() === arrivalStationName.toLowerCase());
+        if (!fromStation || !toStation) return res.json({ trains: [] });
+
+        const searchDate = new Date(date);
+        if (isNaN(searchDate)) return res.json({ trains: [] });
+
+        const results = [];
+
+        // Tratte dirette
+        for (const run of db.trainRuns) {
+            const route = db.routes.find(r => r.routeId === run.routeId);
+            if (!route) continue;
+            const fromStop = route.stops.find(stop => stop.stationId === fromStation.stationId);
+            const toStop = route.stops.find(stop => stop.stationId === toStation.stationId);
+            if (!fromStop || !toStop || fromStop.stopOrder >= toStop.stopOrder) continue;
+            const runDate = new Date(run.departureDateTime);
+            if (runDate.toDateString() !== searchDate.toDateString()) continue;
+            if (run.status === 'cancelled') continue;
+            const train = db.trains.find(t => t.trainId === run.trainId);
+            if (!train) continue;
+            if (!train.serviceClasses.includes(travelClass)) continue;
+
+            const departureDateTime = new Date(runDate);
+            const [depHour, depMin] = fromStop.scheduledDeparture.split(':');
+            departureDateTime.setHours(parseInt(depHour), parseInt(depMin), 0);
+            const arrivalDateTime = new Date(runDate);
+            const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
+            arrivalDateTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
+            if (arrivalDateTime < departureDateTime) arrivalDateTime.setDate(arrivalDateTime.getDate() + 1);
+
+            const durationMs = arrivalDateTime - departureDateTime;
+            const durationMinutes = Math.round(durationMs / 60000);
+            const price = calculatePrice(fromStation, toStation, travelClass, train.trainType);
+
+            let totalSeats = 0;
+            if (train.coaches && train.coaches.length) {
+                totalSeats = train.coaches.reduce((sum, c) => sum + (c.totalSeats || 0), 0);
+            } else {
+                totalSeats = 60;
+            }
+            const occupancySnapshots = db.occupancySnapshots ? db.occupancySnapshots.filter(o => o.runId === run.runId) : [];
+            const occupiedSeats = occupancySnapshots.reduce((sum, o) => sum + (o.occupiedSeats || 0), 0);
+            const crowdingProbability = totalSeats > 0 ? Math.min(100, Math.round((occupiedSeats / totalSeats) * 100)) : 0;
+            const delayProbability = run.status === 'delayed' ? Math.min(80, 20 + (run.currentDelayMinutes || 0)) : Math.max(0, 5 - (run.currentDelayMinutes || 0));
+
+            results.push({
+                id: run.runId, from: fromStation.name, to: toStation.name,
+                departureTime: departureDateTime.toISOString(),
+                arrivalTime: arrivalDateTime.toISOString(),
+                durationMinutes, duration: `${Math.floor(durationMinutes/60)}h ${durationMinutes%60}m`,
+                price, trainCode: train.trainCode, trainType: train.trainType, travelClass,
+                transfers: 0, transferStation: null, transferDuration: null,
+                delayProbability, crowdingProbability,
+                segments: [{
+                    runId: run.runId, trainCode: train.trainCode,
+                    from: fromStation.name, to: toStation.name,
+                    departureTime: departureDateTime.toISOString(),
+                    arrivalTime: arrivalDateTime.toISOString(),
+                    durationMinutes,
+                    delayProbability, crowdingProbability
+                }]
+            });
+        }
+
+        // Con cambio (max 1)
+        if (maxTransfers >= 1) {
+            for (const intermediate of db.stations) {
+                if (intermediate.stationId === fromStation.stationId || intermediate.stationId === toStation.stationId) continue;
+                const leg1Options = [];
+                for (const run of db.trainRuns) {
+                    const route = db.routes.find(r => r.routeId === run.routeId);
+                    if (!route) continue;
+                    const fromStop = route.stops.find(s => s.stationId === fromStation.stationId);
+                    const toStop = route.stops.find(s => s.stationId === intermediate.stationId);
+                    if (!fromStop || !toStop || fromStop.stopOrder >= toStop.stopOrder) continue;
+                    const runDate = new Date(run.departureDateTime);
+                    if (runDate.toDateString() !== searchDate.toDateString()) continue;
+                    if (run.status === 'cancelled') continue;
+                    const train = db.trains.find(t => t.trainId === run.trainId);
+                    if (!train) continue;
+                    if (!train.serviceClasses.includes(travelClass)) continue;
+                    const depTime = new Date(runDate);
+                    const [depHour, depMin] = fromStop.scheduledDeparture.split(':');
+                    depTime.setHours(parseInt(depHour), parseInt(depMin), 0);
+                    const arrTime = new Date(runDate);
+                    const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
+                    arrTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
+                    if (arrTime < depTime) arrTime.setDate(arrTime.getDate() + 1);
+                    const duration = (arrTime - depTime) / 60000;
+                    const price = calculatePrice(fromStation, intermediate, travelClass, train.trainType);
+                    let totalSeats = 0;
+                    if (train.coaches && train.coaches.length) {
+                        totalSeats = train.coaches.reduce((sum, c) => sum + (c.totalSeats || 0), 0);
+                    } else {
+                        totalSeats = 60;
+                    }
+                    const occupancySnapshots = db.occupancySnapshots ? db.occupancySnapshots.filter(o => o.runId === run.runId) : [];
+                    const occupiedSeats = occupancySnapshots.reduce((sum, o) => sum + (o.occupiedSeats || 0), 0);
+                    const crowding = totalSeats > 0 ? Math.min(100, Math.round((occupiedSeats / totalSeats) * 100)) : 0;
+                    const delay = run.status === 'delayed' ? Math.min(80, 20 + (run.currentDelayMinutes || 0)) : Math.max(0, 5 - (run.currentDelayMinutes || 0));
+                    leg1Options.push({
+                        runId: run.runId, trainCode: train.trainCode,
+                        from: fromStation.name, to: intermediate.name,
+                        departureTime: depTime, arrivalTime: arrTime,
+                        durationMinutes: duration, price,
+                        delayProbability: delay, crowdingProbability: crowding
+                    });
+                }
+                const leg2Options = [];
+                for (const run of db.trainRuns) {
+                    const route = db.routes.find(r => r.routeId === run.routeId);
+                    if (!route) continue;
+                    const fromStop = route.stops.find(s => s.stationId === intermediate.stationId);
+                    const toStop = route.stops.find(s => s.stationId === toStation.stationId);
+                    if (!fromStop || !toStop || fromStop.stopOrder >= toStop.stopOrder) continue;
+                    const runDate = new Date(run.departureDateTime);
+                    if (runDate.toDateString() !== searchDate.toDateString()) continue;
+                    if (run.status === 'cancelled') continue;
+                    const train = db.trains.find(t => t.trainId === run.trainId);
+                    if (!train) continue;
+                    if (!train.serviceClasses.includes(travelClass)) continue;
+                    const depTime = new Date(runDate);
+                    const [depHour, depMin] = fromStop.scheduledDeparture.split(':');
+                    depTime.setHours(parseInt(depHour), parseInt(depMin), 0);
+                    const arrTime = new Date(runDate);
+                    const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
+                    arrTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
+                    if (arrTime < depTime) arrTime.setDate(arrTime.getDate() + 1);
+                    const duration = (arrTime - depTime) / 60000;
+                    const price = calculatePrice(intermediate, toStation, travelClass, train.trainType);
+                    let totalSeats = 0;
+                    if (train.coaches && train.coaches.length) {
+                        totalSeats = train.coaches.reduce((sum, c) => sum + (c.totalSeats || 0), 0);
+                    } else {
+                        totalSeats = 60;
+                    }
+                    const occupancySnapshots = db.occupancySnapshots ? db.occupancySnapshots.filter(o => o.runId === run.runId) : [];
+                    const occupiedSeats = occupancySnapshots.reduce((sum, o) => sum + (o.occupiedSeats || 0), 0);
+                    const crowding = totalSeats > 0 ? Math.min(100, Math.round((occupiedSeats / totalSeats) * 100)) : 0;
+                    const delay = run.status === 'delayed' ? Math.min(80, 20 + (run.currentDelayMinutes || 0)) : Math.max(0, 5 - (run.currentDelayMinutes || 0));
+                    leg2Options.push({
+                        runId: run.runId, trainCode: train.trainCode,
+                        from: intermediate.name, to: toStation.name,
+                        departureTime: depTime, arrivalTime: arrTime,
+                        durationMinutes: duration, price,
+                        delayProbability: delay, crowdingProbability: crowding
+                    });
+                }
+                for (const leg1 of leg1Options) {
+                    for (const leg2 of leg2Options) {
+                        const transferWait = (leg2.departureTime - leg1.arrivalTime) / 60000;
+                        if (transferWait >= 20 && transferWait <= 120) {
+                            const totalDuration = leg1.durationMinutes + leg2.durationMinutes + transferWait;
+                            const totalPrice = leg1.price + leg2.price;
+                            const delayProbability = Math.max(leg1.delayProbability || 0, leg2.delayProbability || 0);
+                            const crowdingProbability = Math.max(leg1.crowdingProbability || 0, leg2.crowdingProbability || 0);
+                            results.push({
+                                id: null, from: fromStation.name, to: toStation.name,
+                                departureTime: leg1.departureTime.toISOString(),
+                                arrivalTime: leg2.arrivalTime.toISOString(),
+                                durationMinutes: totalDuration,
+                                duration: `${Math.floor(totalDuration/60)}h ${totalDuration%60}m`,
+                                price: totalPrice,
+                                trainCode: `${leg1.trainCode} → ${leg2.trainCode}`,
+                                trainType: 'Con cambio',
+                                travelClass: travelClass,
+                                transfers: 1,
+                                transferStation: intermediate.name,
+                                transferDuration: Math.round(transferWait),
+                                segments: [leg1, leg2],
+                                delayProbability,
+                                crowdingProbability
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        results.sort((a,b) => new Date(a.departureTime) - new Date(b.departureTime));
+        res.json({ trains: results });
+    },
+
+    getTrainStatus(req, res) {
+        const runId = parseInt(req.params.runId);
+        const db = readDB();
+        const run = db.trainRuns.find(r => r.runId === runId);
+        if (!run) return res.status(404).json({ error: 'Treno non trovato' });
+        const train = db.trains.find(t => t.trainId === run.trainId);
+        if (!train) return res.status(404).json({ error: 'Train not found' });
+        const route = db.routes.find(r => r.routeId === run.routeId);
+        const currentStopIndex = run.actualDeparture ? 1 : 0;
+        const nextStop = route?.stops[currentStopIndex];
+        const nextStation = nextStop ? db.stations.find(s => s.stationId === nextStop.stationId) : null;
+        res.json({
+            runId: run.runId, trainCode: train.trainCode, status: run.status,
+            currentDelay: run.currentDelayMinutes, lastUpdate: new Date().toISOString(),
+            nextStation: nextStation?.name || 'Termine', scheduledArrival: nextStop?.scheduledArrival || '--:--'
+        });
+    },
+
+    predictDelay(req, res) {
+        const runId = parseInt(req.params.runId);
+        const db = readDB();
+        const run = db.trainRuns.find(r => r.runId === runId);
+        if (!run) return res.status(404).json({ error: 'Run non trovato' });
+        const predictedDelay = getDelayPrediction(runId, db);
+        res.json({
+            runId: run.runId,
+            trainCode: db.trains.find(t => t.trainId === run.trainId)?.trainCode,
+            predictedDelayMinutes: predictedDelay,
+            confidence: 0.7 + Math.random() * 0.25,
+            basedOn: 'dati limitati'
+        });
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\UserController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  14:30             8'826 UserController.js
+               1 File(s)          8'826 bytes
+               0 Dir(s)  119'346'966'528 bytes free
+import { readDB, writeDB, createNotification, hashPassword } from '../database/db.js';
+
+export const UserController = {
+    getMe(req, res) {
+        const db = readDB();
+        const user = db.users.find(u => u.userId === req.user.userId);
+        res.json({ id: user.userId, name: user.name, role: user.role });
+    },
+
+    getDashboard(req, res) {
+        const targetId = parseInt(req.params.userId);
+        if (req.user.userId !== targetId && req.user.role !== 'administrator') {
+            return res.status(403).json({ error: 'Accesso negato' });
+        }
+        const db = readDB();
+        const user = db.users.find(u => u.userId === targetId);
+        if (!user) return res.status(404).json({ error: 'Utente non trovato' });
+        const tickets = db.tickets.filter(t => t.userId === targetId);
+        // Sottoscrizioni attive dell'utente
+const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.status === 'active').map(s => {
+    const route = db.routes.find(r => r.routeId === s.routeId);
+    const fromStation = db.stations.find(st => st.stationId === route?.stops[0].stationId);
+    const toStation = db.stations.find(st => st.stationId === route?.stops[route.stops.length-1].stationId);
+    const startDate = new Date(s.startDate);
+    const endDate = new Date(s.endDate);
+    const today = new Date();
+    const remainingDays = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
+    return {
+        subscriptionId: s.subscriptionId,
+        routeName: route?.routeName || 'Sconosciuta',
+        from: fromStation?.name || '?',
+        to: toStation?.name || '?',
+        startDate: s.startDate,
+        endDate: s.endDate,
+        remainingDays,
+        class: s.class,
+        qrCode: s.qrCode,
+        price: s.price,
+        status: s.status
+    };
+});
+
+
+        const activeTickets = tickets.filter(t => t.status === 'active').map(t => {
+            const run = db.trainRuns.find(r => r.runId === t.runId);
+            if (!run) return { ticketId: t.ticketId, from: '?', to: '?', departureTime: '---', price: t.price, seatNumber: t.seatNumber };
+            const route = db.routes.find(r => r.routeId === run.routeId);
+            const fromStop = route?.stops.find(s => s.stopOrder === t.fromStopOrder);
+            const toStop = route?.stops.find(s => s.stopOrder === t.toStopOrder);
+            const fromStation = db.stations.find(s => s.stationId === fromStop?.stationId);
+            const toStation = db.stations.find(s => s.stationId === toStop?.stationId);
+            return {
+                ticketId: t.ticketId,
+                from: fromStation?.name || 'Sconosciuta',
+                to: toStation?.name || 'Sconosciuta',
+                departureTime: fromStop?.scheduledDeparture || '---',
+                price: t.price,
+                seatNumber: t.seatNumber
+            };
+        });
+
+        const history = tickets.filter(t => t.status !== 'active').map(t => {
+            const run = db.trainRuns.find(r => r.runId === t.runId);
+            if (!run) return { ticketId: t.ticketId, from: '?', to: '?', date: t.purchaseDate, price: t.price, status: t.status };
+            const route = db.routes.find(r => r.routeId === run.routeId);
+            const fromStop = route?.stops.find(s => s.stopOrder === t.fromStopOrder);
+            const toStop = route?.stops.find(s => s.stopOrder === t.toStopOrder);
+            const fromStation = db.stations.find(s => s.stationId === fromStop?.stationId);
+            const toStation = db.stations.find(s => s.stationId === toStop?.stationId);
+            return {
+                ticketId: t.ticketId,
+                from: fromStation?.name || 'Sconosciuta',
+                to: toStation?.name || 'Sconosciuta',
+                date: t.purchaseDate,
+                price: t.price,
+                status: t.status
+            };
+        });
+
+        
+        res.json({
+            name: user.name,
+            loyaltyPoints: user.loyaltyPoints,
+            activeTickets,
+            history,
+            subscriptions   // ← nuova proprietà
+        });
+    },
+
+    getPoints(req, res) {
+        const db = readDB();
+        const user = db.users.find(u => u.userId === req.user.userId);
+        if (!user) return res.status(404).json({ error: 'Utente non trovato' });
+        res.json({ points: user.loyaltyPoints || 0 });
+    },
+
+    modifyTicket(req, res) {
+        const { ticketId, newDate, newTime } = req.body;
+        const db = readDB();
+        const ticket = db.tickets.find(t => t.ticketId === ticketId);
+        if (!ticket) return res.status(404).json({ success: false, message: 'Biglietto non trovato' });
+        if (ticket.userId !== req.user.userId && req.user.role !== 'administrator')
+            return res.status(403).json({ success: false, message: 'Non autorizzato' });
+        const run = db.trainRuns.find(r => r.runId === ticket.runId);
+        if (!run) return res.status(404).json({ success: false, message: 'Corsa non trovata' });
+        const originalDeparture = new Date(run.departureDateTime);
+        const now = new Date();
+        const hoursDiff = (originalDeparture - now) / (1000 * 3600);
+        if (hoursDiff <= 0) return res.status(400).json({ success: false, message: 'Treno già partito' });
+        if (hoursDiff > 24) {
+            if (!newDate) return res.status(400).json({ success: false, message: 'Nuova data richiesta' });
+            const newRun = db.trainRuns.find(r => r.routeId === run.routeId && r.departureDateTime.startsWith(newDate));
+            if (!newRun) return res.status(404).json({ success: false, message: 'Nessuna corsa nella nuova data' });
+            ticket.runId = newRun.runId;
+        } else if (hoursDiff <= 24 && hoursDiff > 0) {
+            if (!newTime) return res.status(400).json({ success: false, message: 'Nuovo orario richiesto' });
+            const [hour, minute] = newTime.split(':');
+            const newDepDateTime = new Date(run.departureDateTime);
+            newDepDateTime.setHours(parseInt(hour), parseInt(minute), 0);
+            if (newDepDateTime < now) return res.status(400).json({ success: false, message: 'Nuovo orario già passato' });
+            run.departureDateTime = newDepDateTime.toISOString();
+        } else {
+            return res.status(400).json({ success: false, message: 'Modifica non consentita' });
+        }
+        const user = db.users.find(u => u.userId === ticket.userId);
+        createNotification(ticket.userId, `Biglietto #${ticketId} modificato con successo. Nuovi dettagli: ${newTime}${newDate ? ' data '+newDate : ''}`, 'info');
+        writeDB(db);
+        res.json({ success: true, message: `Email di conferma inviata a ${user.email}` });
+    },
+
+    changePassword(req, res) {
+        const { oldPassword, newPassword } = req.body;
+        const userId = req.user.userId;
+        const db = readDB();
+        const user = db.users.find(u => u.userId === userId);
+        if (!user || user.passwordHash !== hashPassword(oldPassword))
+            return res.status(401).json({ success: false, message: 'Password attuale errata' });
+        if (newPassword.length < 8)
+            return res.status(400).json({ success: false, message: 'Minimo 8 caratteri' });
+        user.passwordHash = hashPassword(newPassword);
+        createNotification(userId, 'Password modificata con successo.', 'security');
+        writeDB(db);
+        res.json({ success: true, message: `Email di conferma inviata a ${user.email}` });
+    },
+
+    logout(req, res) {
+        const auth = req.headers.authorization;
+        if (auth && auth.startsWith('Bearer ')) {
+            const token = auth.slice(7);
+            // La sessione è gestita da AuthController, ma possiamo invalidare qui
+            // Per semplicità lasciamo che scada naturalmente; il client cancellerà il token.
+        }
+        res.json({ success: true });
+    },
+
+    deleteAccount(req, res) {
+        const userId = req.user.userId;
+        const db = readDB();
+        const user = db.users.find(u => u.userId === userId);
+        if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
+        const activeTickets = db.tickets.some(t => t.userId === userId && t.status === 'active');
+        if (activeTickets) {
+            return res.status(400).json({ success: false, message: 'Non puoi eliminare l\'account con biglietti attivi.' });
+        }
+        db.users = db.users.filter(u => u.userId !== userId);
+        db.tickets.filter(t => t.userId === userId).forEach(t => t.userId = null);
+        writeDB(db);
+        res.json({ success: true, message: 'Account eliminato.' });
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\UserDashboardController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:07             2'324 UserDashboardController.js
+               1 File(s)          2'324 bytes
+               0 Dir(s)  119'346'937'856 bytes free
+import { readDB } from '../database/db.js';
+
+export const UserDashboardController = {
+    getDashboard(userId) {
+        const db = readDB();
+        const user = db.users.find(u => u.userId === userId);
+        if (!user) return { error: 'User not found' };
+
+        const tickets = db.tickets.filter(t => t.userId === userId);
+        const activeTickets = tickets.filter(t => t.status === 'active');
+        const history = tickets.filter(t => t.status !== 'active').map(t => {
+            const run = db.trainRuns.find(r => r.runId === t.runId);
+            const route = db.routes.find(r => r.routeId === run?.routeId);
+            const fromStop = route?.stops.find(s => s.stopOrder === t.fromStopOrder);
+            const toStop = route?.stops.find(s => s.stopOrder === t.toStopOrder);
+            const fromStation = db.stations.find(s => s.stationId === fromStop?.stationId);
+            const toStation = db.stations.find(s => s.stationId === toStop?.stationId);
+            return {
+                ticketId: t.ticketId,
+                from: fromStation?.name,
+                to: toStation?.name,
+                date: t.purchaseDate,
+                price: t.price,
+                status: t.status
+            };
+        });
+
+        return {
+            name: user.name,
+            loyaltyPoints: user.loyaltyPoints,
+            activeTickets: activeTickets.map(t => {
+                const run = db.trainRuns.find(r => r.runId === t.runId);
+                const route = db.routes.find(r => r.routeId === run?.routeId);
+                const fromStop = route?.stops.find(s => s.stopOrder === t.fromStopOrder);
+                const toStop = route?.stops.find(s => s.stopOrder === t.toStopOrder);
+                const fromStation = db.stations.find(s => s.stationId === fromStop?.stationId);
+                const toStation = db.stations.find(s => s.stationId === toStop?.stationId);
+                return {
+                    ticketId: t.ticketId,
+                    from: fromStation?.name,
+                    to: toStation?.name,
+                    departureTime: fromStop?.scheduledDeparture,
+                    price: t.price,
+                    seatNumber: t.seatNumber
+                };
+            }),
+            history
+        };
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\controllers\ValidationController.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:06               749 ValidationController.js
+               1 File(s)            749 bytes
+               0 Dir(s)  119'346'909'184 bytes free
+import { readDB, writeDB } from '../database/db.js';
+
+export const ValidationController = {
+    validateTicket(req, res) {
+        const { ticketId } = req.body;
+        const db = readDB();
+        const ticket = db.tickets.find(t => t.ticketId === ticketId);
+        if (!ticket) return res.json({ valid: false, message: 'Ticket not found' });
+        if (ticket.status !== 'active') return res.json({ valid: false, message: 'Ticket already used or expired' });
+        ticket.status = 'used';
+        const seatRes = db.seatReservations.find(sr => sr.ticketId === ticketId);
+        if (seatRes) seatRes.status = 'occupied';
+        writeDB(db);
+        res.json({ valid: true, message: 'Ticket validated successfully' });
+    }
+}; 
+
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\database\db.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  14:49             7'204 db.js
+               1 File(s)          7'204 bytes
+               0 Dir(s)  119'346'884'608 bytes free
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import crypto from 'crypto';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+export const DB_PATH = path.join(__dirname, 'database.json');
+
+export function readDB() {
+    if (!fs.existsSync(DB_PATH)) {
+        const empty = {
+            users: [], stations: [], trains: [], routes: [], trainRuns: [],
+            tickets: [], shiftSchedules: [], payments: [], loyaltyTransactions: [],
+            additionalReservations: [], seatReservations: [], supportRequests: [],
+            notifications: [], subscriptions: [], delayPredictions: [], occupancySnapshots: []
+        };
+        writeDB(empty);
+        return empty;
+    }
+    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+}
+
+export function writeDB(data) {
+    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+}
+
+export function hashPassword(pwd) {
+    return crypto.createHash('sha256').update(pwd).digest('hex');
+}
+
+export function getStations() {
+    return readDB().stations;
+}
+
+export function getUserById(userId) {
+    return readDB().users.find(u => u.userId === userId);
+}
+
+export function createNotification(userId, message, type) {
+    const db = readDB();
+    const newId = Math.max(...db.notifications.map(n => n.notificationId), 0) + 1;
+    db.notifications.push({ notificationId: newId, userId, message, type, date: new Date().toISOString(), read: false });
+    writeDB(db);
+}
+
+export function initDatabase() {
+    const db = readDB();
+    let changed = false;
+    if (db.stations.length === 0) {
+        db.stations = [
+            { stationId: 1, name: 'Roma Termini', city: 'Roma', code: 'ROM', latitude: 41.902, longitude: 12.496 },
+            { stationId: 2, name: 'Milano Centrale', city: 'Milano', code: 'MIL', latitude: 45.486, longitude: 9.204 },
+            { stationId: 3, name: 'Firenze Santa Maria Novella', city: 'Firenze', code: 'FIR', latitude: 43.776, longitude: 11.248 },
+            { stationId: 4, name: 'Napoli Centrale', city: 'Napoli', code: 'NAP', latitude: 40.852, longitude: 14.268 },
+            { stationId: 5, name: 'Bologna Centrale', city: 'Bologna', code: 'BOL', latitude: 44.505, longitude: 11.342 }
+        ];
+        changed = true;
+    }
+    if (db.trains.length === 0) {
+        db.trains = [
+            { trainId: 1, trainCode: 'FR100', trainType: 'Frecciarossa', serviceClasses: ['standard', 'business'], coaches: [{ coachNumber: 1, coachClass: 'standard', totalSeats: 60 }] },
+            { trainId: 2, trainCode: 'IC200', trainType: 'Intercity', serviceClasses: ['standard'], coaches: [{ coachNumber: 1, coachClass: 'standard', totalSeats: 60 }] },
+            { trainId: 3, trainCode: 'RG300', trainType: 'Regionale', serviceClasses: ['standard'], coaches: [{ coachNumber: 1, coachClass: 'standard', totalSeats: 60 }] }
+        ];
+        changed = true;
+    }
+    if (db.routes.length === 0) {
+        db.routes = [
+            { routeId: 1, routeName: 'Roma-Milano', stops: [{ stopOrder: 1, stationId: 1, scheduledDeparture: '06:00', scheduledArrival: '06:00' }, { stopOrder: 2, stationId: 3, scheduledDeparture: '08:00', scheduledArrival: '07:55' }, { stopOrder: 3, stationId: 2, scheduledDeparture: '10:30', scheduledArrival: '10:30' }] },
+            { routeId: 2, routeName: 'Milano-Napoli', stops: [{ stopOrder: 1, stationId: 2, scheduledDeparture: '14:00', scheduledArrival: '14:00' }, { stopOrder: 2, stationId: 5, scheduledDeparture: '16:00', scheduledArrival: '15:50' }, { stopOrder: 3, stationId: 4, scheduledDeparture: '18:30', scheduledArrival: '18:30' }] }
+        ];
+        changed = true;
+    }
+    if (db.trainRuns.length === 0) {
+        const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+        const dateStr = tomorrow.toISOString().split('T')[0];
+        db.trainRuns = [
+            { runId: 1, trainId: 1, routeId: 1, departureDateTime: `${dateStr}T06:00:00Z`, status: 'on-time', currentDelayMinutes: 0 },
+            { runId: 2, trainId: 2, routeId: 2, departureDateTime: `${dateStr}T14:00:00Z`, status: 'delayed', currentDelayMinutes: 15 }
+        ];
+        changed = true;
+    }
+    if (changed) writeDB(db);
+}
+
+export function seedDefaultUsers() {
+    const db = readDB();
+    let changed = false;
+    if (!db.users.some(u => u.email === 'admin@railway.it')) {
+        const newId = Math.max(...db.users.map(u => u.userId), 0) + 1;
+        db.users.push({ userId: newId, name: 'Admin', surname: 'Railway', email: 'admin@railway.it', passwordHash: hashPassword('admin'), role: 'administrator', preferredLanguage: 'en', loyaltyPoints: 0, failedLoginAttempts: 0, accountStatus: 'active', adminCode: 'ADMIN-001' });
+        changed = true;
+    }
+    if (!db.users.some(u => u.email === 'test@example.com')) {
+        const newId = Math.max(...db.users.map(u => u.userId), 0) + 1;
+        db.users.push({ userId: newId, name: 'Test', surname: 'User', email: 'test@example.com', passwordHash: hashPassword('password'), role: 'passenger', preferredLanguage: 'it', loyaltyPoints: 50, failedLoginAttempts: 0, accountStatus: 'active' });
+        changed = true;
+    }
+    // Turni per l'ispettore Robin (userId 1003)
+if (db.shiftSchedules.filter(s => s.staffId === 1003).length === 0) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateStr = tomorrow.toISOString().slice(0,10);
+    db.shiftSchedules.push(
+        { staffId: 1003, date: dateStr, startTime: '08:00', endTime: '12:00', assignedRoute: 'Roma-Milano', trainRunId: 1 },
+        { staffId: 1003, date: dateStr, startTime: '14:00', endTime: '18:00', assignedRoute: 'Milano-Napoli', trainRunId: 2 }
+    );
+    changed = true;
+}
+    if (changed) writeDB(db);
+        // Ispettore con userId = 1003 (usato dal frontend)
+        if (!db.users.some(u => u.userId === 1003)) {
+            db.users.push({
+                userId: 3001,
+                name: 'Ispettore',
+                surname: 'Rossi',
+                email: 'inspector@example.com',
+                passwordHash: hashPassword('password'),
+                role: 'inspector',
+                preferredLanguage: 'it',
+                loyaltyPoints: 0,
+                failedLoginAttempts: 0,
+                accountStatus: 'active',
+                inspectorCode: 'INS-3001'
+            });
+            changed = true;
+            console.log('✅ Ispettore creato (inspector@example.com / password, userId=3001)');
+        }
+    
+        // Turni per l'ispettore 3001
+        if (db.shiftSchedules.length === 0) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const dateStr = tomorrow.toISOString().slice(0,10);
+            db.shiftSchedules.push(
+                { staffId: 3001, date: dateStr, startTime: '08:00', endTime: '12:00', assignedRoute: 'Roma-Milano', trainRunId: 1 },
+                { staffId: 3001, date: dateStr, startTime: '14:00', endTime: '18:00', assignedRoute: 'Milano-Napoli', trainRunId: 2 }
+            );
+            changed = true;
+        }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\database\TicketDatabase.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:01               408 TicketDatabase.js
+               1 File(s)            408 bytes
+               0 Dir(s)  119'346'851'840 bytes free
+export class TicketDatabase {
+    saveTicket(data) { console.log('Ticket salvato', data); }
+    getTicketDetails(ticketId) { return {}; }
+    updateTicket(ticketId, newDetails) { }
+    getAffectedUsers(trainId) { return []; }
+    retrieveData(type) { }
+    requestFilters() { }
+    applyFilters(filters) { }
+    noData() { return false; }
+    showErrorMessage(message) { console.error(message); }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\database\TrainDatabase.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:01               157 TrainDatabase.js
+               1 File(s)            157 bytes
+               0 Dir(s)  119'346'827'264 bytes free
+export class TrainDatabase {
+    checkAvailability(option) { return true; }
+    queryTrainStations(stationCodes, date, time, travelClass) { return []; }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\database\UserDatabase.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:00               394 UserDatabase.js
+               1 File(s)            394 bytes
+               0 Dir(s)  119'346'802'688 bytes free
+export class UserDatabase {
+    createAccount(userData) { console.log('Creazione utente', userData); }
+    updateCredentials(userId, newPass) { }
+    hardDelete(userId) { }
+    savePreference(userId, lang) { }
+    retrieveData(type) { }
+    requestFilters() { }
+    applyFilters(filters) { }
+    noData() { return false; }
+    showErrorMessage() { console.log('Errore DB utenti'); }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\AccountStatus.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               106 AccountStatus.js
+               1 File(s)            106 bytes
+               0 Dir(s)  119'346'778'112 bytes free
+export const AccountStatus = {
+    ACTIVE: 'ACTIVE',
+    BLOCKED: 'BLOCKED',
+    DELETED: 'DELETED'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\BoardEntryStatus.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               167 BoardEntryStatus.js
+               1 File(s)            167 bytes
+               0 Dir(s)  119'346'741'248 bytes free
+export const BoardEntryStatus = {
+    ON_TIME: 'ON_TIME',
+    DELAYED: 'DELAYED',
+    CANCELLED: 'CANCELLED',
+    DEPARTED: 'DEPARTED',
+    ARRIVED: 'ARRIVED'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\BoardType.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09                87 BoardType.js
+               1 File(s)             87 bytes
+               0 Dir(s)  119'346'712'576 bytes free
+export const BoardType = {
+    DEPARTURES: 'DEPARTURES',
+    ARRIVALS: 'ARRIVALS'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\ChangeType.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               104 ChangeType.js
+               1 File(s)            104 bytes
+               0 Dir(s)  119'346'675'712 bytes free
+export const ChangeType = {
+    FULL_MODIFICATION: 'FULL_MODIFICATION',
+    TIME_ONLY: 'TIME_ONLY'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\DocumentStatus.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               130 DocumentStatus.js
+               1 File(s)            130 bytes
+               0 Dir(s)  119'346'651'136 bytes free
+export const DocumentStatus = {
+    ACTIVE: 'ACTIVE',
+    USED: 'USED',
+    EXPIRED: 'EXPIRED',
+    CANCELLED: 'CANCELLED'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\Language.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09                90 Language.js
+               1 File(s)             90 bytes
+               0 Dir(s)  119'346'626'560 bytes free
+export const Language = {
+    ITALIAN: 'ITA',
+    ENGLISH: 'ENG',
+    GERMAN: 'DEU'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\NotificationType.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               197 NotificationType.js
+               1 File(s)            197 bytes
+               0 Dir(s)  119'346'601'984 bytes free
+export const NotificationType = {
+    DELAY_ALERT: 'DELAY_ALERT',
+    INFO: 'INFO',
+    PROMO: 'PROMO',
+    PURCHASE_CONFIRMATION: 'PURCHASE_CONFIRMATION',
+    ROUTE_CHANGE: 'ROUTE_CHANGE'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\PassengerType.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09                75 PassengerType.js
+               1 File(s)             75 bytes
+               0 Dir(s)  119'346'577'408 bytes free
+export const PassengerType = {
+    ADULT: 'ADULT',
+    CHILD: 'CHILD'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\PaymentStatus.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               137 PaymentStatus.js
+               1 File(s)            137 bytes
+               0 Dir(s)  119'346'552'832 bytes free
+export const PaymentStatus = {
+    PENDING: 'PENDING',
+    COMPLETED: 'COMPLETED',
+    FAILED: 'FAILED',
+    REFUNDED: 'REFUNDED'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\ReservationStatus.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09                95 ReservationStatus.js
+               1 File(s)             95 bytes
+               0 Dir(s)  119'346'528'256 bytes free
+export const ReservationStatus = {
+    CONFIRMED: 'CONFIRMED',
+    CANCELLED: 'CANCELLED'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\SeatStatus.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               103 SeatStatus.js
+               1 File(s)            103 bytes
+               0 Dir(s)  119'346'503'680 bytes free
+export const SeatStatus = {
+    FREE: 'FREE',
+    RESERVED: 'RESERVED',
+    OCCUPIED: 'OCCUPIED'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\SupportRequestStatus.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               115 SupportRequestStatus.js
+               1 File(s)            115 bytes
+               0 Dir(s)  119'346'475'008 bytes free
+export const SupportRequestStatus = {
+    OPEN: 'OPEN',
+    IN_PROGRESS: 'IN_PROGRESS',
+    CLOSED: 'CLOSED'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\SupportRequestType.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               144 SupportRequestType.js
+               1 File(s)            144 bytes
+               0 Dir(s)  119'346'450'432 bytes free
+export const SupportRequestType = {
+    REFUND: 'REFUND',
+    INFORMATION: 'INFORMATION',
+    COMPLAINT: 'COMPLAINT',
+    OTHER: 'OTHER'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\TrainRunStatus.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               146 TrainRunStatus.js
+               1 File(s)            146 bytes
+               0 Dir(s)  119'346'425'856 bytes free
+export const TrainRunStatus = {
+    SCHEDULED: 'SCHEDULED',
+    DELAYED: 'DELAYED',
+    COMPLETED: 'COMPLETED',
+    CANCELLED: 'CANCELLED'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\TrainType.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               165 TrainType.js
+               1 File(s)            165 bytes
+               0 Dir(s)  119'346'401'280 bytes free
+export const TrainType = {
+    REGIONALE: 'REGIONALE',
+    REGIONALE_VELOCE: 'REGIONALE_VELOCE',
+    INTERCITY: 'INTERCITY',
+    FRECCIAROSSA: 'FRECCIAROSSA'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\enums\TravelClass.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09                85 TravelClass.js
+               1 File(s)             85 bytes
+               0 Dir(s)  119'346'376'704 bytes free
+export const TravelClass = {
+    STANDARD: 'STANDARD',
+    BUSINESS: 'BUSINESS'
+}; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\externals\LoginAPI.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:01               237 LoginAPI.js
+               1 File(s)            237 bytes
+               0 Dir(s)  119'346'352'128 bytes free
+export class LoginAPI {
+    checkEmailUnique(email) { return true; }
+    validateCredentials(email, password) { return true; }
+    createSession(userData) { console.log('Sessione esterna creata'); }
+    terminateSession(token) { }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\externals\MappingAPI.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:02               124 MappingAPI.js
+               1 File(s)            124 bytes
+               0 Dir(s)  119'346'327'552 bytes free
+export class MappingAPI {
+    resolve(coords) { console.log('Coordinate risolte', coords); return 'Stazione Centrale'; }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\externals\PaymentGatewayAPI.js === 
+ Volume Serial Number is 0844-3CEC
+04.06.2026  23:01               174 PaymentGatewayAPI.js
+               1 File(s)            174 bytes
+               0 Dir(s)  119'346'302'976 bytes free
+export class PaymentGatewayAPI {
+    authorize(amount) { console.log(`Autorizzato ${amount}`); return true; }
+    refund(amount) { console.log(`Rimborsato ${amount}`); }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\AdditionalReservation.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:50               335 AdditionalReservation.js
+               1 File(s)            335 bytes
+               0 Dir(s)  119'346'278'400 bytes free
+export class AdditionalReservation {
+    /** @type {number} */ reservationId;
+    /** @type {string} */ status; // 'reserved', 'confirmed', 'cancelled'
+    /** @type {number} */ price;
+
+    confirmReservation() {
+        this.status = 'confirmed';
+    }
+
+    cancelReservation() {
+        this.status = 'cancelled';
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\AnonymousUser.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:48             1'220 AnonymousUser.js
+               1 File(s)          1'220 bytes
+               0 Dir(s)  119'346'249'728 bytes free
+import { User } from './User.js';
+import { TrainSearchController } from '../controllers/TrainSearchController.js';
+
+export class AnonymousUser extends User {
+    /**
+     * Searches for trains using manual input.
+     * @param {object} criteria
+     * @param {boolean} mapOpt
+     * @returns {Promise<Array>}
+     */
+    async search(criteria, mapOpt) {
+        return TrainSearchController.searchInternal(criteria, mapOpt);
+    }
+
+    /**
+     * Selects station from map.
+     * @param {string} stationName
+     * @returns {object}
+     */
+    async selectStation(stationName) {
+        // returns station object
+        const { getStations } = await import('../database/db.js');
+        return getStations().find(s => s.name === stationName);
+    }
+
+    /**
+     * Registers a new account.
+     * @param {string} name
+     * @param {string} surname
+     * @param {string} email
+     * @param {string} password
+     * @returns {Promise<object>}
+     */
+    async register(name, surname, email, password) {
+        const { AuthController } = await import('../controllers/AuthController.js');
+        return AuthController.registerInternal({ name, surname, email, password });
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\BoardEntry.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:55               281 BoardEntry.js
+               1 File(s)            281 bytes
+               0 Dir(s)  119'346'225'152 bytes free
+/**
+ * @file Single row in departure/arrival board.
+ */
+export class BoardEntry {
+    /** @type {Date} */ scheduledTime;
+    /** @type {Date} */ estimatedTime;
+    /** @type {string} */ platform;
+    /** @type {string} */ entryStatus; // 'on-time', 'delayed', 'cancelled'
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\BookingHistory.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:00               238 BookingHistory.js
+               1 File(s)            238 bytes
+               0 Dir(s)  119'346'200'576 bytes free
+/**
+ * @brief Past purchases of a user.
+ */
+export class BookingHistory {
+    /** @type {number} */ historyId;
+    /** @type {Array} */ pastBookings;
+
+    getPopularStations() {
+        // return frequently used stations
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Coach.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:50               328 Coach.js
+               1 File(s)            328 bytes
+               0 Dir(s)  119'346'176'000 bytes free
+export class Coach {
+    /** @type {number} */ coachNumber;
+    /** @type {string} */ coachClass; // 'standard', 'business'
+    /** @type {number} */ maxPassengers;
+    /** @type {number} */ currentPassengers;
+
+    updateOccupancy(nPassengers) {
+        this.currentPassengers = nPassengers;
+        // persist
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\CustomerSupportAgent.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:49               782 CustomerSupportAgent.js
+               1 File(s)            782 bytes
+               0 Dir(s)  119'346'151'424 bytes free
+import { RegisteredUser } from './RegisteredUser.js';
+
+export class CustomerSupportAgent extends RegisteredUser {
+    /** @type {string} */ staffCode;
+
+    viewUserProfile(userId) {
+        const { getUserById } = require('../database/db.js');
+        return getUserById(userId);
+    }
+
+    manageSupportRequest(requestId) {
+        const { updateSupportRequest } = require('../database/db.js');
+        return updateSupportRequest(requestId);
+    }
+
+    viewLoyaltyPointsBalance(userId) {
+        const { getUserById } = require('../database/db.js');
+        return getUserById(userId)?.loyaltyPoints;
+    }
+
+    viewSchedule(staffId) {
+        const { getSupportSchedule } = require('../database/db.js');
+        return getSupportSchedule(staffId);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Dashboard.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:59               183 Dashboard.js
+               1 File(s)            183 bytes
+               0 Dir(s)  119'346'122'752 bytes free
+/**
+ * @brief Admin dashboard view.
+ */
+export class Dashboard {
+    /** @type {number} */ dashboardId;
+    /** @type {string} */ title;
+    /** @type {object} */ statistics;
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\DelayEstimate.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:57               315 DelayEstimate.js
+               1 File(s)            315 bytes
+               0 Dir(s)  119'346'098'176 bytes free
+/**
+ * @file Delay prediction for a train run.
+ */
+export class DelayEstimate {
+    /** @type {number} */ estimateId;
+    /** @type {number} */ delayMinutes;
+    /** @type {number} */ confidence; // 0..1
+
+    getDelayPrediction(trainId) {
+        // placeholder
+        return this.delayMinutes;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Notification.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:50               377 Notification.js
+               1 File(s)            377 bytes
+               0 Dir(s)  119'346'073'600 bytes free
+export class Notification {
+    /** @type {number} */ notificationId;
+    /** @type {string} */ message;
+    /** @type {Date} */ notificationDate;
+    /** @type {string} */ notificationType; // 'delay', 'cancellation'
+
+    pushInAppAlert(userId) {
+        // send alert via WebSocket
+    }
+
+    sendEmailNotification(email) {
+        // send email via SMTP
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\OccupancyPanel.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:59               235 OccupancyPanel.js
+               1 File(s)            235 bytes
+               0 Dir(s)  119'346'049'024 bytes free
+/**
+ * @brief Panel for inspector to update occupancy.
+ */
+export class OccupancyPanel {
+    /** @type {number} */ panelId;
+
+    static show() {
+        // return panel data
+        return { coach: 1, passengers: 0 };
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Passenger.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:49             1'171 Passenger.js
+               1 File(s)          1'171 bytes
+               0 Dir(s)  119'346'024'448 bytes free
+import { RegisteredUser } from './RegisteredUser.js';
+import { TicketPurchaseController } from '../controllers/TicketPurchaseController.js';
+import { getDashboard } from '../controllers/UserDashboardController.js';
+
+export class Passenger extends RegisteredUser {
+    /** @type {number} */ loyaltyPoints;
+
+    selectTrainOptions(criteria) {
+        return TicketPurchaseController.preparePurchase(criteria);
+    }
+
+    async confirmPayment(details) {
+        return TicketPurchaseController.processPayment(details);
+    }
+
+    selectTicketModify(ticketId) {
+        return TicketManagementController.getTicketForModify(ticketId);
+    }
+
+    async confirmChange(newDetails) {
+        return TicketManagementController.updateTicket(newDetails);
+    }
+
+    async requestTrainStatus(trainId) {
+        return TrainSearchController.getTrainStatus(trainId);
+    }
+
+    async contactCustomerService(text) {
+        return SupportController.submitRequest(this.userId, text);
+    }
+
+    viewBookingHistory() {
+        return getDashboard(this.userId).history;
+    }
+
+    viewLoyaltyPointsBalance() {
+        return this.loyaltyPoints;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\PaymentDetails.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:59               280 PaymentDetails.js
+               1 File(s)            280 bytes
+               0 Dir(s)  119'345'995'776 bytes free
+/**
+ * @brief Payment information needed for transaction.
+ */
+export class PaymentDetails {
+    /** @type {string} */ paymentMethod;
+    /** @type {string} */ tokenizedReference;
+
+    validate() {
+        return !!this.paymentMethod && !!this.tokenizedReference;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\PaymentResult.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:04               234 PaymentResult.js
+               1 File(s)            234 bytes
+               0 Dir(s)  119'345'971'200 bytes free
+export class PaymentResult {
+    constructor(authorized = false, transactionCode = '', message = '') {
+        this.authorized = authorized;
+        this.transactionCode = transactionCode;
+        this.message = message;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\PaymentTransaction.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:50               463 PaymentTransaction.js
+               1 File(s)            463 bytes
+               0 Dir(s)  119'345'946'624 bytes free
+export class PaymentTransaction {
+    /** @type {number} */ paymentId;
+    /** @type {number} */ amount;
+    /** @type {Date} */ paymentDate;
+    /** @type {string} */ paymentStatus; // 'pending', 'completed', 'failed'
+
+    authorize(amount) {
+        // call external API
+        this.amount = amount;
+        this.paymentStatus = 'completed';
+    }
+
+    refund(amount) {
+        // process refund
+        this.paymentStatus = 'refunded';
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\PredictionSystem.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:51               293 PredictionSystem.js
+               1 File(s)            293 bytes
+               0 Dir(s)  119'345'922'048 bytes free
+export class PredictionSystem {
+    static getDelayPrediction(trainIds) {
+        // ML model placeholder
+        return trainIds.map(id => ({ trainId: id, predictedDelay: Math.random() * 20 }));
+    }
+
+    static getDelayEstimate(trainId) {
+        return Math.random() * 30;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\RailwayAdministrator.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:49               597 RailwayAdministrator.js
+               1 File(s)            597 bytes
+               0 Dir(s)  119'345'897'472 bytes free
+import { RegisteredUser } from './RegisteredUser.js';
+import { StatisticsController } from '../controllers/StatisticsController.js';
+
+export class RailwayAdministrator extends RegisteredUser {
+    /** @type {string} */ adminCode;
+
+    requestAdminArea() {
+        return true;
+    }
+
+    loadStatistics() {
+        return StatisticsController.getRawStatistics();
+    }
+
+    applyFilters(date, trainLine) {
+        return StatisticsController.filterStatistics(date, trainLine);
+    }
+
+    viewStatistics() {
+        return StatisticsController.getFormattedStatistics();
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\RegisteredUser.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:48             1'028 RegisteredUser.js
+               1 File(s)          1'028 bytes
+               0 Dir(s)  119'345'860'608 bytes free
+import { User } from './User.js';
+import { AuthController } from '../controllers/AuthController.js';
+
+export class RegisteredUser extends User {
+    /** @type {string} */ passwordHash;
+    /** @type {string} */ accountStatus; // 'active', 'locked'
+    /** @type {number} */ failedLoginAttempts;
+
+    async login(email, password) {
+        return AuthController.loginInternal(email, password);
+    }
+
+    logout() {
+        AuthController.logout(this.userId);
+    }
+
+    async changePassword(oldPass, newPass) {
+        return AuthController.changePassword(this.userId, oldPass, newPass);
+    }
+
+    async requestPasswordRecovery(email) {
+        return AuthController.requestRecovery(email);
+    }
+
+    async eliminateAccount() {
+        return AuthController.deleteAccount(this.userId);
+    }
+
+    viewActiveDocuments() {
+        // returns active tickets/subscriptions
+        const { getActiveDocuments } = require('../database/db.js');
+        return getActiveDocuments(this.userId);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Route.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               178 Route.js
+               1 File(s)            178 bytes
+               0 Dir(s)  119'345'831'936 bytes free
+export class Route {
+    constructor(routeId, routeName) {
+        this.routeId = routeId;
+        this.routeName = routeName;
+    }
+    calculateDuration() { return 0; }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\SearchCriteria.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:57               523 SearchCriteria.js
+               1 File(s)            523 bytes
+               0 Dir(s)  119'345'807'360 bytes free
+/**
+ * @file Criteria for searching trains.
+ */
+export class SearchCriteria {
+    /** @type {string} */ departureStationName;
+    /** @type {string} */ arrivalStationName;
+    /** @type {Date} */ date;
+    /** @type {string} */ time;
+    /** @type {string} */ trainType;
+    /** @type {string} */ travelClass;
+    /** @type {number} */ passengerCount;
+
+    validate() {
+        return this.departureStationName !== this.arrivalStationName &&
+               this.date >= new Date().setHours(0,0,0,0);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Seat.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:50               301 Seat.js
+               1 File(s)            301 bytes
+               0 Dir(s)  119'345'770'496 bytes free
+export class Seat {
+    /** @type {string} */ seatNumber;
+    /** @type {string} */ seatStatus; // 'free', 'reserved', 'occupied'
+
+    reserve() {
+        if (this.seatStatus === 'free') this.seatStatus = 'reserved';
+    }
+
+    markOccupied() {
+        this.seatStatus = 'occupied';
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\SessionToken.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:55               397 SessionToken.js
+               1 File(s)            397 bytes
+               0 Dir(s)  119'345'745'920 bytes free
+/**
+ * @file Represents an active user session.
+ */
+export class SessionToken {
+    /** @type {string} */ tokenValue;
+    /** @type {Date} */ expirationTime;
+
+    constructor(tokenValue, expirationTime) {
+        this.tokenValue = tokenValue;
+        this.expirationTime = expirationTime;
+    }
+
+    isExpired(currentTime) {
+        return currentTime > this.expirationTime;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Station.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:55               354 Station.js
+               1 File(s)            354 bytes
+               0 Dir(s)  119'345'721'344 bytes free
+/**
+ * @file Physical railway station.
+ */
+export class Station {
+    /** @type {number} */ stationId;
+    /** @type {string} */ name;
+    /** @type {string} */ city;
+    /** @type {string} */ code;
+    /** @type {number} */ latitude;
+    /** @type {number} */ longitude;
+
+    displayBoard(data) {
+        // would trigger UI update
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\StationBoard.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:50               270 StationBoard.js
+               1 File(s)            270 bytes
+               0 Dir(s)  119'345'692'672 bytes free
+export class StationBoard {
+    /** @type {number} */ boardId;
+    /** @type {string} */ boardType; // 'departures', 'arrivals'
+    /** @type {Date} */ lastUpdate;
+
+    updateDisplay(entries) {
+        this.lastUpdate = new Date();
+        // refresh UI
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\StatisticsFilter.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:58               223 StatisticsFilter.js
+               1 File(s)            223 bytes
+               0 Dir(s)  119'345'668'096 bytes free
+/**
+ * @file Filter criteria for statistics.
+ */
+export class StatisticsFilter {
+    /** @type {Date} */ date;
+    /** @type {string} */ trainLine;
+    /** @type {string} */ type; // 'revenue', 'bookings', 'delays'
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\StatisticsReport.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:57               380 StatisticsReport.js
+               1 File(s)            380 bytes
+               0 Dir(s)  119'345'643'520 bytes free
+/**
+ * @file Report generated from system statistics.
+ */
+export class StatisticsReport {
+    /** @type {number} */ reportId;
+    /** @type {string} */ reportType;
+    /** @type {Date} */ generationDate;
+    /** @type {object} */ data;
+
+    applyFilters(filters) {
+        // filter internal data
+    }
+
+    displayData() {
+        // return formatted data
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Stop.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:55               395 Stop.js
+               1 File(s)            395 bytes
+               0 Dir(s)  119'345'618'944 bytes free
+/**
+ * @file Represents a stop along a route.
+ */
+export class Stop {
+    /** @type {number} */ stopOrder;
+    /** @type {number} */ stationId;
+    /** @type {string} */ scheduledArrival;   // HH:MM
+    /** @type {string} */ scheduledDeparture; // HH:MM
+    /** @type {string} */ estimatedArrival;
+    /** @type {string} */ estimatedDeparture;
+    /** @type {string} */ trackNumber;
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Subscription.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:50               438 Subscription.js
+               1 File(s)            438 bytes
+               0 Dir(s)  119'345'594'368 bytes free
+import { TravelDocument } from './TravelDocument.js';
+
+export class Subscription extends TravelDocument {
+    /** @type {number} */ subscriptionId;
+    /** @type {Date} */ startDate;
+    /** @type {Date} */ endDate;
+    /** @type {number} */ durationDays;
+
+    renew(durationDays) {
+        this.durationDays = durationDays;
+        this.endDate = new Date(Date.now() + durationDays * 86400000);
+        // save to DB
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\SupportRequest.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:50               413 SupportRequest.js
+               1 File(s)            413 bytes
+               0 Dir(s)  119'345'569'792 bytes free
+export class SupportRequest {
+    /** @type {number} */ requestId;
+    /** @type {string} */ requestType; // 'refund', 'info', 'complaint'
+    /** @type {string} */ description;
+    /** @type {string} */ status; // 'open', 'closed'
+    /** @type {Date} */ creationDate;
+
+    submit() {
+        this.status = 'open';
+        // save to DB
+    }
+
+    close() {
+        this.status = 'closed';
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Ticket.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:49               933 Ticket.js
+               1 File(s)            933 bytes
+               0 Dir(s)  119'345'541'120 bytes free
+import { TravelDocument } from './TravelDocument.js';
+import { TicketManagementController } from '../controllers/TicketManagementController.js';
+
+export class Ticket extends TravelDocument {
+    /** @type {number} */ ticketId;
+    /** @type {Date} */ departureTime;
+    /** @type {Date} */ arrivalTime;
+    /** @type {string} */ passengerType; // 'adult', 'child'
+
+    calculateTimeRemaining(currentTime) {
+        return this.departureTime - currentTime;
+    }
+
+    allowFullModification() {
+        const hoursLeft = this.calculateTimeRemaining(new Date()) / (1000 * 3600);
+        return hoursLeft > 24;
+    }
+
+    restrictToTimeOnly() {
+        const hoursLeft = this.calculateTimeRemaining(new Date()) / (1000 * 3600);
+        return hoursLeft <= 24 && hoursLeft > 0;
+    }
+
+    async updateTicket(newDetails) {
+        return TicketManagementController.updateTicket(this.ticketId, newDetails);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\TicketChangeRequest.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:58               403 TicketChangeRequest.js
+               1 File(s)            403 bytes
+               0 Dir(s)  119'345'516'544 bytes free
+/**
+ * @file Request to modify a ticket.
+ */
+export class TicketChangeRequest {
+    /** @type {Date} */ newDate;
+    /** @type {string} */ newTime;
+    /** @type {string} */ changeType; // 'full' or 'time-only'
+
+    validateAgainstThreshold(departureTime) {
+        const hoursLeft = (departureTime - new Date()) / (1000 * 3600);
+        return hoursLeft > 24 ? 'full' : 'time-only';
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\TicketInspector.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:49             1'039 TicketInspector.js
+               1 File(s)          1'039 bytes
+               0 Dir(s)  119'345'491'968 bytes free
+import { RegisteredUser } from './RegisteredUser.js';
+import { ValidationController } from '../controllers/ValidationController.js';
+import { ScheduleController } from '../controllers/ScheduleController.js';
+
+export class TicketInspector extends RegisteredUser {
+    /** @type {string} */ inspectorCode;
+
+    accessSystem() {
+        // returns true if credentials valid
+        return true;
+    }
+
+    selectValidation() {
+        return ValidationController.openValidationPanel();
+    }
+
+    manualInput(ticketId) {
+        return ValidationController.validateTicketById(ticketId);
+    }
+
+    ticketData(ticketId) {
+        return ValidationController.getTicketDetails(ticketId);
+    }
+
+    selectTrackOccupancy() {
+        return OccupancyPanel.show();
+    }
+
+    updateOccupancy(coachNumber, nPassengers) {
+        return ValidationController.updateOccupancy(coachNumber, nPassengers);
+    }
+
+    viewSchedule(inputId) {
+        return ScheduleController.getScheduleForInspector(this.userId);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\Train.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:51               453 Train.js
+               1 File(s)            453 bytes
+               0 Dir(s)  119'345'467'392 bytes free
+export class Train {
+    /** @type {number} */ trainId;
+    /** @type {string} */ trainCode;
+    /** @type {string} */ trainType; // 'Frecciarossa', 'Intercity', 'Regionale'
+    /** @type {string[]} */ serviceClasses;
+
+    getLiveLocation(trainId) {
+        // call external API or read from DB
+        return { latitude: 45.0, longitude: 9.0 };
+    }
+
+    getDelayEstimate(trainId) {
+        return Math.floor(Math.random() * 30);
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\TrainOption.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:56               276 TrainOption.js
+               1 File(s)            276 bytes
+               0 Dir(s)  119'345'438'720 bytes free
+/**
+ * @file Represents a train option the user chooses.
+ */
+export class TrainOption {
+    /** @type {number} */ optionId;
+    /** @type {number} */ totalPrice;
+    /** @type {number} */ availableSeats;
+
+    displayTotal() {
+        return this.totalPrice;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\TrainRun.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:51               451 TrainRun.js
+               1 File(s)            451 bytes
+               0 Dir(s)  119'345'414'144 bytes free
+export class TrainRun {
+    /** @type {number} */ runId;
+    /** @type {Date} */ departureDate;
+    /** @type {string} */ status; // 'on-time', 'delayed', 'cancelled'
+    /** @type {number} */ currentDelayMinutes;
+
+    reportDelay(trainId, delayTime) {
+        this.currentDelayMinutes = delayTime;
+        this.status = 'delayed';
+        // trigger notifications
+    }
+
+    refreshData() {
+        // fetch latest from sensors
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\TrainSearchResult.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:56               333 TrainSearchResult.js
+               1 File(s)            333 bytes
+               0 Dir(s)  119'345'389'568 bytes free
+/**
+ * @file Results of a train search.
+ */
+export class TrainSearchResult {
+    /** @type {number} */ resultId;
+    /** @type {number} */ resultCount;
+    /** @type {Array} */ trains;
+
+    displayResults(criteria) {
+        // return filtered list
+    }
+
+    applyFilters(criteria) {
+        // subset results
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\TrainStatus.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:00               448 TrainStatus.js
+               1 File(s)            448 bytes
+               0 Dir(s)  119'345'364'992 bytes free
+/**
+ * @brief Real-time status of a train.
+ */
+export class TrainStatus {
+    /** @type {Date} */ scheduledDeparture;
+    /** @type {Date} */ estimatedDeparture;
+    /** @type {Date} */ scheduledArrival;
+    /** @type {Date} */ estimatedArrival;
+    /** @type {number} */ delayMinutes;
+
+    displayVisualTimeline(location, delay) {
+        // Build UI representation
+        return { timeline: [], currentLocation: location };
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\TravelDocument.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:49               432 TravelDocument.js
+               1 File(s)            432 bytes
+               0 Dir(s)  119'345'340'416 bytes free
+export class TravelDocument {
+    /** @type {number} */ documentId;
+    /** @type {Date} */ issueDate;
+    /** @type {number} */ price;
+    /** @type {string} */ status; // 'active', 'used', 'expired'
+    /** @type {string} */ qrCode;
+
+    validate() {
+        // implemented by subclasses
+        throw new Error('Not implemented');
+    }
+
+    isActive(currentDate) {
+        return this.status === 'active';
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\TravelDocumentSummary.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:59               172 TravelDocumentSummary.js
+               1 File(s)            172 bytes
+               0 Dir(s)  119'345'315'840 bytes free
+/**
+ * @brief Compact view of a travel document.
+ */
+export class TravelDocumentSummary {
+    /** @type {number} */ activeCount;
+    /** @type {Array} */ summaries;
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\User.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:48               511 User.js
+               1 File(s)            511 bytes
+               0 Dir(s)  119'345'291'264 bytes free
+/**
+ * @file Abstract base class for all users.
+ */
+export class User {
+    /** @type {number} */ userId;
+    /** @type {string} */ name;
+    /** @type {string} */ surname;
+    /** @type {string} */ email;
+    /** @type {string} */ preferredLanguage; // 'it', 'en', etc.
+
+    /**
+     * Changes the interface language.
+     * @param {string} lang - Language code.
+     */
+    changeLanguage(lang) {
+        this.preferredLanguage = lang;
+        // In real app, also trigger UI update.
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\UserProfile.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:59               273 UserProfile.js
+               1 File(s)            273 bytes
+               0 Dir(s)  119'345'262'592 bytes free
+/**
+ * @brief User personal area data.
+ */
+export class UserProfile {
+    /** @type {number} */ profileId;
+    /** @type {object} */ user;
+    /** @type {Array} */ activeDocuments;
+    /** @type {Array} */ bookingHistory;
+    /** @type {number} */ loyaltyPoints;
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\ValidationPanel.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:59               201 ValidationPanel.js
+               1 File(s)            201 bytes
+               0 Dir(s)  119'345'238'016 bytes free
+/**
+ * @brief Panel for inspector to validate tickets.
+ */
+export class ValidationPanel {
+    /** @type {number} */ panelId;
+
+    static open() {
+        return { scannerReady: true };
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\models\ValidationResult.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:04               151 ValidationResult.js
+               1 File(s)            151 bytes
+               0 Dir(s)  119'345'213'440 bytes free
+export class ValidationResult {
+    constructor(valid = false, message = '') {
+        this.valid = valid;
+        this.message = message;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\crypto.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:29               441 crypto.js
+               1 File(s)            441 bytes
+               0 Dir(s)  119'345'188'864 bytes free
+/**
+ * @file Cryptographic utilities.
+ */
+
+import crypto from 'crypto';
+
+/**
+ * Hashes a password using SHA-256.
+ * @param {string} pwd
+ * @returns {string}
+ */
+export function hashPassword(pwd) {
+    return crypto.createHash('sha256').update(pwd).digest('hex');
+}
+
+/**
+ * Generates a random session token.
+ * @returns {string}
+ */
+export function generateToken() {
+    return crypto.randomBytes(32).toString('hex');
+}
+ 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\geo.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:29             1'139 geo.js
+               1 File(s)          1'139 bytes
+               0 Dir(s)  119'345'164'288 bytes free
+/**
+ * @file Geographical utilities for price calculation.
+ */
+
+/**
+ * Calculates ticket price based on Euclidean distance (approximation).
+ * @param {object} fromStation - Object with latitude, longitude.
+ * @param {object} toStation - Object with latitude, longitude.
+ * @param {string} travelClass - 'standard' or 'business'.
+ * @returns {number} Price in euros (2 decimals).
+ */
+export function calculatePrice(fromStation, toStation, travelClass, trainType) {
+    const R = 6371; //Earth radius in Km
+    const dLat = (toStation.latitude - fromStation.latitude) * Math.PI / 180;
+    const dLon = (toStation.longitude - fromStation.longitude) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(fromStation.latitude * Math.PI/180) * Math.cos(toStation.latitude * Math.PI/180) * Math.sin(dLon/2)**2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const km = R * c;
+    let basePrice = km * 0.15;
+    if (trainType && !trainType.includes('Regionale')) basePrice *= 2;
+    let price = basePrice;
+    if (travelClass === 'business') price *= 1.8;
+    return Math.round(price * 100) / 100;
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\Location.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               112 Location.js
+               1 File(s)            112 bytes
+               0 Dir(s)  119'345'135'616 bytes free
+export class Location {
+    constructor(lat, lon) {
+        this.lat = lat;
+        this.lon = lon;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\notifications.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  13:30                87 notifications.js
+               1 File(s)             87 bytes
+               0 Dir(s)  119'345'111'040 bytes free
+import { createNotification } from '../database/db.js';
+export { createNotification }; 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\PaymentDetails.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               281 PaymentDetails.js
+               1 File(s)            281 bytes
+               0 Dir(s)  119'345'086'464 bytes free
+export class PaymentDetails {
+    constructor(paymentMethod, tokenizedReference) {
+        this.paymentMethod = paymentMethod;
+        this.tokenizedReference = tokenizedReference;
+    }
+    validate() {
+        return this.paymentMethod && this.tokenizedReference;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\PaymentResult.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:54               405 PaymentResult.js
+               1 File(s)            405 bytes
+               0 Dir(s)  119'345'061'888 bytes free
+/**
+ * @file Result of a payment request.
+ */
+export class PaymentResult {
+    /** @type {boolean} */ authorized = false;
+    /** @type {string} */ transactionCode = '';
+    /** @type {string} */ message = '';
+
+    constructor(authorized, transactionCode, message) {
+        this.authorized = authorized;
+        this.transactionCode = transactionCode;
+        this.message = message;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\SearchCriteria.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               478 SearchCriteria.js
+               1 File(s)            478 bytes
+               0 Dir(s)  119'345'037'312 bytes free
+export class SearchCriteria {
+    constructor(departureStationName, arrivalStationName, date, time, trainType, travelClass, passengerCount) {
+        this.departureStationName = departureStationName;
+        this.arrivalStationName = arrivalStationName;
+        this.date = date;
+        this.time = time;
+        this.trainType = trainType;
+        this.travelClass = travelClass;
+        this.passengerCount = passengerCount;
+    }
+    validate() { return true; }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\SessionToken.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               258 SessionToken.js
+               1 File(s)            258 bytes
+               0 Dir(s)  119'345'012'736 bytes free
+export class SessionToken {
+    constructor(tokenValue, expirationTime) {
+        this.tokenValue = tokenValue;
+        this.expirationTime = expirationTime;
+    }
+    isExpired(currentTime) {
+        return currentTime > this.expirationTime;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\StatisticsFilter.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               174 StatisticsFilter.js
+               1 File(s)            174 bytes
+               0 Dir(s)  119'344'988'160 bytes free
+export class StatisticsFilter {
+    constructor(date, trainLine, type) {
+        this.date = date;
+        this.trainLine = trainLine;
+        this.type = type;
+    }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\TicketChangeRequest.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:09               260 TicketChangeRequest.js
+               1 File(s)            260 bytes
+               0 Dir(s)  119'344'959'488 bytes free
+export class TicketChangeRequest {
+    constructor(newDate, newTime, changeType) {
+        this.newDate = newDate;
+        this.newTime = newTime;
+        this.changeType = changeType;
+    }
+    validateAgainstThreshold(departureTime) { return true; }
+} 
+.
+=== FILE: C:\Users\robin\Documents\GitHub\software-engineering-TRAIN\JS Version\src\utils\ValidationResult.js === 
+ Volume Serial Number is 0844-3CEC
+14.06.2026  12:54               357 ValidationResult.js
+               1 File(s)            357 bytes
+               0 Dir(s)  119'344'934'912 bytes free
+/**
+ * @file Represents the result of a ticket validation.
+ */
+export class ValidationResult {
+    /** @type {boolean} */ valid = false;
+    /** @type {boolean} */ alreadyValidated = false;
+    /** @type {string} */ message = '';
+
+    constructor(valid = false, message = '') {
+        this.valid = valid;
+        this.message = message;
+    }
+} 
+.

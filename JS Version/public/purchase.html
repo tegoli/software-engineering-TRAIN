@@ -2,121 +2,335 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acquisto biglietto</title>
+    <title data-i18n="title">Acquisto biglietto</title>
+    <link rel="icon" type="image/png" href="images/104okok.png">
+
     <style>
-        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
+        * { box-sizing: border-box; font-family: system-ui; }
         body { background: #f0f2f5; padding: 20px; }
-        .container { max-width: 700px; margin: auto; background: white; border-radius: 24px; padding: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h2 { color: #1e3c72; }
-        .trip-summary { background: #e9ecef; padding: 16px; border-radius: 16px; margin-bottom: 20px; }
-        label { font-weight: 600; display: block; margin-top: 12px; }
-        input, select, button { width: 100%; padding: 10px; margin: 6px 0 12px; border-radius: 8px; border: 1px solid #ccc; }
-        button { background: #0066cc; color: white; font-weight: bold; border: none; cursor: pointer; }
-        .extra { background: #f8f9fa; padding: 12px; border-radius: 12px; margin: 16px 0; }
+        .container { max-width: 1200px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
+        nav { display: flex; justify-content: flex-end; margin-bottom: 20px; }
+        .lang-selector select { padding: 5px 8px; border-radius: 20px; background: #e9ecef; border: 1px solid #ccc; cursor: pointer; width: auto; }
+        .coach { background: #e9ecef; border-radius: 16px; margin-bottom: 20px; padding: 16px; position: relative; }
+        .train-direction { position: absolute; top: -10px; right: 20px; background: #0066cc; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .seats-container { display: flex; flex-direction: column; gap: 20px; }
+        .seat-row { display: flex; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; }
+        .seat-block { display: flex; flex-direction: column; gap: 10px; }
+        .seat-group { display: flex; gap: 12px; }
+        .seat { width: 70px; padding: 8px; text-align: center; border-radius: 8px; cursor: pointer; border: 1px solid #ccc; background: white; font-weight: bold; font-size: 0.9rem; }
+        .seat.free { background: #a5d6a7; }
+        .seat.taken { background: #ef9a9a; cursor: not-allowed; }
+        .seat.selected { background: #ffd966; border: 2px solid #ff9800; }
+        .aisle { width: 40px; flex-shrink: 0; }
+        .passenger-card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 20px; border-left: 4px solid #0066cc; }
+        button { background: #0066cc; color: white; padding: 12px; border: none; border-radius: 40px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 12px; }
         .error { color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 8px; }
         .success { color: #2e7d32; background: #e8f5e9; padding: 10px; border-radius: 8px; }
+        .extra { background: #f8f9fa; padding: 16px; border-radius: 16px; margin: 20px 0; display: flex; gap: 20px; flex-wrap: wrap; }
+        .extra label { display: flex; align-items: center; gap: 10px; }
+        input[type="number"] { width: 80px; padding: 6px; border-radius: 8px; border: 1px solid #ccc; }
+        .passenger-fields { display: flex; gap: 20px; margin-bottom: 16px; flex-wrap: wrap; }
+        .passenger-fields label { display: flex; flex-direction: column; flex: 1; }
+        .points-section { background: #fff3e0; padding: 16px; border-radius: 16px; margin: 20px 0; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .info { background: #e3f2fd; padding: 10px; border-radius: 8px; margin: 10px 0; }
+        .delay-warning { background: #fff3e0; border-left: 4px solid #ff9800; padding: 8px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>🎫 Completa l'acquisto</h2>
-    <div id="tripInfo" class="trip-summary">Caricamento viaggio selezionato...</div>
-
-    <label>Numero posto (es. 12A)</label>
-    <input type="text" id="seatNumber" placeholder="es. 14C" value="1A">
-
-    <div class="extra">
-        <label><input type="checkbox" id="bike"> 🚲 Posto bici (+5€)</label>
-        <label><input type="checkbox" id="luggage"> 🧳 Bagaglio grande (+8€)</label>
+    <nav>
+        <div class="lang-selector">
+            <select id="langSelect">
+                <option value="it">🇮🇹 IT</option>
+                <option value="en">🇬🇧 EN</option>
+                <option value="de">🇩🇪 DE</option>
+            </select>
+        </div>
+    </nav>
+    <h2 data-i18n="title">🎫 Acquisto biglietti</h2>
+    <div id="tripInfo" class="info"></div>
+    <div id="delayInfo" class="delay-warning" style="display:none;"></div>
+    <div class="points-section">
+        <div><span data-i18n="points_available">⭐ Punti disponibili:</span> <span id="userPoints">---</span></div>
+        <label><span data-i18n="use_points">Usa punti (1 punto = 0.10 € sconto):</span> <input type="number" id="usedPoints" min="0" step="10" value="0"></label>
+        <div id="discountInfo"></div>
     </div>
 
-    <div><strong>Totale: € <span id="totalPrice">0.00</span></strong></div>
-    <button id="buyBtn">Conferma pagamento</button>
+    <label data-i18n="passengers_label">Numero di passeggeri (incluso te):</label>
+    <input type="number" id="passengerCount" min="1" max="6" value="1">
+    <button id="applyCount" data-i18n="apply_btn">Applica</button>
+
+    <div id="passengersContainer"></div>
+
+    <div class="extra">
+        <label><span data-i18n="bike_label">🚲 Posti bici (max 2 a persona):</span> <input type="number" id="bikeCount" min="0" max="2" value="0"></label>
+        <label><span data-i18n="luggage_label">🧳 Bagaglio:</span> 
+            <select id="luggageSize">
+                <option value="small" data-i18n="small">Piccolo (5€)</option>
+                <option value="medium" data-i18n="medium">Medio (8€)</option>
+                <option value="large" data-i18n="large">Grande (12€)</option>
+            </select>
+            <input type="number" id="luggageCount" min="0" max="2" value="0">
+        </label>
+    </div>
+
+    <div><strong data-i18n="total_before">Totale prima sconto:</strong> € <span id="totalBeforeDiscount">0.00</span></div>
+    <div><strong data-i18n="discount_amount">Sconto punti:</strong> € <span id="discountAmount">0.00</span></div>
+    <div><strong data-i18n="total_final">Totale finale:</strong> € <span id="totalPrice">0.00</span></div>
+    <button id="buyBtn" data-i18n="confirm_payment">Conferma pagamento</button>
     <div id="result"></div>
-    <p style="margin-top: 20px;"><a href="index.html">← Torna alla ricerca</a></p>
+</div>
+
+<div id="cookieBanner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: white; padding: 15px; text-align: center; z-index: 1000; display: none;">
+    <span data-i18n="cookie_text">🍪 Questo sito utilizza cookie per migliorare l'esperienza.</span>
+    <button id="acceptCookies" style="margin-left: 15px;" data-i18n="accept">Accetta</button>
+    <button id="rejectCookies" data-i18n="reject">Rifiuta</button>
 </div>
 
 <script>
-    const token = localStorage.getItem('token');
-    if (!token) {
-        alert('Devi effettuare il login per acquistare');
-        window.location.href = 'login.html';
+    // -------------------- TRADUZIONI --------------------
+    const translations = {
+        it: { title: "🎫 Acquisto biglietti", points_available: "⭐ Punti disponibili:", use_points: "Usa punti (1 punto = 0.10 € sconto):", passengers_label: "Numero di passeggeri (incluso te):", apply_btn: "Applica", bike_label: "🚲 Posti bici (max 2 a persona):", luggage_label: "🧳 Bagaglio:", small: "Piccolo (5€)", medium: "Medio (8€)", large: "Grande (12€)", total_before: "Totale prima sconto:", discount_amount: "Sconto punti:", total_final: "Totale finale:", confirm_payment: "Conferma pagamento", cookie_text: "🍪 Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta" },
+        en: { title: "🎫 Buy tickets", points_available: "⭐ Points available:", use_points: "Use points (1 point = 0.10 € discount):", passengers_label: "Number of passengers (including you):", apply_btn: "Apply", bike_label: "🚲 Bike spaces (max 2 per person):", luggage_label: "🧳 Luggage:", small: "Small (5€)", medium: "Medium (8€)", large: "Large (12€)", total_before: "Total before discount:", discount_amount: "Points discount:", total_final: "Final total:", confirm_payment: "Confirm payment", cookie_text: "🍪 This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject" },
+        de: { title: "🎫 Tickets kaufen", points_available: "⭐ Verfügbare Punkte:", use_points: "Punkte verwenden (1 Punkt = 0,10 € Rabatt):", passengers_label: "Anzahl der Passagiere (inkl. Ihnen):", apply_btn: "Anwenden", bike_label: "🚲 Fahrradstellplätze (max 2 pro Person):", luggage_label: "🧳 Gepäck:", small: "Klein (5€)", medium: "Mittel (8€)", large: "Groß (12€)", total_before: "Gesamt vor Rabatt:", discount_amount: "Punkterabatt:", total_final: "Endsumme:", confirm_payment: "Zahlung bestätigen", cookie_text: "🍪 Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen" }
+    };
+
+    let currentLang = localStorage.getItem('lang') || 'it';
+    function setLanguage(lang) {
+        currentLang = lang; localStorage.setItem('lang', lang);
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang] && translations[lang][key]) el.innerText = translations[lang][key];
+        });
+        document.querySelectorAll('select option[data-i18n]').forEach(opt => {
+            const key = opt.getAttribute('data-i18n');
+            if (translations[lang] && translations[lang][key]) opt.innerText = translations[lang][key];
+        });
+        const token = localStorage.getItem('token');
+        if (token) fetch('/api/language', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ language: lang }) }).catch(e=>console.warn);
+        // Non chiamare updateTotal qui perché potrebbe non essere ancora definita
     }
 
-    const runDataRaw = localStorage.getItem('selectedRun');
-    if (!runDataRaw) {
-        document.getElementById('tripInfo').innerHTML = '<div class="error">Nessun viaggio selezionato. Torna alla ricerca.</div>';
-        document.getElementById('buyBtn').disabled = true;
-    } else {
-        const runData = JSON.parse(runDataRaw);
-        document.getElementById('tripInfo').innerHTML = `
-            <strong>${runData.from} → ${runData.to}</strong><br>
-            Treno: ${runData.trainCode || '---'} (${runData.travelClass})<br>
-            Prezzo base: € ${runData.price.toFixed(2)}
-        `;
-        window.runData = runData;
+    // -------------------- VARIABILI GLOBALI --------------------
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = 'login.html';
+    const runData = JSON.parse(localStorage.getItem('selectedRun'));
+    if (!runData) window.location.href = 'index.html';
+
+    let seatMap = null;
+    let currentPassengers = 1;
+    let passengerSelections = [];
+    let userPoints = 0;
+
+    // -------------------- CARICAMENTO INFORMAZIONI TRENO (incluso ritardo) --------------------
+    async function loadTrainInfo() {
+        try {
+            const res = await fetch(`/api/train-status/${runData.runId}`);
+            if (res.ok) {
+                const train = await res.json();
+                if (train.currentDelay > 0) {
+                    const delayDiv = document.getElementById('delayInfo');
+                    delayDiv.style.display = 'block';
+                    delayDiv.innerHTML = `⚠️ Il treno attualmente ha un ritardo di ${train.currentDelay} minuti. L'orario di partenza potrebbe subire variazioni.`;
+                }
+            }
+        } catch (err) { console.warn('Errore caricamento ritardo:', err); }
+    }
+
+    // -------------------- CARICAMENTO PUNTI --------------------
+    async function loadUserPoints() {
+        try {
+            const res = await fetch('/api/user/points', { headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.ok) { const data = await res.json(); userPoints = data.points || 0; document.getElementById('userPoints').innerText = userPoints; const usedPointsInput = document.getElementById('usedPoints'); usedPointsInput.max = userPoints; usedPointsInput.placeholder = `max ${userPoints}`; }
+        } catch (err) { console.error('Errore recupero punti:', err); }
+    }
+
+    // -------------------- MAPPA POSTI --------------------
+    async function loadSeatMap() {
+        try {
+            const res = await fetch(`/api/seat-map/${runData.runId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.status === 401) { alert('Sessione scaduta.'); localStorage.removeItem('token'); window.location.href = 'login.html'; return; }
+            if (!res.ok) throw new Error('Impossibile caricare la mappa posti');
+            seatMap = await res.json();
+            renderPassengers();
+        } catch (err) { document.getElementById('result').innerHTML = `<div class="error">❌ ${err.message}</div>`; }
+    }
+
+    function savePassengerInputs() {
+        for (let i = 0; i < currentPassengers; i++) {
+            const nameInput = document.getElementById(`name${i}`), surnameInput = document.getElementById(`surname${i}`);
+            if (nameInput && surnameInput) {
+                if (!passengerSelections[i]) passengerSelections[i] = {};
+                passengerSelections[i].name = nameInput.value;
+                passengerSelections[i].surname = surnameInput.value;
+            }
+        }
+    }
+
+    function renderPassengers() {
+        savePassengerInputs();
+        const container = document.getElementById('passengersContainer');
+        container.innerHTML = '';
+        while (passengerSelections.length < currentPassengers) passengerSelections.push({ seatNumber: null, coachNumber: null, name: '', surname: '', price: runData.price });
+        passengerSelections = passengerSelections.slice(0, currentPassengers);
+
+        for (let i = 0; i < currentPassengers; i++) {
+            const passengerDiv = document.createElement('div'); passengerDiv.className = 'passenger-card';
+            passengerDiv.innerHTML = `<h4>Passeggero ${i+1}</h4><div class="passenger-fields"><label>Nome: <input type="text" id="name${i}" value="${escapeHtml(passengerSelections[i].name || '')}" placeholder="Nome"></label><label>Cognome: <input type="text" id="surname${i}" value="${escapeHtml(passengerSelections[i].surname || '')}" placeholder="Cognome"></label></div><div><strong>Seleziona posto:</strong></div><div id="seats-coach-${i}"></div>`;
+            container.appendChild(passengerDiv);
+            const seatsContainer = passengerDiv.querySelector(`#seats-coach-${i}`);
+            if (seatMap) renderSeatMapForPassenger(seatsContainer, i);
+            else seatsContainer.innerHTML = '<div class="error">Mappa posti non disponibile</div>';
+        }
         updateTotal();
     }
 
-    function updateTotal() {
-        let total = window.runData ? window.runData.price : 0;
-        if (document.getElementById('bike')?.checked) total += 5;
-        if (document.getElementById('luggage')?.checked) total += 8;
-        document.getElementById('totalPrice').innerText = total.toFixed(2);
+    function renderSeatMapForPassenger(container, passengerIdx) {
+        container.innerHTML = '';
+        seatMap.coaches.forEach(coach => {
+            const coachDiv = document.createElement('div'); coachDiv.className = 'coach';
+            coachDiv.innerHTML = `<strong>Carrozza ${coach.coachNumber} (${coach.coachClass})</strong><div class="train-direction">🚂 Direzione marcia →</div>`;
+            const seatsWrapper = document.createElement('div'); seatsWrapper.className = 'seats-container'; coachDiv.appendChild(seatsWrapper); container.appendChild(coachDiv);
+            const seatsByRow = new Map();
+            coach.seats.forEach(seat => { const row = parseInt(seat.seatNumber.match(/\d+/)[0]); if (!seatsByRow.has(row)) seatsByRow.set(row, []); seatsByRow.get(row).push(seat); });
+            const sortedRows = Array.from(seatsByRow.keys()).sort((a,b)=>a-b);
+            sortedRows.forEach(row => {
+                const seatsRow = seatsByRow.get(row); seatsRow.sort((a,b) => a.seatNumber.localeCompare(b.seatNumber));
+                const leftSeats = seatsRow.filter(s => ['A','B','C','D'].includes(s.seatNumber.slice(-1)));
+                const rightSeats = seatsRow.filter(s => ['E','F','G','H'].includes(s.seatNumber.slice(-1)));
+                const rowDiv = document.createElement('div'); rowDiv.className = 'seat-row';
+                const leftBlock = document.createElement('div'); leftBlock.className = 'seat-block';
+                const topLeft = document.createElement('div'); topLeft.className = 'seat-group'; const bottomLeft = document.createElement('div'); bottomLeft.className = 'seat-group';
+                leftSeats.forEach(seat => { const seatBtn = createSeatButton(seat, passengerIdx, coach.coachNumber); const letter = seat.seatNumber.slice(-1); if (letter === 'A' || letter === 'B') topLeft.appendChild(seatBtn); else bottomLeft.appendChild(seatBtn); });
+                leftBlock.appendChild(topLeft); leftBlock.appendChild(bottomLeft);
+                const aisle = document.createElement('div'); aisle.className = 'aisle'; aisle.innerHTML = '&nbsp;';
+                const rightBlock = document.createElement('div'); rightBlock.className = 'seat-block';
+                const topRight = document.createElement('div'); topRight.className = 'seat-group'; const bottomRight = document.createElement('div'); bottomRight.className = 'seat-group';
+                rightSeats.forEach(seat => { const seatBtn = createSeatButton(seat, passengerIdx, coach.coachNumber); const letter = seat.seatNumber.slice(-1); if (letter === 'E' || letter === 'F') topRight.appendChild(seatBtn); else bottomRight.appendChild(seatBtn); });
+                rightBlock.appendChild(topRight); rightBlock.appendChild(bottomRight);
+                rowDiv.appendChild(leftBlock); rowDiv.appendChild(aisle); rowDiv.appendChild(rightBlock); seatsWrapper.appendChild(rowDiv);
+            });
+        });
     }
-    document.getElementById('bike')?.addEventListener('change', updateTotal);
-    document.getElementById('luggage')?.addEventListener('change', updateTotal);
+
+    function createSeatButton(seat, passengerIdx, coachNumber) {
+        const displayLabel = `C${coachNumber}-${seat.seatNumber}`;
+        const seatBtn = document.createElement('div'); seatBtn.className = `seat ${seat.status}`;
+        if (seat.status === 'free') seatBtn.classList.add('free');
+        else if (seat.status === 'taken') seatBtn.classList.add('taken');
+        seatBtn.textContent = displayLabel;
+        if (seat.status === 'free') seatBtn.onclick = (e) => { e.stopPropagation(); selectSeat(passengerIdx, seat.seatNumber, coachNumber); };
+        if (passengerSelections[passengerIdx] && passengerSelections[passengerIdx].seatNumber === seat.seatNumber && passengerSelections[passengerIdx].coachNumber === coachNumber) seatBtn.classList.add('selected');
+        return seatBtn;
+    }
+
+    function selectSeat(passengerIndex, seatNumber, coachNumber) {
+        const alreadyTaken = passengerSelections.some((p, idx) => idx !== passengerIndex && p.seatNumber === seatNumber && p.coachNumber === coachNumber);
+        if (alreadyTaken) { alert(`Posto Carrozza ${coachNumber} - ${seatNumber} già selezionato da un altro passeggero.`); return; }
+        savePassengerInputs();
+        passengerSelections[passengerIndex].seatNumber = seatNumber;
+        passengerSelections[passengerIndex].coachNumber = coachNumber;
+        const container = document.getElementById(`seats-coach-${passengerIndex}`);
+        if (container) renderSeatMapForPassenger(container, passengerIndex);
+        updateTotal();
+    }
+
+    function getBaseTotal() {
+        let total = 0;
+        for (let i = 0; i < currentPassengers; i++) total += passengerSelections[i]?.price || runData.price;
+        const bikeCount = parseInt(document.getElementById('bikeCount').value) || 0;
+        const luggageCount = parseInt(document.getElementById('luggageCount').value) || 0;
+        total += (bikeCount * 5) * currentPassengers;
+        total += (luggageCount * 8) * currentPassengers;
+        return total;
+    }
+
+    function updateTotal() {
+        const baseTotal = getBaseTotal();
+        document.getElementById('totalBeforeDiscount').innerText = baseTotal.toFixed(2);
+        const usedPoints = parseInt(document.getElementById('usedPoints').value) || 0;
+        let validPoints = Math.min(usedPoints, userPoints);
+        if (validPoints < 0) validPoints = 0;
+        const discount = validPoints * 0.10;
+        const finalTotal = Math.max(0, baseTotal - discount);
+        document.getElementById('discountAmount').innerText = discount.toFixed(2);
+        document.getElementById('totalPrice').innerText = finalTotal.toFixed(2);
+        document.getElementById('discountInfo').innerHTML = `Sconto applicato: ${discount.toFixed(2)} € (${validPoints} punti)`;
+    }
+
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+
+    // -------------------- EVENTI --------------------
+    document.getElementById('applyCount').onclick = () => {
+        let newCount = parseInt(document.getElementById('passengerCount').value);
+        if (newCount < 1) newCount = 1;
+        if (newCount > 6) newCount = 6;
+        currentPassengers = newCount;
+        renderPassengers();
+    };
 
     document.getElementById('buyBtn').onclick = async () => {
-        if (!window.runData) {
-            document.getElementById('result').innerHTML = '<div class="error">Errore: nessun viaggio selezionato</div>';
-            return;
-        }
-        const userId = localStorage.getItem('userId');
-        if (!userId) {
-            alert('Utente non autenticato');
-            window.location.href = 'login.html';
-            return;
-        }
-
+        const passengers = [];
+for (let i = 0; i < currentPassengers; i++) {
+    const name = document.getElementById(`name${i}`)?.value || 'Passeggero';
+    const surname = document.getElementById(`surname${i}`)?.value || '';
+    const seatNumber = passengerSelections[i]?.seatNumber;
+    if (!seatNumber) { alert(`Seleziona un posto per il passeggero ${i+1}`); return; }
+    passengers.push({
+        name, surname, seatNumber,
+        passengerType: 'adult',
+        travelClass: runData.travelClass,
+        price: runData.price,
+        fromStopOrder: 1, // o ricava dal runData
+        toStopOrder: 4,
+        fromStation: runData.from,   
+        toStation: runData.to        
+    });
+}
         const extras = [];
-        if (document.getElementById('bike').checked) extras.push({ type: 'bike', price: 5 });
-        if (document.getElementById('luggage').checked) extras.push({ type: 'luggage', price: 8 });
-
-        const payload = {
-            userId: parseInt(userId),
-            runId: window.runData.runId,
-            fromStopOrder: 1,       // In un'app reale andrebbero calcolati, per demo usiamo 1 e 4
-            toStopOrder: 4,
-            passengerType: 'adult',
-            travelClass: window.runData.travelClass,
-            seatNumber: document.getElementById('seatNumber').value,
-            extras: extras,
-            totalPrice: parseFloat(document.getElementById('totalPrice').innerText)
-        };
-
+        const bikeCount = parseInt(document.getElementById('bikeCount').value) || 0;
+        const luggageCount = parseInt(document.getElementById('luggageCount').value) || 0;
+        const luggageSize = document.getElementById('luggageSize').value;
+        let luggagePrice = 5; if (luggageSize === 'medium') luggagePrice = 8; else if (luggageSize === 'large') luggagePrice = 12;
+        for (let i = 0; i < bikeCount; i++) extras.push({ type: 'bike', price: 5 });
+        for (let i = 0; i < luggageCount; i++) extras.push({ type: 'luggage', size: luggageSize, price: luggagePrice });
+        const usedPoints = parseInt(document.getElementById('usedPoints').value) || 0;
+        const payload = { runId: runData.runId, passengers, extras, usedPoints: Math.min(usedPoints, userPoints) };
         try {
-            const res = await fetch('/api/purchase', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
+            const res = await fetch('/api/purchase', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(payload) });
+            if (res.status === 401) throw new Error('Sessione scaduta');
             const data = await res.json();
             if (data.success) {
-                document.getElementById('result').innerHTML = `<div class="success">✅ Acquisto riuscito! Il tuo biglietto #${data.ticketId} è disponibile in dashboard.</div>`;
+                document.getElementById('result').innerHTML = `<div class="success">✅ Acquisto riuscito! Biglietti: ${data.tickets.join(', ')}. Sconto applicato: € ${data.discountApplied.toFixed(2)}</div>`;
                 localStorage.removeItem('selectedRun');
                 setTimeout(() => window.location.href = 'dashboard.html', 3000);
-            } else {
-                document.getElementById('result').innerHTML = `<div class="error">❌ Errore: ${data.message || 'Transazione fallita'}</div>`;
-            }
+            } else document.getElementById('result').innerHTML = `<div class="error">❌ ${data.message || 'Errore sconosciuto'}</div>`;
         } catch (err) {
-            document.getElementById('result').innerHTML = `<div class="error">Errore di rete: ${err.message}</div>`;
+            if (err.message === 'Sessione scaduta') { alert('Sessione scaduta.'); localStorage.removeItem('token'); window.location.href = 'login.html'; }
+            else document.getElementById('result').innerHTML = `<div class="error">Errore: ${err.message}</div>`;
         }
     };
+
+    document.getElementById('bikeCount').addEventListener('input', updateTotal);
+    document.getElementById('luggageCount').addEventListener('input', updateTotal);
+    document.getElementById('usedPoints').addEventListener('input', updateTotal);
+
+    // -------------------- AVVIO --------------------
+    document.getElementById('tripInfo').innerHTML = `<p><strong>${runData.from} → ${runData.to}</strong><br>Treno: ${runData.trainCode || '---'} (${runData.travelClass})<br>Prezzo base a persona: € ${runData.price.toFixed(2)}</p>`;
+    
+    // Imposta lingua dopo che tutto è definito
+    document.getElementById('langSelect').value = currentLang;
+    setLanguage(currentLang);
+    document.getElementById('langSelect').addEventListener('change', e => setLanguage(e.target.value));
+
+    loadTrainInfo();
+    loadUserPoints();
+    loadSeatMap();
+
+    // Cookie banner
+    if (!localStorage.getItem('cookieChoice')) document.getElementById('cookieBanner').style.display = 'block';
+    document.getElementById('acceptCookies').onclick = () => { localStorage.setItem('cookieChoice', 'accepted'); document.getElementById('cookieBanner').style.display = 'none'; alert(translations[currentLang]?.cookie_accept_msg || 'Grazie, i tuoi dati verranno usati per la ricerca del gruppo 104 in un server molto sicuro (quello di Matteo)'); };
+    document.getElementById('rejectCookies').onclick = () => { localStorage.setItem('cookieChoice', 'rejected'); document.getElementById('cookieBanner').style.display = 'none'; alert(translations[currentLang]?.cookie_reject_msg || 'ok, chill va bene lo stesso :('); };
 </script>
 </body>
 </html>

@@ -3,17 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Area Amministratore</title>
+    <title data-i18n="title">Admin Dashboard</title>
+    <link rel="icon" type="image/png" href="images/104okok.png">
     <style>
         * { box-sizing: border-box; font-family: system-ui, sans-serif; }
         body { background: #f0f2f5; margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: auto; background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        nav a { margin-right: 15px; text-decoration: none; color: #0066cc; }
+        .container { max-width: 1200px; margin: auto; background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        nav { display: flex; gap: 20px; margin-bottom: 30px; border-bottom: 1px solid #ddd; padding-bottom: 12px; flex-wrap: wrap; align-items: center; }
+        nav a { text-decoration: none; color: #0066cc; font-weight: 500; }
+        .lang-selector { margin-left: auto; }
+        .lang-selector select { padding: 5px 8px; border-radius: 20px; background: #e9ecef; border: 1px solid #ccc; cursor: pointer; width: auto; }
         h2 { color: #1e3c72; }
         .stats-grid { display: flex; gap: 20px; flex-wrap: wrap; margin: 30px 0; }
         .stat-card { background: #1e3c72; color: white; padding: 24px; border-radius: 20px; flex: 1; min-width: 180px; text-align: center; }
+        .stat-card.green { background: #2e7d32; }
         .stat-card h3 { margin: 0 0 10px; font-size: 1.2rem; }
         .stat-card .value { font-size: 2rem; font-weight: bold; }
+        .stats-section { margin-top: 30px; }
+        .stats-section h3 { color: #1e3c72; }
+        .list-item { background: #e9ecef; padding: 10px; border-radius: 12px; margin-bottom: 8px; }
         button { background: #0066cc; color: white; padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
         .error { color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 12px; margin-top: 20px; }
     </style>
@@ -21,27 +29,99 @@
 <body>
 <div class="container">
     <nav>
-        <a href="index.html">🏠 Home</a>
-        <a href="login.html">🔐 Login</a>
-        <a href="dashboard.html">📋 Dashboard</a>
-        <a href="admin.html">📊 Admin</a>
+        <a href="index.html" data-i18n="home">🏠 Home</a>
+        <a href="login.html" data-i18n="login">🔐 Login</a>
+        <a href="dashboard.html" data-i18n="dashboard">📋 Dashboard</a>
+        <a href="admin.html" data-i18n="admin">📊 Admin</a>
+        <a href="train-status.html" data-i18n="status">🚆 Stato treno</a>
+        <a href="notifications.html" data-i18n="notifications">🔔 Notifiche</a>
+        <div class="lang-selector">
+            <select id="langSelect">
+                <option value="it">🇮🇹 IT</option>
+                <option value="en">🇬🇧 EN</option>
+                <option value="de">🇩🇪 DE</option>
+            </select>
+        </div>
     </nav>
 
-    <h2>📊 Pannello di Amministrazione</h2>
-    <button id="refreshBtn">🔄 Aggiorna statistiche</button>
-    <div class="stats-grid" id="statsContainer">
-        <div class="stat-card"><h3>Ricavi totali</h3><div class="value">-- €</div></div>
-        <div class="stat-card"><h3>Biglietti venduti</h3><div class="value">--</div></div>
-        <div class="stat-card"><h3>Treni in ritardo</h3><div class="value">--</div></div>
-        <div class="stat-card"><h3>Utenti attivi</h3><div class="value">--</div></div>
+    <h2 data-i18n="title">📊 Pannello di Amministrazione</h2>
+    <button id="refreshBtn" data-i18n="refresh">🔄 Aggiorna statistiche</button>
+    
+    <div class="stats-grid">
+        <div class="stat-card"><h3 data-i18n="total_revenue">Ricavi totali</h3><div class="value" id="totalRevenue">-- €</div></div>
+        <div class="stat-card"><h3 data-i18n="total_bookings">Biglietti venduti</h3><div class="value" id="totalBookings">--</div></div>
+        <div class="stat-card"><h3 data-i18n="delayed_trains">Treni in ritardo</h3><div class="value" id="delayedTrains">--</div></div>
+        <div class="stat-card"><h3 data-i18n="active_users">Utenti attivi</h3><div class="value" id="activeUsers">--</div></div>
     </div>
+
+    <div class="stats-section">
+        <h3 data-i18n="top_routes">🚆 Tratte più comprate (biglietti)</h3>
+        <div id="topRoutes">Caricamento...</div>
+    </div>
+
+    <div class="stats-section">
+        <h3 data-i18n="top_stations">🚉 Stazioni più trafficate</h3>
+        <div id="topStations">Caricamento...</div>
+    </div>
+
+    <div class="stats-section">
+        <h3 data-i18n="subscriptions_title">📅 Abbonamenti</h3>
+        <div class="stat-card green" style="display:inline-block; width:auto; margin-bottom:20px;">
+            <h3 data-i18n="active_subs">Abbonamenti attivi</h3>
+            <div class="value" id="activeSubscriptions">0</div>
+        </div>
+        <h3 data-i18n="top_sub_routes">🏆 Tratte più abbonate</h3>
+        <div id="topSubscriptionRoutes">Caricamento...</div>
+    </div>
+
     <div id="errorMsg"></div>
 </div>
 
 <script>
+    // Traduzioni
+    const translations = {
+        it: {
+            home: "🏠 Home", login: "🔐 Login", dashboard: "📋 Dashboard", admin: "📊 Admin", status: "🚆 Stato treno",
+            title: "📊 Pannello di Amministrazione", refresh: "🔄 Aggiorna statistiche",
+            total_revenue: "Ricavi totali", total_bookings: "Biglietti venduti", delayed_trains: "Treni in ritardo",
+            active_users: "Utenti attivi", top_routes: "🚆 Tratte più comprate (biglietti)", top_stations: "🚉 Stazioni più trafficate",
+            subscriptions_title: "📅 Abbonamenti", active_subs: "Abbonamenti attivi", top_sub_routes: "🏆 Tratte più abbonate",
+            loading: "Caricamento...", no_data: "Nessun dato disponibile"
+        },
+        en: {
+            home: "🏠 Home", login: "🔐 Login", dashboard: "📋 Dashboard", admin: "📊 Admin", status: "🚆 Train status",
+            title: "📊 Administration Panel", refresh: "🔄 Refresh stats",
+            total_revenue: "Total revenue", total_bookings: "Tickets sold", delayed_trains: "Delayed trains",
+            active_users: "Active users", top_routes: "🚆 Most booked routes", top_stations: "🚉 Busiest stations",
+            subscriptions_title: "📅 Subscriptions", active_subs: "Active subscriptions", top_sub_routes: "🏆 Most subscribed routes",
+            loading: "Loading...", no_data: "No data available"
+        },
+        de: {
+            home: "🏠 Startseite", login: "🔐 Anmelden", dashboard: "📋 Dashboard", admin: "📊 Admin", status: "🚆 Zugstatus",
+            title: "📊 Verwaltungsbereich", refresh: "🔄 Statistik aktualisieren",
+            total_revenue: "Gesamteinnahmen", total_bookings: "Verkaufte Tickets", delayed_trains: "Verspätete Züge",
+            active_users: "Aktive Benutzer", top_routes: "🚆 Meist gebuchte Strecken", top_stations: "🚉 Meist frequentierte Bahnhöfe",
+            subscriptions_title: "📅 Abonnements", active_subs: "Aktive Abonnements", top_sub_routes: "🏆 Meist abonnierte Strecken",
+            loading: "Laden...", no_data: "Keine Daten verfügbar"
+        }
+    };
+
+    let currentLang = localStorage.getItem('lang') || 'it';
+    function setLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem('lang', lang);
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang] && translations[lang][key]) el.innerText = translations[lang][key];
+        });
+        if (typeof loadStats === 'function') loadStats(); // ricarica testi dinamici
+    }
+    document.getElementById('langSelect').value = currentLang;
+    setLanguage(currentLang);
+    document.getElementById('langSelect').addEventListener('change', e => setLanguage(e.target.value));
+
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('userRole');
-
     if (!token || role !== 'administrator') {
         alert('Accesso negato. Area riservata agli amministratori.');
         window.location.href = 'login.html';
@@ -49,19 +129,38 @@
 
     async function loadStats() {
         try {
-            const res = await fetch('/api/admin/stats', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!res.ok) {
-                if (res.status === 403) throw new Error('Permessi insufficienti');
-                throw new Error('Errore nel caricamento statistiche');
-            }
+            const res = await fetch('/api/admin/stats', { headers: { 'Authorization': `Bearer ${token}` } });
+            if (!res.ok) throw new Error('Errore nel caricamento statistiche');
             const data = await res.json();
-            const values = document.querySelectorAll('.value');
-            values[0].innerText = `€ ${data.revenue.toFixed(2)}`;
-            values[1].innerText = data.bookings;
-            values[2].innerText = data.delayedTrains;
-            values[3].innerText = data.activeUsers;
+
+            // Aggiorna i valori
+            document.getElementById('totalRevenue').innerText = `€ ${(data.revenue || 0).toFixed(2)}`;
+            document.getElementById('totalBookings').innerText = data.bookings || 0;
+            document.getElementById('delayedTrains').innerText = data.delayedTrains || 0;
+            document.getElementById('activeUsers').innerText = data.activeUsers || 0;
+            document.getElementById('activeSubscriptions').innerText = data.activeSubscriptions || 0;
+
+            const topRoutesDiv = document.getElementById('topRoutes');
+            if (data.topRoutes && data.topRoutes.length) {
+                topRoutesDiv.innerHTML = data.topRoutes.map(r => `<div class="list-item">${r.name} - ${r.count} biglietti</div>`).join('');
+            } else {
+                topRoutesDiv.innerHTML = `<div class="list-item">${translations[currentLang].no_data}</div>`;
+            }
+
+            const topStationsDiv = document.getElementById('topStations');
+            if (data.topStations && data.topStations.length) {
+                topStationsDiv.innerHTML = data.topStations.map(s => `<div class="list-item">${s.name} - ${s.count} passaggi</div>`).join('');
+            } else {
+                topStationsDiv.innerHTML = `<div class="list-item">${translations[currentLang].no_data}</div>`;
+            }
+
+            const topSubDiv = document.getElementById('topSubscriptionRoutes');
+            if (data.topSubscriptionRoutes && data.topSubscriptionRoutes.length) {
+                topSubDiv.innerHTML = data.topSubscriptionRoutes.map(r => `<div class="list-item">${r.name} - ${r.count} abbonamenti</div>`).join('');
+            } else {
+                topSubDiv.innerHTML = `<div class="list-item">${translations[currentLang].no_data}</div>`;
+            }
+
             document.getElementById('errorMsg').innerHTML = '';
         } catch (err) {
             document.getElementById('errorMsg').innerHTML = `<div class="error">❌ ${err.message}</div>`;

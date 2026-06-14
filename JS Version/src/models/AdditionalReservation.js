@@ -1,9 +1,13 @@
 export class AdditionalReservation {
-    constructor(reservationId, status, price) {
-        this.reservationId = reservationId;
-        this.status = status;
-        this.price = price;
+    /** @type {number} */ reservationId;
+    /** @type {string} */ status; // 'reserved', 'confirmed', 'cancelled'
+    /** @type {number} */ price;
+
+    confirmReservation() {
+        this.status = 'confirmed';
     }
-    confirmReservation() { console.log('Prenotazione confermata'); }
-    cancelReservation() { console.log('Prenotazione cancellata'); }
+
+    cancelReservation() {
+        this.status = 'cancelled';
+    }
 }

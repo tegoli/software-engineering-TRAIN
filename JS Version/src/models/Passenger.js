@@ -1,16 +1,39 @@
 import { RegisteredUser } from './RegisteredUser.js';
+import { TicketPurchaseController } from '../controllers/TicketPurchaseController.js';
+import { getDashboard } from '../controllers/UserDashboardController.js';
 
 export class Passenger extends RegisteredUser {
-    constructor(...args) {
-        super(...args);
-        this.loyaltyPoints = 0;
+    /** @type {number} */ loyaltyPoints;
+
+    selectTrainOptions(criteria) {
+        return TicketPurchaseController.preparePurchase(criteria);
     }
-    selectTrainOptions(criteria) { }
-    confirmPayment(details) { }
-    selectTicketModify(ticketId) { }
-    confirmChange(newDetails) { }
-    requestTrainStatus(trainId) { }
-    contactCustomerService(text) { }
-    viewBookingHistory() { }
-    viewLoyaltyPointsBalance() { }
+
+    async confirmPayment(details) {
+        return TicketPurchaseController.processPayment(details);
+    }
+
+    selectTicketModify(ticketId) {
+        return TicketManagementController.getTicketForModify(ticketId);
+    }
+
+    async confirmChange(newDetails) {
+        return TicketManagementController.updateTicket(newDetails);
+    }
+
+    async requestTrainStatus(trainId) {
+        return TrainSearchController.getTrainStatus(trainId);
+    }
+
+    async contactCustomerService(text) {
+        return SupportController.submitRequest(this.userId, text);
+    }
+
+    viewBookingHistory() {
+        return getDashboard(this.userId).history;
+    }
+
+    viewLoyaltyPointsBalance() {
+        return this.loyaltyPoints;
+    }
 }

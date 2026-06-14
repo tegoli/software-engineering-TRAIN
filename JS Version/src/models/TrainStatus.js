@@ -1,10 +1,15 @@
+/**
+ * @brief Real-time status of a train.
+ */
 export class TrainStatus {
-    constructor(scheduledDeparture, estimatedDeparture, scheduledArrival, estimatedArrival, delayMinutes) {
-        this.scheduledDeparture = scheduledDeparture;
-        this.estimatedDeparture = estimatedDeparture;
-        this.scheduledArrival = scheduledArrival;
-        this.estimatedArrival = estimatedArrival;
-        this.delayMinutes = delayMinutes;
+    /** @type {Date} */ scheduledDeparture;
+    /** @type {Date} */ estimatedDeparture;
+    /** @type {Date} */ scheduledArrival;
+    /** @type {Date} */ estimatedArrival;
+    /** @type {number} */ delayMinutes;
+
+    displayVisualTimeline(location, delay) {
+        // Build UI representation
+        return { timeline: [], currentLocation: location };
     }
-    displayVisualTimeline(location, delay) { console.log('Mostra timeline visiva'); }
 }

@@ -1,12 +1,22 @@
 import { RegisteredUser } from './RegisteredUser.js';
+import { StatisticsController } from '../controllers/StatisticsController.js';
 
 export class RailwayAdministrator extends RegisteredUser {
-    constructor(...args) {
-        super(...args);
-        this.adminCode = '';
+    /** @type {string} */ adminCode;
+
+    requestAdminArea() {
+        return true;
     }
-    requestAdminArea() { }
-    loadStatistics() { }
-    applyFilters(date, trainLine) { }
-    viewStatistics() { }
+
+    loadStatistics() {
+        return StatisticsController.getRawStatistics();
+    }
+
+    applyFilters(date, trainLine) {
+        return StatisticsController.filterStatistics(date, trainLine);
+    }
+
+    viewStatistics() {
+        return StatisticsController.getFormattedStatistics();
+    }
 }

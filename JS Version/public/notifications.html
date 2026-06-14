@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifiche</title>
+    <link rel="icon" type="image/png" href="images/104okok.png">
+
+    <style>
+        body { font-family: system-ui; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
+        .notif-item { background: #e9ecef; padding: 12px; border-radius: 12px; margin-bottom: 12px; border-left: 4px solid #0066cc; }
+        .notif-item.read { opacity: 0.7; background: #f8f9fa; }
+        button { background: #0066cc; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin: 10px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>📬 Le tue notifiche</h2>
+    <button id="refreshBtn">🔄 Aggiorna</button>
+    <div id="notificationsList">Caricamento...</div>
+</div>
+<script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = 'login.html';
+
+    async function loadNotifications() {
+        const res = await fetch('/api/notifications', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        const container = document.getElementById('notificationsList');
+        if (!data.notifications.length) {
+            container.innerHTML = '<p>Nessuna notifica.</p>';
+            return;
+        }
+        container.innerHTML = data.notifications.map(n => `
+            <div class="notif-item ${n.read ? 'read' : ''}" data-id="${n.notificationId}">
+                <strong>${new Date(n.date).toLocaleString()}</strong><br>
+                ${n.message}
+                ${!n.read ? `<button class="mark-read" data-id="${n.notificationId}">Segna come letta</button>` : ''}
+            </div>
+        `).join('');
+        document.querySelectorAll('.mark-read').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const notifId = btn.getAttribute('data-id');
+                await fetch(`/api/notifications/${notifId}/read`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                loadNotifications();
+            });
+        });
+    }
+    document.getElementById('refreshBtn').onclick = loadNotifications;
+    loadNotifications();
+</script>
+</body>
+</html>

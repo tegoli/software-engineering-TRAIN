@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title data-i18n="title">Acquisto Abbonamento</title>
+    <link rel="icon" type="image/png" href="images/104okok.png">
+    <style>
+        body { font-family: system-ui; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
+        nav { display: flex; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .lang-selector select { padding: 5px 8px; border-radius: 20px; background: #e9ecef; border: 1px solid #ccc; cursor: pointer; }
+        select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; }
+        button { background: #0066cc; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .info { background: #e3f2fd; padding: 12px; border-radius: 12px; margin: 15px 0; }
+        .error { color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 12px; }
+        .success { color: #2e7d32; background: #e8f5e9; padding: 12px; border-radius: 12px; }
+        .price-display { font-size: 1.4rem; font-weight: bold; color: #1e3c72; text-align: center; margin: 15px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav>
+        <a href="index.html">🏠 Home</a>
+        <a href="dashboard.html">📋 Dashboard</a>
+        <a href="train-status.html">🚆 Stato treno</a>
+        <a href="admin.html">📊 Admin</a>
+        <div class="lang-selector">
+            <select id="langSelect">
+                <option value="it">🇮🇹 IT</option>
+                <option value="en">🇬🇧 EN</option>
+                <option value="de">🇩🇪 DE</option>
+            </select>
+        </div>
+    </nav>
+    <h2 data-i18n="title">🎫 Acquista Abbonamento</h2>
+    <p data-i18n="subtitle">Scegli una tratta, durata e classe. Il pagamento sarà simulato.</p>
+
+    <label data-i18n="route_label">Tratta</label>
+    <select id="routeSelect"></select>
+
+    <label data-i18n="duration_label">Durata</label>
+    <select id="duration">
+        <option value="1" data-i18n="one_month">1 mese</option>
+        <option value="3" data-i18n="three_months">3 mesi</option>
+        <option value="6" data-i18n="six_months">6 mesi</option>
+        <option value="12" data-i18n="twelve_months">12 mesi</option>
+    </select>
+
+    <label data-i18n="class_label">Classe</label>
+    <select id="travelClass">
+        <option value="standard" data-i18n="standard">Standard</option>
+        <option value="business" data-i18n="business">Business</option>
+    </select>
+
+    <div class="price-display">
+        <span data-i18n="total_price">Prezzo totale:</span> <span id="priceDisplay">--</span> €
+    </div>
+
+    <button id="buyBtn" data-i18n="buy">Acquista abbonamento</button>
+    <div id="result"></div>
+</div>
+
+<script>
+    const translations = {
+        it: {
+            title: "🎫 Acquista Abbonamento", subtitle: "Scegli una tratta, durata e classe. Il pagamento sarà simulato.",
+            route_label: "Tratta", duration_label: "Durata", class_label: "Classe", buy: "Acquista abbonamento",
+            one_month: "1 mese", three_months: "3 mesi", six_months: "6 mesi", twelve_months: "12 mesi",
+            standard: "Standard", business: "Business", total_price: "Prezzo totale:",
+            success: "✅ Abbonamento acquistato con successo!", error: "❌ Errore durante l'acquisto"
+        },
+        en: {
+            title: "🎫 Buy Subscription", subtitle: "Choose a route, duration and class. Payment will be simulated.",
+            route_label: "Route", duration_label: "Duration", class_label: "Class", buy: "Buy subscription",
+            one_month: "1 month", three_months: "3 months", six_months: "6 months", twelve_months: "12 months",
+            standard: "Standard", business: "Business", total_price: "Total price:",
+            success: "✅ Subscription purchased successfully!", error: "❌ Error during purchase"
+        },
+        de: {
+            title: "🎫 Abo kaufen", subtitle: "Wählen Sie eine Strecke, Dauer und Klasse. Die Zahlung wird simuliert.",
+            route_label: "Strecke", duration_label: "Dauer", class_label: "Klasse", buy: "Abo kaufen",
+            one_month: "1 Monat", three_months: "3 Monate", six_months: "6 Monate", twelve_months: "12 Monate",
+            standard: "Standard", business: "Business", total_price: "Gesamtpreis:",
+            success: "✅ Abo erfolgreich gekauft!", error: "❌ Fehler beim Kauf"
+        }
+    };
+    let currentLang = localStorage.getItem('lang') || 'it';
+    function setLanguage(lang) {
+        currentLang = lang; localStorage.setItem('lang', lang);
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang] && translations[lang][key]) el.innerText = translations[lang][key];
+        });
+        document.querySelectorAll('select option[data-i18n]').forEach(opt => {
+            const key = opt.getAttribute('data-i18n');
+            if (translations[lang] && translations[lang][key]) opt.innerText = translations[lang][key];
+        });
+        // Aggiorna il prezzo se già selezionato
+        if (document.getElementById('routeSelect').value) updatePrice();
+    }
+    document.getElementById('langSelect').value = currentLang;
+    setLanguage(currentLang);
+    document.getElementById('langSelect').addEventListener('change', e => setLanguage(e.target.value));
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Devi effettuare il login per acquistare un abbonamento');
+        window.location.href = 'login.html';
+    }
+
+    // Funzione per aggiornare il prezzo dinamicamente
+    async function updatePrice() {
+        const routeId = document.getElementById('routeSelect').value;
+        const durationMonths = parseInt(document.getElementById('duration').value);
+        const travelClass = document.getElementById('travelClass').value;
+        if (!routeId) return;
+        try {
+            const res = await fetch(`/api/subscription-price?routeId=${routeId}&months=${durationMonths}&class=${travelClass}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById('priceDisplay').innerText = data.price.toFixed(2);
+            } else {
+                document.getElementById('priceDisplay').innerText = '?';
+            }
+        } catch (err) {
+            console.error(err);
+            document.getElementById('priceDisplay').innerText = '?';
+        }
+    }
+
+    // Carica le tratte (con autenticazione)
+    async function loadRoutes() {
+        try {
+            const res = await fetch('/api/routes', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const routes = await res.json();
+            const select = document.getElementById('routeSelect');
+            select.innerHTML = '';
+            routes.forEach(route => {
+                const option = document.createElement('option');
+                option.value = route.routeId;
+                option.textContent = `${route.fromStation} → ${route.toStation}`;
+                select.appendChild(option);
+            });
+            // Event listeners per ricalcolare prezzo
+            select.addEventListener('change', updatePrice);
+            document.getElementById('duration').addEventListener('change', updatePrice);
+            document.getElementById('travelClass').addEventListener('change', updatePrice);
+            updatePrice(); // prezzo iniziale
+        } catch (err) {
+            console.error('Errore caricamento tratte:', err);
+            document.getElementById('result').innerHTML = `<div class="error">Impossibile caricare le tratte. Verifica di essere loggato.</div>`;
+        }
+    }
+
+    // Acquisto
+    document.getElementById('buyBtn').onclick = async () => {
+        const routeId = document.getElementById('routeSelect').value;
+        const durationMonths = parseInt(document.getElementById('duration').value);
+        const travelClass = document.getElementById('travelClass').value;
+
+        if (!routeId) {
+            alert('Seleziona una tratta');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/subscription', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ routeId, durationMonths, travelClass })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('result').innerHTML = `<div class="success">${translations[currentLang].success} (ID: ${data.subscriptionId})</div>`;
+                setTimeout(() => window.location.href = 'dashboard.html', 2000);
+            } else {
+                document.getElementById('result').innerHTML = `<div class="error">${translations[currentLang].error}: ${data.message}</div>`;
+            }
+        } catch (err) {
+            document.getElementById('result').innerHTML = `<div class="error">${translations[currentLang].error}: ${err.message}</div>`;
+        }
+    };
+
+    loadRoutes();
+</script>
+</body>
+</html>

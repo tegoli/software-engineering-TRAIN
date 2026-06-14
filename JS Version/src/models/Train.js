@@ -1,10 +1,15 @@
 export class Train {
-    constructor(trainId, trainCode, trainType, serviceClass) {
-        this.trainId = trainId;
-        this.trainCode = trainCode;
-        this.trainType = trainType;
-        this.serviceClass = serviceClass;
+    /** @type {number} */ trainId;
+    /** @type {string} */ trainCode;
+    /** @type {string} */ trainType; // 'Frecciarossa', 'Intercity', 'Regionale'
+    /** @type {string[]} */ serviceClasses;
+
+    getLiveLocation(trainId) {
+        // call external API or read from DB
+        return { latitude: 45.0, longitude: 9.0 };
     }
-    getLiveLocation(trainId) { console.log(`Posizione treno ${trainId}`); }
-    getDelayEstimate(trainId) { return 0; }
+
+    getDelayEstimate(trainId) {
+        return Math.floor(Math.random() * 30);
+    }
 }

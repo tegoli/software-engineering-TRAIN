@@ -1,8 +1,9 @@
+/**
+ * @file Single row in departure/arrival board.
+ */
 export class BoardEntry {
-    constructor(scheduledTime, estimatedTime, platform, entryStatus) {
-        this.scheduledTime = scheduledTime;
-        this.estimatedTime = estimatedTime;
-        this.platform = platform;
-        this.entryStatus = entryStatus;
-    }
+    /** @type {Date} */ scheduledTime;
+    /** @type {Date} */ estimatedTime;
+    /** @type {string} */ platform;
+    /** @type {string} */ entryStatus; // 'on-time', 'delayed', 'cancelled'
 }

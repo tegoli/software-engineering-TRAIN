@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title data-i18n="title">Stato Treno in Tempo Reale</title>
+    <link rel="icon" type="image/png" href="images/104okok.png">
+    <style>
+        body { font-family: system-ui; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
+        nav { display: flex; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; align-items: center; }
+        nav a { text-decoration: none; color: #0066cc; font-weight: 500; }
+        .lang-selector select { padding: 5px 8px; border-radius: 20px; background: #e9ecef; border: 1px solid #ccc; cursor: pointer; width: auto; }
+        input, button, select { width: 100%; padding: 10px; margin: 10px 0; }
+        .info { background: #e9ecef; padding: 15px; border-radius: 16px; margin-top: 20px; }
+        .delayed { color: red; }
+        .error { color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 12px; margin-top: 20px; text-align: center; }
+        hr { margin: 20px 0; }
+        button { background: #0066cc; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav>
+        <a href="index.html" data-i18n="home">🏠 Home</a>
+        <a href="dashboard.html" data-i18n="dashboard">📋 Dashboard</a>
+        <a href="train-status.html" data-i18n="status">🚆 Stato treno</a>
+        <a href="admin.html" data-i18n="admin">📊 Admin</a>
+        <div class="lang-selector">
+            <select id="langSelect">
+                <option value="it">🇮🇹 IT</option>
+                <option value="en">🇬🇧 EN</option>
+                <option value="de">🇩🇪 DE</option>
+            </select>
+        </div>
+    </nav>
+    <h2 data-i18n="title">🚆 Stato Treno in Tempo Reale</h2>
+    <input type="number" id="runId" placeholder="ID corsa (es. 1)" value="1">
+    <button id="searchBtn" data-i18n="search_status">Cerca stato</button>
+    <div id="status"></div>
+    <div id="predictionResult"></div>
+    <hr>
+    <div id="adminSection" style="display:none;">
+        <h3 data-i18n="simulate_title">Simula ritardo (solo admin)</h3>
+        <input type="number" id="delayMinutes" placeholder="Minuti di ritardo" value="10">
+        <button id="simulateBtn" data-i18n="apply_delay">Applica ritardo</button>
+        <div id="simulateResult"></div>
+    </div>
+</div>
+
+<script>
+    const translations = {
+        it: {
+            home: "🏠 Home", dashboard: "📋 Dashboard", status: "🚆 Stato treno", admin: "📊 Admin",
+            title: "🚆 Stato Treno in Tempo Reale", search_status: "Cerca stato",
+            simulate_title: "Simula ritardo (solo admin)", apply_delay: "Applica ritardo",
+            train: "Treno", status_label: "Stato", current_delay: "Ritardo attuale",
+            last_update: "Ultimo aggiornamento", next_station: "Prossima stazione", arrival_expected: "arrivo previsto",
+            minutes_short: "min", delayed: "Ritardo", prediction: "Previsione ritardo", based_on: "basata su", confidence: "confidenza",
+            no_data: "Nessun dato", error_fetch: "Errore nel caricamento", delay_applied: "✅ Ritardo applicato con successo",
+            delay_error: "❌ Errore durante l'applicazione del ritardo"
+        },
+        en: {
+            home: "🏠 Home", dashboard: "📋 Dashboard", status: "🚆 Train status", admin: "📊 Admin",
+            title: "🚆 Real-Time Train Status", search_status: "Check status",
+            simulate_title: "Simulate delay (admin only)", apply_delay: "Apply delay",
+            train: "Train", status_label: "Status", current_delay: "Current delay",
+            last_update: "Last update", next_station: "Next station", arrival_expected: "expected arrival",
+            minutes_short: "min", delayed: "Delayed", prediction: "Delay prediction", based_on: "based on", confidence: "confidence",
+            no_data: "No data", error_fetch: "Error loading", delay_applied: "✅ Delay applied successfully",
+            delay_error: "❌ Error applying delay"
+        },
+        de: {
+            home: "🏠 Startseite", dashboard: "📋 Dashboard", status: "🚆 Zugstatus", admin: "📊 Admin",
+            title: "🚆 Echtzeit-Zugstatus", search_status: "Status abfragen",
+            simulate_title: "Verspätung simulieren (nur Admin)", apply_delay: "Verspätung anwenden",
+            train: "Zug", status_label: "Status", current_delay: "Aktuelle Verspätung",
+            last_update: "Letzte Aktualisierung", next_station: "Nächster Bahnhof", arrival_expected: "voraussichtliche Ankunft",
+            minutes_short: "Min", delayed: "Verspätet", prediction: "Verspätungsvorhersage", based_on: "basiert auf", confidence: "Konfidenz",
+            no_data: "Keine Daten", error_fetch: "Fehler beim Laden", delay_applied: "✅ Verspätung erfolgreich angewendet",
+            delay_error: "❌ Fehler beim Anwenden der Verspätung"
+        }
+    };
+
+    let currentLang = localStorage.getItem('lang') || 'it';
+    function setLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem('lang', lang);
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang] && translations[lang][key]) el.innerText = translations[lang][key];
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key];
+        });
+    }
+    document.getElementById('langSelect').value = currentLang;
+    setLanguage(currentLang);
+    document.getElementById('langSelect').addEventListener('change', e => setLanguage(e.target.value));
+
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('userRole');
+    if (!token) {
+        alert('Devi effettuare il login');
+        window.location.href = 'login.html';
+    }
+    if (role === 'administrator') {
+        document.getElementById('adminSection').style.display = 'block';
+    }
+
+    async function searchAndPredict() {
+        const runId = document.getElementById('runId').value;
+        if (!runId) return;
+
+        const statusDiv = document.getElementById('status');
+        const predDiv = document.getElementById('predictionResult');
+        statusDiv.innerHTML = '<div class="info">⏳ Caricamento...</div>';
+        predDiv.innerHTML = '';
+
+        try {
+            // Stato attuale
+            const statusRes = await fetch(`/api/train-status/${runId}`);
+            if (!statusRes.ok) throw new Error('Treno non trovato');
+            const statusData = await statusRes.json();
+            statusDiv.innerHTML = `
+                <div class="info">
+                    <strong>${translations[currentLang].train} ${statusData.trainCode}</strong><br>
+                    ${translations[currentLang].status_label}: <span class="${statusData.status === 'delayed' ? 'delayed' : ''}">${statusData.status === 'delayed' ? translations[currentLang].delayed : statusData.status}</span><br>
+                    ${translations[currentLang].current_delay}: ${statusData.currentDelay} ${translations[currentLang].minutes_short}<br>
+                    ${translations[currentLang].last_update}: ${new Date(statusData.lastUpdate).toLocaleString()}<br>
+                    ${translations[currentLang].next_station}: ${statusData.nextStation} (${translations[currentLang].arrival_expected} ${statusData.scheduledArrival})
+                </div>
+            `;
+
+            // Predizione
+            const predRes = await fetch(`/api/predict-delay/${runId}`);
+            if (predRes.ok) {
+                const predData = await predRes.json();
+                predDiv.innerHTML = `
+                    <div class="info">
+                        📊 ${translations[currentLang].prediction}: <strong>${predData.predictedDelayMinutes} ${translations[currentLang].minutes_short}</strong><br>
+                        (${translations[currentLang].based_on} ${predData.basedOn}, ${translations[currentLang].confidence} ${Math.round(predData.confidence*100)}%)
+                    </div>
+                `;
+            }
+        } catch (err) {
+            statusDiv.innerHTML = `<div class="error">❌ ${err.message || translations[currentLang].error_fetch}</div>`;
+        }
+    }
+
+    document.getElementById('searchBtn').onclick = searchAndPredict;
+
+    // Simula ritardo (solo admin)
+    document.getElementById('simulateBtn').onclick = async () => {
+        const runId = document.getElementById('runId').value;
+        const delay = document.getElementById('delayMinutes').value;
+        if (!runId || !delay) {
+            alert('Inserisci ID corsa e minuti di ritardo');
+            return;
+        }
+        const btn = document.getElementById('simulateBtn');
+        const resultDiv = document.getElementById('simulateResult');
+        btn.disabled = true;
+        resultDiv.innerHTML = '<div class="info">⏳ Simulazione in corso...</div>';
+
+        try {
+            const res = await fetch('/api/simulate-delay', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ runId: parseInt(runId), delayMinutes: parseInt(delay) })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                resultDiv.innerHTML = `<div class="info" style="background:#e8f5e9;">✅ ${data.message}</div>`;
+                // Ricarica lo stato del treno dopo 1 secondo
+                setTimeout(() => searchAndPredict(), 1000);
+            } else {
+                resultDiv.innerHTML = `<div class="error">❌ ${data.error || data.message || translations[currentLang].delay_error}</div>`;
+            }
+        } catch (err) {
+            resultDiv.innerHTML = `<div class="error">❌ ${err.message}</div>`;
+        } finally {
+            btn.disabled = false;
+        }
+    };
+
+    // Carica stato iniziale
+    searchAndPredict();
+</script>
+</body>
+</html>

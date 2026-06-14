@@ -1,10 +1,14 @@
 export class Notification {
-    constructor(notificationId, message, notificationDate, notificationType) {
-        this.notificationId = notificationId;
-        this.message = message;
-        this.notificationDate = notificationDate;
-        this.notificationType = notificationType;
+    /** @type {number} */ notificationId;
+    /** @type {string} */ message;
+    /** @type {Date} */ notificationDate;
+    /** @type {string} */ notificationType; // 'delay', 'cancellation'
+
+    pushInAppAlert(userId) {
+        // send alert via WebSocket
     }
-    pushInAppAlert() { console.log(`Notifica in-app: ${this.message}`); }
-    sendEmailNotification() { console.log(`Email: ${this.message}`); }
+
+    sendEmailNotification(email) {
+        // send email via SMTP
+    }
 }

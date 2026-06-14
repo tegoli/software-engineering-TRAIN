@@ -1,5 +1,10 @@
+/**
+ * @brief Panel for inspector to validate tickets.
+ */
 export class ValidationPanel {
-    constructor(panelId) {
-        this.panelId = panelId;
+    /** @type {number} */ panelId;
+
+    static open() {
+        return { scannerReady: true };
     }
 }

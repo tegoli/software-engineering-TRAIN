@@ -1,8 +1,13 @@
+/**
+ * @file Delay prediction for a train run.
+ */
 export class DelayEstimate {
-    constructor(estimateId, delayMinutes, confidence) {
-        this.estimateId = estimateId;
-        this.delayMinutes = delayMinutes;
-        this.confidence = confidence;
+    /** @type {number} */ estimateId;
+    /** @type {number} */ delayMinutes;
+    /** @type {number} */ confidence; // 0..1
+
+    getDelayPrediction(trainId) {
+        // placeholder
+        return this.delayMinutes;
     }
-    getDelayPrediction(trainId) { return this.delayMinutes; }
 }

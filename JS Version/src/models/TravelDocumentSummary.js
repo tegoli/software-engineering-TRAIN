@@ -1,5 +1,7 @@
+/**
+ * @brief Compact view of a travel document.
+ */
 export class TravelDocumentSummary {
-    constructor(activeCount) {
-        this.activeCount = activeCount;
-    }
+    /** @type {number} */ activeCount;
+    /** @type {Array} */ summaries;
 }

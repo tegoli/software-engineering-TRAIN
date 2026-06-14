@@ -1,10 +1,16 @@
 export class TrainRun {
-    constructor(runId, departureDate, status, currentDelayMinutes) {
-        this.runId = runId;
-        this.departureDate = departureDate;
-        this.status = status;
-        this.currentDelayMinutes = currentDelayMinutes;
+    /** @type {number} */ runId;
+    /** @type {Date} */ departureDate;
+    /** @type {string} */ status; // 'on-time', 'delayed', 'cancelled'
+    /** @type {number} */ currentDelayMinutes;
+
+    reportDelay(trainId, delayTime) {
+        this.currentDelayMinutes = delayTime;
+        this.status = 'delayed';
+        // trigger notifications
     }
-    reportDelay(trainId, delayTime) { console.log(`Ritardo segnalato per run ${this.runId}`); }
-    refreshData() { console.log('Dati run aggiornati'); }
+
+    refreshData() {
+        // fetch latest from sensors
+    }
 }
