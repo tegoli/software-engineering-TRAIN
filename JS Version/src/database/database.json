@@ -189,15 +189,6 @@
       "region": "Puglia",
       "latitude": 41.1173,
       "longitude": 16.8719
-    },
-    {
-      "stationId": 41,
-      "name": "Lecce",
-      "city": "Lecce",
-      "code": "LE",
-      "region": "Puglia",
-      "latitude": 40.352,
-      "longitude": 18.169
     }
   ],
   "routes": [
