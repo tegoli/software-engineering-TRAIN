@@ -43,16 +43,16 @@
 <body>
 <div class="container">
     <nav>
-        <a href="index.html" data-i18n="home">🏠 Cerca treni</a>
-        <a href="login.html" data-i18n="login">🔐 Login</a>
-        <a href="dashboard.html" data-i18n="dashboard">📋 Dashboard</a>
-        <a href="purchase.html" data-i18n="purchase">🎫 Acquista</a>
-        <a href="inspector.html" data-i18n="inspector">👮 Ispettore</a>
-        <a href="admin.html" data-i18n="admin">📊 Admin</a>
-        <a href="support.html" data-i18n="support">💬 Supporto</a>
-        <a href="train-status.html" data-i18n="status">🚆 Stato treno</a>
-        <a href="subscription.html" data-i18n="subscription">🎫 Abbonamenti</a>
-        <a href="tabellone.html" data-i18n="tabellone">🚉 Tabellone</a>
+        <a href="index.html" data-i18n="home"> Cerca treni</a>
+        <a href="login.html" data-i18n="login"> Login</a>
+        <a href="dashboard.html" data-i18n="dashboard"> Dashboard</a>
+        <a href="purchase.html" data-i18n="purchase"> Acquista</a>
+        <a href="inspector.html" data-i18n="inspector"> Ispettore</a>
+        <a href="admin.html" data-i18n="admin"> Admin</a>
+        <a href="support.html" data-i18n="support"> Supporto</a>
+        <a href="train-status.html" data-i18n="status"> Stato treno</a>
+        <a href="subscription.html" data-i18n="subscription"> Abbonamenti</a>
+        <a href="tabellone.html" data-i18n="tabellone"> Tabellone</a>
         <a href="notifications.html" data-i18n="notifications">🔔 Notifiche</a>
         <div class="lang-selector">
             <select id="langSelect">
@@ -77,7 +77,7 @@
         <img src="images/104okok.png" alt="Logo" style="animation: pulsante 3s infinite ease-in-out;">
       
       </div>
-    <h1 data-i18n="title">🚆 Cerca il tuo treno</h1>
+    <h1 data-i18n="title"> Cerca il tuo treno</h1>
 
     <div class="search-form">
         <div class="form-row">
@@ -154,21 +154,21 @@
     <div class="map-row">
         <div id="map"></div>
         <div class="station-info">
-            <h3 data-i18n="map_title">🗺️ Seleziona stazioni sulla mappa</h3>
+            <h3 data-i18n="map_title"> Seleziona stazioni sulla mappa</h3>
             <p data-i18n="map_help">Clicca su un marker, poi usa i pulsanti.</p>
-            <button id="setFromMarker" data-i18n="set_departure">📌 Imposta come partenza</button>
-            <button id="setToMarker" data-i18n="set_arrival">📍 Imposta come arrivo</button>
+            <button id="setFromMarker" data-i18n="set_departure"> Imposta come partenza</button>
+            <button id="setToMarker" data-i18n="set_arrival"> Imposta come arrivo</button>
             <div id="selectedStationInfo" class="info" data-i18n="no_station">Nessuna stazione selezionata</div>
         </div>
     </div>
 
     <div id="results" class="results">
-        <p data-i18n="waiting_results">🔍 I risultati appariranno qui...</p>
+        <p data-i18n="waiting_results"> I risultati appariranno qui...</p>
     </div>
 </div>
 
 <div id="cookieBanner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: white; padding: 15px; text-align: center; z-index: 1000; display: none;">
-    <span data-i18n="cookie_text">🍪 Questo sito utilizza cookie per migliorare l'esperienza.</span>
+    <span data-i18n="cookie_text"> Questo sito utilizza cookie per migliorare l'esperienza.</span>
     <button id="acceptCookies" style="margin-left: 15px;" data-i18n="accept">Accetta</button>
     <button id="rejectCookies" data-i18n="reject">Rifiuta</button>
 </div>
@@ -177,9 +177,9 @@
     // -------------------- TRADUZIONI (solo per elementi statici) --------------------
     const translations = {
         it: {
-            home: "🏠 Cerca treni", login: "🔐 Login", dashboard: "📋 Dashboard", purchase: "🎫 Acquista",
-            inspector: "👮 Ispettore", admin: "📊 Admin", support: "💬 Supporto", status: "🚆 Stato treno",
-            subscription: "🎫 Abbonamenti", tabellone: "🚉 Tabellone", title: "🚆 Cerca il tuo treno",
+            home: " Cerca treni", login: " Login", dashboard: " Dashboard", purchase: " Acquista",
+            inspector: " Ispettore", admin: " Admin", support: " Supporto", status: " Stato treno",
+            subscription: " Abbonamenti", tabellone: " Tabellone", title: " Cerca il tuo treno",
             from_label: "Partenza", to_label: "Arrivo", date_label: "Data", class_label: "Classe",
             standard: "Standard", business: "Business", allow_transfers: "Consenti cambi (max 1)",
             search_btn: "Cerca", sort_label: "Ordina per", sort_departure: "Orario partenza",
@@ -188,17 +188,17 @@
             range: "Tra le ore", arrival_by: "Arrivo entro le ore", time_label: "Orario (HH:MM)",
             from_time: "Da", to_time: "A", smart_filter_label: "Filtra per", none: "Nessuno",
             less_delay: "Minore probabilità di ritardo", less_crowding: "Minore affollamento",
-            apply_filters: "Applica filtri", map_title: "🗺️ Seleziona stazioni sulla mappa",
-            map_help: "Clicca su un marker, poi usa i pulsanti.", set_departure: "📌 Imposta come partenza",
-            set_arrival: "📍 Imposta come arrivo", no_station: "Nessuna stazione selezionata",
-            waiting_results: "🔍 I risultati appariranno qui...",
-            cookie_text: "🍪 Questo sito utilizza cookie per migliorare l'esperienza.",
+            apply_filters: "Applica filtri", map_title: " Seleziona stazioni sulla mappa",
+            map_help: "Clicca su un marker, poi usa i pulsanti.", set_departure: " Imposta come partenza",
+            set_arrival: " Imposta come arrivo", no_station: "Nessuna stazione selezionata",
+            waiting_results: " I risultati appariranno qui...",
+            cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.",
             accept: "Accetta", reject: "Rifiuta"
         },
         en: {
-            home: "🏠 Search trains", login: "🔐 Login", dashboard: "📋 Dashboard", purchase: "🎫 Buy",
-            inspector: "👮 Inspector", admin: "📊 Admin", support: "💬 Support", status: "🚆 Train status",
-            subscription: "🎫 Subscriptions", tabellone: "🚉 Departures", title: "🚆 Search your train",
+            home: " Search trains", login: " Login", dashboard: " Dashboard", purchase: " Buy",
+            inspector: " Inspector", admin: " Admin", support: " Support", status: " Train status",
+            subscription: " Subscriptions", tabellone: " Departures", title: " Search your train",
             from_label: "Departure", to_label: "Arrival", date_label: "Date", class_label: "Class",
             standard: "Standard", business: "Business", allow_transfers: "Allow changes (max 1)",
             search_btn: "Search", sort_label: "Sort by", sort_departure: "Departure time",
@@ -207,17 +207,17 @@
             range: "Between", arrival_by: "Arrive by", time_label: "Time (HH:MM)",
             from_time: "From", to_time: "To", smart_filter_label: "Filter by", none: "None",
             less_delay: "Less delay probability", less_crowding: "Less crowding",
-            apply_filters: "Apply filters", map_title: "🗺️ Select stations on the map",
-            map_help: "Click a marker, then use buttons.", set_departure: "📌 Set as departure",
-            set_arrival: "📍 Set as arrival", no_station: "No station selected",
-            waiting_results: "🔍 Results will appear here...",
-            cookie_text: "🍪 This site uses cookies to improve your experience.",
+            apply_filters: "Apply filters", map_title: " Select stations on the map",
+            map_help: "Click a marker, then use buttons.", set_departure: " Set as departure",
+            set_arrival: " Set as arrival", no_station: "No station selected",
+            waiting_results: " Results will appear here...",
+            cookie_text: " This site uses cookies to improve your experience.",
             accept: "Accept", reject: "Reject"
         },
         de: {
-            home: "🏠 Zug suchen", login: "🔐 Anmelden", dashboard: "📋 Dashboard", purchase: "🎫 Kaufen",
-            inspector: "👮 Schaffner", admin: "📊 Admin", support: "💬 Support", status: "🚆 Zugstatus",
-            subscription: "🎫 Abos", tabellone: "🚉 Abfahrten", title: "🚆 Suche deinen Zug",
+            home: " Zug suchen", login: " Anmelden", dashboard: " Dashboard", purchase: " Kaufen",
+            inspector: " Schaffner", admin: " Admin", support: " Support", status: " Zugstatus",
+            subscription: " Abos", tabellone: " Abfahrten", title: " Suche deinen Zug",
             from_label: "Abfahrt", to_label: "Ankunft", date_label: "Datum", class_label: "Klasse",
             standard: "Standard", business: "Business", allow_transfers: "Umstiege erlauben (max 1)",
             search_btn: "Suchen", sort_label: "Sortieren nach", sort_departure: "Abfahrtszeit",
@@ -226,11 +226,11 @@
             range: "Zwischen", arrival_by: "Ankunft bis", time_label: "Uhrzeit (HH:MM)",
             from_time: "Von", to_time: "Bis", smart_filter_label: "Filtern nach", none: "Keine",
             less_delay: "Geringere Verspätungswahrscheinlichkeit", less_crowding: "Weniger überfüllt",
-            apply_filters: "Filter anwenden", map_title: "🗺️ Wähle Stationen auf der Karte",
-            map_help: "Klicke auf einen Marker, dann nutze die Buttons.", set_departure: "📌 Als Abfahrt setzen",
-            set_arrival: "📍 Als Ankunft setzen", no_station: "Keine Station ausgewählt",
-            waiting_results: "🔍 Ergebnisse erscheinen hier...",
-            cookie_text: "🍪 Diese Website verwendet Cookies, um die Erfahrung zu verbessern.",
+            apply_filters: "Filter anwenden", map_title: " Wähle Stationen auf der Karte",
+            map_help: "Klicke auf einen Marker, dann nutze die Buttons.", set_departure: " Als Abfahrt setzen",
+            set_arrival: " Als Ankunft setzen", no_station: "Keine Station ausgewählt",
+            waiting_results: " Ergebnisse erscheinen hier...",
+            cookie_text: " Diese Website verwendet Cookies, um die Erfahrung zu verbessern.",
             accept: "Akzeptieren", reject: "Ablehnen"
         }
     };
@@ -424,24 +424,24 @@
         for (const t of filteredTrains) {
             let transferHtml = '';
             if (t.transfers && t.transfers > 0) {
-                transferHtml = `<div class="transfer-info">🔄 ${t.transfers} cambio a ${t.transferStation} (attesa ${t.transferDuration} min)</div>`;
+                transferHtml = `<div class="transfer-info"> ${t.transfers} cambio a ${t.transferStation} (attesa ${t.transferDuration} min)</div>`;
             }
             let delayHtml = '';
             if (t.currentDelay && t.currentDelay > 0) {
-                delayHtml += `<div class="delay-info" style="background:#fff3e0;">⚠️ Ritardo attuale: ${t.currentDelay} minuti</div>`;
+                delayHtml += `<div class="delay-info" style="background:#fff3e0;"> Ritardo attuale: ${t.currentDelay} minuti</div>`;
             }
             if (t.predictedDelay !== undefined && t.predictedDelay !== null) {
-                delayHtml += `<div class="delay-info" style="background:#e3f2fd;">📊 Previsione ritardo: ${t.predictedDelay} minuti</div>`;
+                delayHtml += `<div class="delay-info" style="background:#e3f2fd;"> Previsione ritardo: ${t.predictedDelay} minuti</div>`;
             }
             const card = document.createElement('div');
             card.className = 'train-card';
             card.innerHTML = `
-                <h3>🚆 ${t.trainCode} (${t.trainType}) - ${t.from} → ${t.to}</h3>
+                <h3> ${t.trainCode} (${t.trainType}) - ${t.from} → ${t.to}</h3>
                 <div>Partenza: ${new Date(t.departureTime).toLocaleString()} | Arrivo: ${new Date(t.arrivalTime).toLocaleString()}</div>
                 <div>Durata: ${t.duration} | Prezzo: € ${t.price.toFixed(2)} (${t.travelClass})</div>
                 ${transferHtml}
                 ${delayHtml}
-                <button class="select-btn" data-train='${JSON.stringify(t)}'>🎫 Seleziona e acquista</button>
+                <button class="select-btn" data-train='${JSON.stringify(t)}'> Seleziona e acquista</button>
             `;
             resultsDiv.appendChild(card);
         }
@@ -504,13 +504,13 @@
         if (selectedStation) {
             document.getElementById('fromInput').value = selectedStation.name;
             alert(`✅ Partenza impostata a ${selectedStation.name}`);
-        } else alert('⚠️ Clicca prima su un marker sulla mappa.');
+        } else alert(' Clicca prima su un marker sulla mappa.');
     };
     document.getElementById('setToMarker').onclick = () => {
         if (selectedStation) {
             document.getElementById('toInput').value = selectedStation.name;
             alert(`✅ Arrivo impostato a ${selectedStation.name}`);
-        } else alert('⚠️ Clicca prima su un marker sulla mappa.');
+        } else alert(' Clicca prima su un marker sulla mappa.');
     };
     document.getElementById('dateInput').valueAsDate = new Date();
     document.getElementById('searchBtn').onclick = searchTrains;

@@ -30,7 +30,7 @@
     </select>
 </div>
 <div class="container">
-    <h2 data-i18n="title">🔐 Accesso</h2>
+    <h2 data-i18n="title"> Accesso</h2>
     <input type="email" id="email" placeholder="Email" value="admin@railway.it">
     <input type="password" id="password" placeholder="Password" value="password">
     <button id="loginBtn" data-i18n="login_btn">Accedi</button>
@@ -42,7 +42,7 @@
     <p style="font-size:0.75rem; text-align:center; margin-top:20px;" data-i18n="demo_note">Demo: puoi registrare un nuovo utente oppure usare admin@railway.it con password "password"</p>
 </div>
 <div id="cookieBanner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: white; padding: 15px; text-align: center; z-index: 1000; display: none;">
-    <span data-i18n="cookie_text">🍪 Questo sito utilizza cookie per migliorare l'esperienza.</span>
+    <span data-i18n="cookie_text"> Questo sito utilizza cookie per migliorare l'esperienza.</span>
     <button id="acceptCookies" style="margin-left: 15px;" data-i18n="accept">Accetta</button>
     <button id="rejectCookies" data-i18n="reject">Rifiuta</button>
 </div>
@@ -50,9 +50,9 @@
 <script>
     // ----- TRADUZIONI -----
     const translations = {
-        it: { title: "🔐 Accesso", login_btn: "Accedi", no_account: "Non hai un account?", register_now: "Registrati ora", demo_note: "Demo: puoi registrare un nuovo utente oppure usare admin@railway.it con password \"password\"", cookie_text: "🍪 Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta" },
-        en: { title: "🔐 Login", login_btn: "Login", no_account: "Don't have an account?", register_now: "Register now", demo_note: "Demo: you can register a new user or use admin@railway.it with password \"password\"", cookie_text: "🍪 This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject" },
-        de: { title: "🔐 Anmelden", login_btn: "Anmelden", no_account: "Kein Konto?", register_now: "Jetzt registrieren", demo_note: "Demo: Sie können einen neuen Benutzer registrieren oder admin@railway.it mit Passwort \"password\" verwenden", cookie_text: "🍪 Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen" }
+        it: { title: " Accesso", login_btn: "Accedi", no_account: "Non hai un account?", register_now: "Registrati ora", demo_note: "Demo: puoi registrare un nuovo utente oppure usare admin@railway.it con password \"password\"", cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta" },
+        en: { title: " Login", login_btn: "Login", no_account: "Don't have an account?", register_now: "Register now", demo_note: "Demo: you can register a new user or use admin@railway.it with password \"password\"", cookie_text: " This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject" },
+        de: { title: " Anmelden", login_btn: "Anmelden", no_account: "Kein Konto?", register_now: "Jetzt registrieren", demo_note: "Demo: Sie können einen neuen Benutzer registrieren oder admin@railway.it mit Passwort \"password\" verwenden", cookie_text: " Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen" }
     };
     let currentLang = localStorage.getItem('lang') || 'it';
     function setLanguage(lang) {
@@ -82,7 +82,7 @@
                     else window.location.href = 'dashboard.html';
                 }, 1500);
             } else msgDiv.innerHTML = `<div class="error">❌ ${data.message || 'Credenziali errate'}</div>`;
-        } catch (err) { msgDiv.innerHTML = `<div class="error">⚠️ Errore di connessione: ${err.message}</div>`; }
+        } catch (err) { msgDiv.innerHTML = `<div class="error"> Errore di connessione: ${err.message}</div>`; }
     };
 
     // Cookie banner

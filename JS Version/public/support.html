@@ -24,7 +24,7 @@
 <body>
 <div class="container">
     <nav>
-        <a href="notifications.html" data-i18n="notifications">🔔 Notifiche</a>
+        <a href="notifications.html" data-i18n="notifications"> Notifiche</a>
         <div class="lang-selector">
             <select id="langSelect">
                 <option value="it">🇮🇹 IT</option>
@@ -33,15 +33,15 @@
             </select>
         </div>
     </nav>
-    <h2 data-i18n="title">📞 Contatta il supporto</h2>
+    <h2 data-i18n="title"> Contatta il supporto</h2>
     <p data-i18n="description">Compila il modulo per richiedere informazioni, un rimborso o segnalare un problema.</p>
 
     <label data-i18n="request_type">Tipo di richiesta</label>
     <select id="requestType">
-        <option value="refund" data-i18n="refund">💰 Rimborso</option>
-        <option value="information" data-i18n="information">ℹ️ Informazioni</option>
-        <option value="complaint" data-i18n="complaint">⚠️ Reclamo</option>
-        <option value="other" data-i18n="other">📝 Altro</option>
+        <option value="refund" data-i18n="refund"> Rimborso</option>
+        <option value="information" data-i18n="information"> Informazioni</option>
+        <option value="complaint" data-i18n="complaint"> Reclamo</option>
+        <option value="other" data-i18n="other"> Altro</option>
     </select>
 
     <label data-i18n="ticket_number">Numero biglietto (opzionale)</label>
@@ -56,7 +56,7 @@
 </div>
 
 <div id="cookieBanner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: white; padding: 15px; text-align: center; z-index: 1000; display: none;">
-    <span data-i18n="cookie_text">🍪 Questo sito utilizza cookie per migliorare l'esperienza.</span>
+    <span data-i18n="cookie_text"> Questo sito utilizza cookie per migliorare l'esperienza.</span>
     <button id="acceptCookies" style="margin-left: 15px;" data-i18n="accept">Accetta</button>
     <button id="rejectCookies" data-i18n="reject">Rifiuta</button>
 </div>
@@ -65,28 +65,28 @@
     // ----- TRADUZIONI -----
     const translations = {
         it: {
-            title: "📞 Contatta il supporto", description: "Compila il modulo per richiedere informazioni, un rimborso o segnalare un problema.",
-            request_type: "Tipo di richiesta", refund: "💰 Rimborso", information: "ℹ️ Informazioni", complaint: "⚠️ Reclamo", other: "📝 Altro",
+            title: " Contatta il supporto", description: "Compila il modulo per richiedere informazioni, un rimborso o segnalare un problema.",
+            request_type: "Tipo di richiesta", refund: " Rimborso", information: " Informazioni", complaint: " Reclamo", other: " Altro",
             ticket_number: "Numero biglietto (opzionale)", description_label: "Descrizione del problema / richiesta", submit: "Invia richiesta",
-            back_home: "← Torna alla home", cookie_text: "🍪 Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta",
+            back_home: "← Torna alla home", cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta",
             login_required: "Devi essere loggato per contattare il supporto", fill_description: "Per favore, descrivi la tua richiesta.",
             success: "✅ Richiesta inviata con successo. Riceverai risposta via email entro 48 ore.",
             error_generic: "❌ Errore: Impossibile inviare la richiesta", network_error: "Errore di rete"
         },
         en: {
-            title: "📞 Contact Support", description: "Fill out the form to request information, a refund, or report an issue.",
-            request_type: "Request type", refund: "💰 Refund", information: "ℹ️ Information", complaint: "⚠️ Complaint", other: "📝 Other",
+            title: " Contact Support", description: "Fill out the form to request information, a refund, or report an issue.",
+            request_type: "Request type", refund: " Refund", information: " Information", complaint: " Complaint", other: " Other",
             ticket_number: "Ticket number (optional)", description_label: "Description of the problem / request", submit: "Submit request",
-            back_home: "← Back to home", cookie_text: "🍪 This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject",
+            back_home: "← Back to home", cookie_text: " This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject",
             login_required: "You must be logged in to contact support", fill_description: "Please describe your request.",
             success: "✅ Request sent successfully. You will receive a reply by email within 48 hours.",
             error_generic: "❌ Error: Could not send request", network_error: "Network error"
         },
         de: {
-            title: "📞 Support kontaktieren", description: "Füllen Sie das Formular aus, um Informationen, eine Rückerstattung anzufordern oder ein Problem zu melden.",
-            request_type: "Anfrageart", refund: "💰 Rückerstattung", information: "ℹ️ Information", complaint: "⚠️ Beschwerde", other: "📝 Sonstiges",
+            title: " Support kontaktieren", description: "Füllen Sie das Formular aus, um Informationen, eine Rückerstattung anzufordern oder ein Problem zu melden.",
+            request_type: "Anfrageart", refund: " Rückerstattung", information: " Information", complaint: " Beschwerde", other: " Sonstiges",
             ticket_number: "Ticketnummer (optional)", description_label: "Beschreibung des Problems / der Anfrage", submit: "Anfrage senden",
-            back_home: "← Zurück zur Startseite", cookie_text: "🍪 Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen",
+            back_home: "← Zurück zur Startseite", cookie_text: " Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen",
             login_required: "Sie müssen angemeldet sein, um den Support zu kontaktieren", fill_description: "Bitte beschreiben Sie Ihre Anfrage.",
             success: "✅ Anfrage erfolgreich gesendet. Sie erhalten innerhalb von 48 Stunden eine Antwort per E-Mail.",
             error_generic: "❌ Fehler: Anfrage konnte nicht gesendet werden", network_error: "Netzwerkfehler"

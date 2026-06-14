@@ -28,7 +28,7 @@
                 <option value="de">🇩🇪 DE</option>
             </select>
         </div>
-        <a href="notifications.html" data-i18n="notifications">🔔 Notifiche</a>
+        <a href="notifications.html" data-i18n="notifications"> Notifiche</a>
     </nav>
     <h2>👮 Pannello Ispettore</h2>
     <div class="card">
@@ -40,7 +40,7 @@
         <div id="validationResult"></div>
     </div>
     <div class="card">
-        <h3>📅 Turni (ID ispettore 3001)</h3>
+        <h3> Turni (ID ispettore 3001)</h3>
         <button id="scheduleBtn">Visualizza turni</button>
         <div id="scheduleResult"></div>
     </div>
@@ -116,7 +116,7 @@
         });
         const data = await res.json();
         if (data.shifts && data.shifts.length) {
-            document.getElementById('scheduleResult').innerHTML = data.shifts.map(s => `<p>📅 ${s.date} ${s.startTime}-${s.endTime} - ${s.route} (${s.trainCode})</p>`).join('');
+            document.getElementById('scheduleResult').innerHTML = data.shifts.map(s => `<p> ${s.date} ${s.startTime}-${s.endTime} - ${s.route} (${s.trainCode})</p>`).join('');
         } else {
             document.getElementById('scheduleResult').innerHTML = '<div class="error">Nessun turno trovato</div>';
         }

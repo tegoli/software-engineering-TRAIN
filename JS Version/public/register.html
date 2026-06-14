@@ -36,7 +36,7 @@
     </select>
 </div>
 <div class="container">
-    <h2 data-i18n="title">🚆 Crea un account</h2>
+    <h2 data-i18n="title"> Crea un account</h2>
     <div class="sub" data-i18n="sub">Accedi a tutti i servizi di prenotazione</div>
     <div>
         <label data-i18n="name">Nome</label>
@@ -49,7 +49,7 @@
         <input type="password" id="password" placeholder="Almeno 8 caratteri" autocomplete="new-password">
         <label data-i18n="confirm_password">Conferma password</label>
         <input type="password" id="confirmPassword" placeholder="Ripeti la password" autocomplete="off">
-        <button id="registerBtn" data-i18n="register_btn">📝 Registrati</button>
+        <button id="registerBtn" data-i18n="register_btn"> Registrati</button>
         <div id="message"></div>
     </div>
     <hr>
@@ -59,7 +59,7 @@
     <div class="info-note" data-i18n="gdpr_note">La registrazione è gratuita. I tuoi dati saranno trattati in conformità al GDPR.</div>
 </div>
 <div id="cookieBanner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: white; padding: 15px; text-align: center; z-index: 1000; display: none;">
-    <span data-i18n="cookie_text">🍪 Questo sito utilizza cookie per migliorare l'esperienza.</span>
+    <span data-i18n="cookie_text"> Questo sito utilizza cookie per migliorare l'esperienza.</span>
     <button id="acceptCookies" style="margin-left: 15px;" data-i18n="accept">Accetta</button>
     <button id="rejectCookies" data-i18n="reject">Rifiuta</button>
 </div>
@@ -67,9 +67,9 @@
 <script>
     // ----- TRADUZIONI -----
     const translations = {
-        it: { title: "🚆 Crea un account", sub: "Accedi a tutti i servizi di prenotazione", name: "Nome", surname: "Cognome", email: "Email", password: "Password", confirm_password: "Conferma password", register_btn: "📝 Registrati", have_account: "Hai già un account?", login_link: "Accedi qui", gdpr_note: "La registrazione è gratuita. I tuoi dati saranno trattati in conformità al GDPR.", cookie_text: "🍪 Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta" },
-        en: { title: "🚆 Create an account", sub: "Access all booking services", name: "First name", surname: "Last name", email: "Email", password: "Password", confirm_password: "Confirm password", register_btn: "📝 Register", have_account: "Already have an account?", login_link: "Login here", gdpr_note: "Registration is free. Your data will be processed in accordance with GDPR.", cookie_text: "🍪 This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject" },
-        de: { title: "🚆 Konto erstellen", sub: "Alle Buchungsdienste nutzen", name: "Vorname", surname: "Nachname", email: "E-Mail", password: "Passwort", confirm_password: "Passwort bestätigen", register_btn: "📝 Registrieren", have_account: "Bereits ein Konto?", login_link: "Hier anmelden", gdpr_note: "Die Registrierung ist kostenlos. Ihre Daten werden gemäß der DSGVO verarbeitet.", cookie_text: "🍪 Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen" }
+        it: { title: " Crea un account", sub: "Accedi a tutti i servizi di prenotazione", name: "Nome", surname: "Cognome", email: "Email", password: "Password", confirm_password: "Conferma password", register_btn: " Registrati", have_account: "Hai già un account?", login_link: "Accedi qui", gdpr_note: "La registrazione è gratuita. I tuoi dati saranno trattati in conformità al GDPR.", cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta" },
+        en: { title: " Create an account", sub: "Access all booking services", name: "First name", surname: "Last name", email: "Email", password: "Password", confirm_password: "Confirm password", register_btn: " Register", have_account: "Already have an account?", login_link: "Login here", gdpr_note: "Registration is free. Your data will be processed in accordance with GDPR.", cookie_text: " This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject" },
+        de: { title: " Konto erstellen", sub: "Alle Buchungsdienste nutzen", name: "Vorname", surname: "Nachname", email: "E-Mail", password: "Passwort", confirm_password: "Passwort bestätigen", register_btn: " Registrieren", have_account: "Bereits ein Konto?", login_link: "Hier anmelden", gdpr_note: "Die Registrierung ist kostenlos. Ihre Daten werden gemäß der DSGVO verarbeitet.", cookie_text: " Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen" }
     };
     let currentLang = localStorage.getItem('lang') || 'it';
     function setLanguage(lang) {
@@ -102,12 +102,12 @@
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
         const confirm = document.getElementById('confirmPassword').value;
-        if (!name || !surname || !email || !password) { showMessage('⚠️ Tutti i campi sono obbligatori.'); return; }
-        if (password.length < 8) { showMessage('⚠️ La password deve essere lunga almeno 8 caratteri.'); return; }
-        if (password !== confirm) { showMessage('⚠️ Le password non coincidono.'); return; }
-        if (!email.includes('@') || !email.includes('.')) { showMessage('⚠️ Inserisci un indirizzo email valido.'); return; }
+        if (!name || !surname || !email || !password) { showMessage(' Tutti i campi sono obbligatori.'); return; }
+        if (password.length < 8) { showMessage(' La password deve essere lunga almeno 8 caratteri.'); return; }
+        if (password !== confirm) { showMessage(' Le password non coincidono.'); return; }
+        if (!email.includes('@') || !email.includes('.')) { showMessage(' Inserisci un indirizzo email valido.'); return; }
         registerBtn.disabled = true; registerBtn.textContent = 'Registrazione in corso...';
-        registerUser(name, surname, email, password).finally(() => { registerBtn.disabled = false; registerBtn.textContent = '📝 Registrati'; });
+        registerUser(name, surname, email, password).finally(() => { registerBtn.disabled = false; registerBtn.textContent = ' Registrati'; });
     });
     // Cookie banner
     if (!localStorage.getItem('cookieChoice')) document.getElementById('cookieBanner').style.display = 'block';

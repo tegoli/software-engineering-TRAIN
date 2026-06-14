@@ -25,16 +25,16 @@
 <body>
 <div class="container">
     <nav>
-        <a href="index.html" data-i18n="home">🏠 Cerca treni</a>
-        <a href="login.html" data-i18n="login">🔐 Login</a>
-        <a href="dashboard.html" data-i18n="dashboard">📋 Dashboard</a>
-        <a href="purchase.html" data-i18n="purchase">🎫 Acquista</a>
-        <a href="inspector.html" data-i18n="inspector">👮 Ispettore</a>
-        <a href="admin.html" data-i18n="admin">📊 Admin</a>
-        <a href="support.html" data-i18n="support">💬 Supporto</a>
-        <a href="subscription.html" data-i18n="subscription">🎫 Abbonamenti</a>
-        <a href="train-status.html" data-i18n="status">🚆 Stato treno</a>
-        <a href="notifications.html" data-i18n="notifications">🔔 Notifiche</a>
+        <a href="index.html" data-i18n="home"> Cerca treni</a>
+        <a href="login.html" data-i18n="login"> Login</a>
+        <a href="dashboard.html" data-i18n="dashboard"> Dashboard</a>
+        <a href="purchase.html" data-i18n="purchase"> Acquista</a>
+        <a href="inspector.html" data-i18n="inspector"> Ispettore</a>
+        <a href="admin.html" data-i18n="admin"> Admin</a>
+        <a href="support.html" data-i18n="support"> Supporto</a>
+        <a href="subscription.html" data-i18n="subscription"> Abbonamenti</a>
+        <a href="train-status.html" data-i18n="status"> Stato treno</a>
+        <a href="notifications.html" data-i18n="notifications"> Notifiche</a>
         <div class="lang-selector">
             <select id="langSelect">
                 <option value="it">🇮🇹 IT</option>
@@ -43,36 +43,36 @@
             </select>
         </div>
     </nav>
-    <button onclick="deleteAccount()" style="background:#dc3545;" data-i18n="delete_account">🗑️ Elimina account</button>
-    <h2 data-i18n="title">📋 La tua area personale</h2>
+    <button onclick="deleteAccount()" style="background:#dc3545;" data-i18n="delete_account"> Elimina account</button>
+    <h2 data-i18n="title"> La tua area personale</h2>
     <div class="card">
-        <h3><span data-i18n="welcome">👤 Benvenuto</span>, <span id="userName">---</span></h3>
-        <p>⭐ <strong data-i18n="loyalty_points">Punti fedeltà:</strong> <span id="loyaltyPoints">0</span></p>
+        <h3><span data-i18n="welcome"> Benvenuto</span>, <span id="userName">---</span></h3>
+        <p> <strong data-i18n="loyalty_points">Punti fedeltà:</strong> <span id="loyaltyPoints">0</span></p>
     </div>
 
     <div class="card">
-        <h3 data-i18n="active_tickets">🎟️ Biglietti attivi</h3>
+        <h3 data-i18n="active_tickets"> Biglietti attivi</h3>
         <div id="activeTickets">Caricamento...</div>
     </div>
 
     <div class="card">
-        <h3 data-i18n="subscriptions_title">📅 I tuoi abbonamenti attivi</h3>
+        <h3 data-i18n="subscriptions_title"> I tuoi abbonamenti attivi</h3>
         <div id="subscriptionsList">Caricamento...</div>
     </div>
 
     <div class="card">
-        <h3 data-i18n="history">📜 Storico viaggi</h3>
+        <h3 data-i18n="history"> Storico viaggi</h3>
         <div id="history">Nessun viaggio precedente</div>
     </div>
     <div class="card">
-        <h3 data-i18n="security">🔐 Sicurezza account</h3>
+        <h3 data-i18n="security"> Sicurezza account</h3>
         <button onclick="changePassword()" data-i18n="change_pwd">Cambia password</button>
         <button onclick="recoverPassword()" data-i18n="recover_pwd">Recupera password</button>
     </div>
 </div>
 
 <div id="cookieBanner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: white; padding: 15px; text-align: center; z-index: 1000; display: none;">
-    <span data-i18n="cookie_text">🍪 Questo sito utilizza cookie per migliorare l'esperienza.</span>
+    <span data-i18n="cookie_text"> Questo sito utilizza cookie per migliorare l'esperienza.</span>
     <button id="acceptCookies" style="margin-left: 15px;" data-i18n="accept">Accetta</button>
     <button id="rejectCookies" data-i18n="reject">Rifiuta</button>
 </div>
@@ -80,43 +80,43 @@
 <script>
     const translations = {
         it: {
-            home: "🏠 Cerca treni", login: "🔐 Login", dashboard: "📋 Dashboard", purchase: "🎫 Acquista",
-            inspector: "👮 Ispettore", admin: "📊 Admin", support: "💬 Supporto", subscription: "🎫 Abbonamenti",
-            status: "🚆 Stato treno", title: "📋 La tua area personale", welcome: "👤 Benvenuto",
-            loyalty_points: "Punti fedeltà", active_tickets: "🎟️ Biglietti attivi", history: "📜 Storico viaggi",
-            no_history: "Nessun viaggio precedente", security: "🔐 Sicurezza account",
+            home: " Cerca treni", login: " Login", dashboard: " Dashboard", purchase: " Acquista",
+            inspector: " Ispettore", admin: " Admin", support: " Supporto", subscription: " Abbonamenti",
+            status: " Stato treno", title: " La tua area personale", welcome: " Benvenuto",
+            loyalty_points: "Punti fedeltà", active_tickets: " Biglietti attivi", history: " Storico viaggi",
+            no_history: "Nessun viaggio precedente", security: " Sicurezza account",
             change_pwd: "Cambia password", recover_pwd: "Recupera password", loading: "Caricamento...",
-            cookie_text: "🍪 Questo sito utilizza cookie per migliorare l'esperienza.",
+            cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.",
             accept: "Accetta", reject: "Rifiuta",
-            subscriptions_title: "📅 I tuoi abbonamenti attivi",
+            subscriptions_title: " I tuoi abbonamenti attivi",
             no_subs: "Nessun abbonamento attivo",
             seat: "Posto",
             modify: "✏️ Modifica"
         },
         en: {
-            home: "🏠 Search trains", login: "🔐 Login", dashboard: "📋 Dashboard", purchase: "🎫 Buy",
-            inspector: "👮 Inspector", admin: "📊 Admin", support: "💬 Support", subscription: "🎫 Subscriptions",
-            status: "🚆 Train status", title: "📋 Your personal area", welcome: "👤 Welcome",
-            loyalty_points: "Loyalty points", active_tickets: "🎟️ Active tickets", history: "📜 Travel history",
-            no_history: "No previous trips", security: "🔐 Account security",
+            home: " Search trains", login: " Login", dashboard: " Dashboard", purchase: " Buy",
+            inspector: " Inspector", admin: " Admin", support: " Support", subscription: " Subscriptions",
+            status: " Train status", title: " Your personal area", welcome: " Welcome",
+            loyalty_points: "Loyalty points", active_tickets: " Active tickets", history: " Travel history",
+            no_history: "No previous trips", security: " Account security",
             change_pwd: "Change password", recover_pwd: "Recover password", loading: "Loading...",
-            cookie_text: "🍪 This site uses cookies to improve your experience.",
+            cookie_text: " This site uses cookies to improve your experience.",
             accept: "Accept", reject: "Reject",
-            subscriptions_title: "📅 Your active subscriptions",
+            subscriptions_title: " Your active subscriptions",
             no_subs: "No active subscriptions",
             seat: "Seat",
             modify: "✏️ Modify"
         },
         de: {
-            home: "🏠 Zug suchen", login: "🔐 Anmelden", dashboard: "📋 Dashboard", purchase: "🎫 Kaufen",
-            inspector: "👮 Schaffner", admin: "📊 Admin", support: "💬 Support", subscription: "🎫 Abos",
-            status: "🚆 Zugstatus", title: "📋 Ihr persönlicher Bereich", welcome: "👤 Willkommen",
-            loyalty_points: "Treuepunkte", active_tickets: "🎟️ Aktive Tickets", history: "📜 Reiseverlauf",
-            no_history: "Keine vorherigen Reisen", security: "🔐 Kontosicherheit",
+            home: " Zug suchen", login: " Anmelden", dashboard: " Dashboard", purchase: " Kaufen",
+            inspector: " Schaffner", admin: " Admin", support: " Support", subscription: " Abos",
+            status: " Zugstatus", title: " Ihr persönlicher Bereich", welcome: " Willkommen",
+            loyalty_points: "Treuepunkte", active_tickets: " Aktive Tickets", history: " Reiseverlauf",
+            no_history: "Keine vorherigen Reisen", security: " Kontosicherheit",
             change_pwd: "Passwort ändern", recover_pwd: "Passwort wiederherstellen", loading: "Laden...",
-            cookie_text: "🍪 Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.",
+            cookie_text: " Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.",
             accept: "Akzeptieren", reject: "Ablehnen",
-            subscriptions_title: "📅 Ihre aktiven Abonnements",
+            subscriptions_title: " Ihre aktiven Abonnements",
             no_subs: "Keine aktiven Abonnements",
             seat: "Sitz",
             modify: "✏️ Ändern"
@@ -157,7 +157,7 @@
             if (data.activeTickets && data.activeTickets.length) {
                 activeDiv.innerHTML = data.activeTickets.map(t => `
                     <div class="ticket-item">
-                        <div><strong>${t.from} → ${t.to}</strong><br>📅 ${t.departureTime || '---'} | ${translations[currentLang].seat}: ${t.seatNumber || 'non assegnato'}<br>💰 € ${t.price}</div>
+                        <div><strong>${t.from} → ${t.to}</strong><br> ${t.departureTime || '---'} | ${translations[currentLang].seat}: ${t.seatNumber || 'non assegnato'}<br> € ${t.price}</div>
                         <button onclick="modifyTicket(${t.ticketId})" data-i18n="modify">✏️ Modifica</button>
                         <div class="qr-container" id="qr-${t.ticketId}"></div>
                     </div>
@@ -173,8 +173,8 @@
             if (data.history && data.history.length) {
                 historyDiv.innerHTML = data.history.map(h => `
                     <div class="history-item">
-                        <strong>${h.from} → ${h.to}</strong><br>📅 ${new Date(h.date).toLocaleDateString()} | ${h.status}<br>💰 € ${h.price}
-                        <button onclick="searchAgain('${h.from}', '${h.to}')" data-i18n="search_again">🔄 Cerca stessa tratta</button>
+                        <strong>${h.from} → ${h.to}</strong><br> ${new Date(h.date).toLocaleDateString()} | ${h.status}<br> € ${h.price}
+                        <button onclick="searchAgain('${h.from}', '${h.to}')" data-i18n="search_again"> Cerca stessa tratta</button>
                     </div>
                 `).join('');
             } else historyDiv.innerHTML = `<p data-i18n="no_history">Nessun viaggio nello storico</p>`;

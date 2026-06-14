@@ -47,11 +47,11 @@
             </select>
         </div>
     </nav>
-    <h2 data-i18n="title">🎫 Acquisto biglietti</h2>
+    <h2 data-i18n="title"> Acquisto biglietti</h2>
     <div id="tripInfo" class="info"></div>
     <div id="delayInfo" class="delay-warning" style="display:none;"></div>
     <div class="points-section">
-        <div><span data-i18n="points_available">⭐ Punti disponibili:</span> <span id="userPoints">---</span></div>
+        <div><span data-i18n="points_available"> Punti disponibili:</span> <span id="userPoints">---</span></div>
         <label><span data-i18n="use_points">Usa punti (1 punto = 0.10 € sconto):</span> <input type="number" id="usedPoints" min="0" step="10" value="0"></label>
         <div id="discountInfo"></div>
     </div>
@@ -63,8 +63,8 @@
     <div id="passengersContainer"></div>
 
     <div class="extra">
-        <label><span data-i18n="bike_label">🚲 Posti bici (max 2 a persona):</span> <input type="number" id="bikeCount" min="0" max="2" value="0"></label>
-        <label><span data-i18n="luggage_label">🧳 Bagaglio:</span> 
+        <label><span data-i18n="bike_label"> Posti bici (max 2 a persona):</span> <input type="number" id="bikeCount" min="0" max="2" value="0"></label>
+        <label><span data-i18n="luggage_label"> Bagaglio:</span> 
             <select id="luggageSize">
                 <option value="small" data-i18n="small">Piccolo (5€)</option>
                 <option value="medium" data-i18n="medium">Medio (8€)</option>
@@ -82,7 +82,7 @@
 </div>
 
 <div id="cookieBanner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: white; padding: 15px; text-align: center; z-index: 1000; display: none;">
-    <span data-i18n="cookie_text">🍪 Questo sito utilizza cookie per migliorare l'esperienza.</span>
+    <span data-i18n="cookie_text"> Questo sito utilizza cookie per migliorare l'esperienza.</span>
     <button id="acceptCookies" style="margin-left: 15px;" data-i18n="accept">Accetta</button>
     <button id="rejectCookies" data-i18n="reject">Rifiuta</button>
 </div>
@@ -90,9 +90,9 @@
 <script>
     // -------------------- TRADUZIONI --------------------
     const translations = {
-        it: { title: "🎫 Acquisto biglietti", points_available: "⭐ Punti disponibili:", use_points: "Usa punti (1 punto = 0.10 € sconto):", passengers_label: "Numero di passeggeri (incluso te):", apply_btn: "Applica", bike_label: "🚲 Posti bici (max 2 a persona):", luggage_label: "🧳 Bagaglio:", small: "Piccolo (5€)", medium: "Medio (8€)", large: "Grande (12€)", total_before: "Totale prima sconto:", discount_amount: "Sconto punti:", total_final: "Totale finale:", confirm_payment: "Conferma pagamento", cookie_text: "🍪 Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta" },
-        en: { title: "🎫 Buy tickets", points_available: "⭐ Points available:", use_points: "Use points (1 point = 0.10 € discount):", passengers_label: "Number of passengers (including you):", apply_btn: "Apply", bike_label: "🚲 Bike spaces (max 2 per person):", luggage_label: "🧳 Luggage:", small: "Small (5€)", medium: "Medium (8€)", large: "Large (12€)", total_before: "Total before discount:", discount_amount: "Points discount:", total_final: "Final total:", confirm_payment: "Confirm payment", cookie_text: "🍪 This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject" },
-        de: { title: "🎫 Tickets kaufen", points_available: "⭐ Verfügbare Punkte:", use_points: "Punkte verwenden (1 Punkt = 0,10 € Rabatt):", passengers_label: "Anzahl der Passagiere (inkl. Ihnen):", apply_btn: "Anwenden", bike_label: "🚲 Fahrradstellplätze (max 2 pro Person):", luggage_label: "🧳 Gepäck:", small: "Klein (5€)", medium: "Mittel (8€)", large: "Groß (12€)", total_before: "Gesamt vor Rabatt:", discount_amount: "Punkterabatt:", total_final: "Endsumme:", confirm_payment: "Zahlung bestätigen", cookie_text: "🍪 Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen" }
+        it: { title: " Acquisto biglietti", points_available: " Punti disponibili:", use_points: "Usa punti (1 punto = 0.10 € sconto):", passengers_label: "Numero di passeggeri (incluso te):", apply_btn: "Applica", bike_label: " Posti bici (max 2 a persona):", luggage_label: " Bagaglio:", small: "Piccolo (5€)", medium: "Medio (8€)", large: "Grande (12€)", total_before: "Totale prima sconto:", discount_amount: "Sconto punti:", total_final: "Totale finale:", confirm_payment: "Conferma pagamento", cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta" },
+        en: { title: " Buy tickets", points_available: " Points available:", use_points: "Use points (1 point = 0.10 € discount):", passengers_label: "Number of passengers (including you):", apply_btn: "Apply", bike_label: " Bike spaces (max 2 per person):", luggage_label: " Luggage:", small: "Small (5€)", medium: "Medium (8€)", large: "Large (12€)", total_before: "Total before discount:", discount_amount: "Points discount:", total_final: "Final total:", confirm_payment: "Confirm payment", cookie_text: " This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject" },
+        de: { title: " Tickets kaufen", points_available: " Verfügbare Punkte:", use_points: "Punkte verwenden (1 Punkt = 0,10 € Rabatt):", passengers_label: "Anzahl der Passagiere (inkl. Ihnen):", apply_btn: "Anwenden", bike_label: " Fahrradstellplätze (max 2 pro Person):", luggage_label: " Gepäck:", small: "Klein (5€)", medium: "Mittel (8€)", large: "Groß (12€)", total_before: "Gesamt vor Rabatt:", discount_amount: "Punkterabatt:", total_final: "Endsumme:", confirm_payment: "Zahlung bestätigen", cookie_text: " Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen" }
     };
 
     let currentLang = localStorage.getItem('lang') || 'it';
@@ -131,7 +131,7 @@
                 if (train.currentDelay > 0) {
                     const delayDiv = document.getElementById('delayInfo');
                     delayDiv.style.display = 'block';
-                    delayDiv.innerHTML = `⚠️ Il treno attualmente ha un ritardo di ${train.currentDelay} minuti. L'orario di partenza potrebbe subire variazioni.`;
+                    delayDiv.innerHTML = ` Il treno attualmente ha un ritardo di ${train.currentDelay} minuti. L'orario di partenza potrebbe subire variazioni.`;
                 }
             }
         } catch (err) { console.warn('Errore caricamento ritardo:', err); }

@@ -29,12 +29,12 @@
 <body>
 <div class="container">
     <nav>
-        <a href="index.html" data-i18n="home">🏠 Home</a>
-        <a href="login.html" data-i18n="login">🔐 Login</a>
-        <a href="dashboard.html" data-i18n="dashboard">📋 Dashboard</a>
-        <a href="admin.html" data-i18n="admin">📊 Admin</a>
-        <a href="train-status.html" data-i18n="status">🚆 Stato treno</a>
-        <a href="notifications.html" data-i18n="notifications">🔔 Notifiche</a>
+        <a href="index.html" data-i18n="home"> Home</a>
+        <a href="login.html" data-i18n="login"> Login</a>
+        <a href="dashboard.html" data-i18n="dashboard"> Dashboard</a>
+        <a href="admin.html" data-i18n="admin"> Admin</a>
+        <a href="train-status.html" data-i18n="status"> Stato treno</a>
+        <a href="notifications.html" data-i18n="notifications"> Notifiche</a>
         <div class="lang-selector">
             <select id="langSelect">
                 <option value="it">🇮🇹 IT</option>
@@ -44,8 +44,8 @@
         </div>
     </nav>
 
-    <h2 data-i18n="title">📊 Pannello di Amministrazione</h2>
-    <button id="refreshBtn" data-i18n="refresh">🔄 Aggiorna statistiche</button>
+    <h2 data-i18n="title"> Pannello di Amministrazione</h2>
+    <button id="refreshBtn" data-i18n="refresh"> Aggiorna statistiche</button>
     
     <div class="stats-grid">
         <div class="stat-card"><h3 data-i18n="total_revenue">Ricavi totali</h3><div class="value" id="totalRevenue">-- €</div></div>
@@ -55,22 +55,22 @@
     </div>
 
     <div class="stats-section">
-        <h3 data-i18n="top_routes">🚆 Tratte più comprate (biglietti)</h3>
+        <h3 data-i18n="top_routes"> Tratte più comprate (biglietti)</h3>
         <div id="topRoutes">Caricamento...</div>
     </div>
 
     <div class="stats-section">
-        <h3 data-i18n="top_stations">🚉 Stazioni più trafficate</h3>
+        <h3 data-i18n="top_stations"> Stazioni più trafficate</h3>
         <div id="topStations">Caricamento...</div>
     </div>
 
     <div class="stats-section">
-        <h3 data-i18n="subscriptions_title">📅 Abbonamenti</h3>
+        <h3 data-i18n="subscriptions_title"> Abbonamenti</h3>
         <div class="stat-card green" style="display:inline-block; width:auto; margin-bottom:20px;">
             <h3 data-i18n="active_subs">Abbonamenti attivi</h3>
             <div class="value" id="activeSubscriptions">0</div>
         </div>
-        <h3 data-i18n="top_sub_routes">🏆 Tratte più abbonate</h3>
+        <h3 data-i18n="top_sub_routes"> Tratte più abbonate</h3>
         <div id="topSubscriptionRoutes">Caricamento...</div>
     </div>
 
@@ -81,27 +81,27 @@
     // Traduzioni
     const translations = {
         it: {
-            home: "🏠 Home", login: "🔐 Login", dashboard: "📋 Dashboard", admin: "📊 Admin", status: "🚆 Stato treno",
-            title: "📊 Pannello di Amministrazione", refresh: "🔄 Aggiorna statistiche",
+            home: " Home", login: " Login", dashboard: " Dashboard", admin: " Admin", status: " Stato treno",
+            title: " Pannello di Amministrazione", refresh: " Aggiorna statistiche",
             total_revenue: "Ricavi totali", total_bookings: "Biglietti venduti", delayed_trains: "Treni in ritardo",
-            active_users: "Utenti attivi", top_routes: "🚆 Tratte più comprate (biglietti)", top_stations: "🚉 Stazioni più trafficate",
-            subscriptions_title: "📅 Abbonamenti", active_subs: "Abbonamenti attivi", top_sub_routes: "🏆 Tratte più abbonate",
+            active_users: "Utenti attivi", top_routes: " Tratte più comprate (biglietti)", top_stations: " Stazioni più trafficate",
+            subscriptions_title: " Abbonamenti", active_subs: "Abbonamenti attivi", top_sub_routes: " Tratte più abbonate",
             loading: "Caricamento...", no_data: "Nessun dato disponibile"
         },
         en: {
-            home: "🏠 Home", login: "🔐 Login", dashboard: "📋 Dashboard", admin: "📊 Admin", status: "🚆 Train status",
-            title: "📊 Administration Panel", refresh: "🔄 Refresh stats",
+            home: " Home", login: " Login", dashboard: " Dashboard", admin: " Admin", status: " Train status",
+            title: " Administration Panel", refresh: " Refresh stats",
             total_revenue: "Total revenue", total_bookings: "Tickets sold", delayed_trains: "Delayed trains",
-            active_users: "Active users", top_routes: "🚆 Most booked routes", top_stations: "🚉 Busiest stations",
-            subscriptions_title: "📅 Subscriptions", active_subs: "Active subscriptions", top_sub_routes: "🏆 Most subscribed routes",
+            active_users: "Active users", top_routes: " Most booked routes", top_stations: " Busiest stations",
+            subscriptions_title: " Subscriptions", active_subs: "Active subscriptions", top_sub_routes: " Most subscribed routes",
             loading: "Loading...", no_data: "No data available"
         },
         de: {
-            home: "🏠 Startseite", login: "🔐 Anmelden", dashboard: "📋 Dashboard", admin: "📊 Admin", status: "🚆 Zugstatus",
-            title: "📊 Verwaltungsbereich", refresh: "🔄 Statistik aktualisieren",
+            home: " Startseite", login: " Anmelden", dashboard: " Dashboard", admin: " Admin", status: " Zugstatus",
+            title: " Verwaltungsbereich", refresh: " Statistik aktualisieren",
             total_revenue: "Gesamteinnahmen", total_bookings: "Verkaufte Tickets", delayed_trains: "Verspätete Züge",
-            active_users: "Aktive Benutzer", top_routes: "🚆 Meist gebuchte Strecken", top_stations: "🚉 Meist frequentierte Bahnhöfe",
-            subscriptions_title: "📅 Abonnements", active_subs: "Aktive Abonnements", top_sub_routes: "🏆 Meist abonnierte Strecken",
+            active_users: "Aktive Benutzer", top_routes: " Meist gebuchte Strecken", top_stations: " Meist frequentierte Bahnhöfe",
+            subscriptions_title: " Abonnements", active_subs: "Aktive Abonnements", top_sub_routes: " Meist abonnierte Strecken",
             loading: "Laden...", no_data: "Keine Daten verfügbar"
         }
     };

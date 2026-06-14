@@ -22,10 +22,10 @@
 <body>
 <div class="container">
     <nav>
-        <a href="index.html" data-i18n="home">🏠 Home</a>
-        <a href="dashboard.html" data-i18n="dashboard">📋 Dashboard</a>
-        <a href="train-status.html" data-i18n="status">🚆 Stato treno</a>
-        <a href="admin.html" data-i18n="admin">📊 Admin</a>
+        <a href="index.html" data-i18n="home"> Home</a>
+        <a href="dashboard.html" data-i18n="dashboard"> Dashboard</a>
+        <a href="train-status.html" data-i18n="status"> Stato treno</a>
+        <a href="admin.html" data-i18n="admin"> Admin</a>
         <div class="lang-selector">
             <select id="langSelect">
                 <option value="it">🇮🇹 IT</option>
@@ -34,7 +34,7 @@
             </select>
         </div>
     </nav>
-    <h2 data-i18n="title">🚆 Stato Treno in Tempo Reale</h2>
+    <h2 data-i18n="title"> Stato Treno in Tempo Reale</h2>
     <input type="number" id="runId" placeholder="ID corsa (es. 1)" value="1">
     <button id="searchBtn" data-i18n="search_status">Cerca stato</button>
     <div id="status"></div>
@@ -51,8 +51,8 @@
 <script>
     const translations = {
         it: {
-            home: "🏠 Home", dashboard: "📋 Dashboard", status: "🚆 Stato treno", admin: "📊 Admin",
-            title: "🚆 Stato Treno in Tempo Reale", search_status: "Cerca stato",
+            home: " Home", dashboard: " Dashboard", status: " Stato treno", admin: " Admin",
+            title: " Stato Treno in Tempo Reale", search_status: "Cerca stato",
             simulate_title: "Simula ritardo (solo admin)", apply_delay: "Applica ritardo",
             train: "Treno", status_label: "Stato", current_delay: "Ritardo attuale",
             last_update: "Ultimo aggiornamento", next_station: "Prossima stazione", arrival_expected: "arrivo previsto",
@@ -61,8 +61,8 @@
             delay_error: "❌ Errore durante l'applicazione del ritardo"
         },
         en: {
-            home: "🏠 Home", dashboard: "📋 Dashboard", status: "🚆 Train status", admin: "📊 Admin",
-            title: "🚆 Real-Time Train Status", search_status: "Check status",
+            home: " Home", dashboard: " Dashboard", status: " Train status", admin: " Admin",
+            title: " Real-Time Train Status", search_status: "Check status",
             simulate_title: "Simulate delay (admin only)", apply_delay: "Apply delay",
             train: "Train", status_label: "Status", current_delay: "Current delay",
             last_update: "Last update", next_station: "Next station", arrival_expected: "expected arrival",
@@ -71,8 +71,8 @@
             delay_error: "❌ Error applying delay"
         },
         de: {
-            home: "🏠 Startseite", dashboard: "📋 Dashboard", status: "🚆 Zugstatus", admin: "📊 Admin",
-            title: "🚆 Echtzeit-Zugstatus", search_status: "Status abfragen",
+            home: " Startseite", dashboard: " Dashboard", status: " Zugstatus", admin: " Admin",
+            title: " Echtzeit-Zugstatus", search_status: "Status abfragen",
             simulate_title: "Verspätung simulieren (nur Admin)", apply_delay: "Verspätung anwenden",
             train: "Zug", status_label: "Status", current_delay: "Aktuelle Verspätung",
             last_update: "Letzte Aktualisierung", next_station: "Nächster Bahnhof", arrival_expected: "voraussichtliche Ankunft",
@@ -139,7 +139,7 @@
                 const predData = await predRes.json();
                 predDiv.innerHTML = `
                     <div class="info">
-                        📊 ${translations[currentLang].prediction}: <strong>${predData.predictedDelayMinutes} ${translations[currentLang].minutes_short}</strong><br>
+                         ${translations[currentLang].prediction}: <strong>${predData.predictedDelayMinutes} ${translations[currentLang].minutes_short}</strong><br>
                         (${translations[currentLang].based_on} ${predData.basedOn}, ${translations[currentLang].confidence} ${Math.round(predData.confidence*100)}%)
                     </div>
                 `;
