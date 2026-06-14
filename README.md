@@ -187,10 +187,19 @@ DELETE	/api/account	Permanently delete account (GDPR)	Registered
 
 ## Screenshots
 1. Search with Map
+![Testo alternativo](images4readme/selettore_mappa.png)
 2. Seat Selection
+![Testo alternativo](images4readme/selettore_posto.png)
 3. User Dashboard
+![Testo alternativo](images4readme/dashboard.png)
 4. Inspector Validation
+![Testo alternativo](images4readme/qrcode_inspector.png)
 5. Admin Statistics
+![Testo alternativo](images4readme/admin_stats.png)
+6. Departures Board
+![Testo alternativo](images4readme/tabellone.png)
+7. Train Status
+![Testo alternativo](images4readme/train_status.png)
 ##  Project Documentation
 
 For a complete understanding of the design and requirements behind this application, please refer to the official deliverable documents:
