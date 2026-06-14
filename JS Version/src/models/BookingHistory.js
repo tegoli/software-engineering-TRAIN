@@ -1,5 +1,11 @@
+/**
+ * @brief Past purchases of a user.
+ */
 export class BookingHistory {
-    constructor(historyId) {
-        this.historyId = historyId;
+    /** @type {number} */ historyId;
+    /** @type {Array} */ pastBookings;
+
+    getPopularStations() {
+        // return frequently used stations
     }
 }

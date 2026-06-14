@@ -1,9 +1,15 @@
+/**
+ * @file Physical railway station.
+ */
 export class Station {
-    constructor(stationId, name, city, code) {
-        this.stationId = stationId;
-        this.name = name;
-        this.city = city;
-        this.code = code;
+    /** @type {number} */ stationId;
+    /** @type {string} */ name;
+    /** @type {string} */ city;
+    /** @type {string} */ code;
+    /** @type {number} */ latitude;
+    /** @type {number} */ longitude;
+
+    displayBoard(data) {
+        // would trigger UI update
     }
-    displayBoard(data) { console.log(`Visualizza board della stazione ${this.name}`); }
 }

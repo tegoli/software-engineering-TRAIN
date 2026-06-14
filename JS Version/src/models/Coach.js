@@ -1,9 +1,11 @@
 export class Coach {
-    constructor(coachNumber, coachClass, maxPassengers, currentPassengers) {
-        this.coachNumber = coachNumber;
-        this.coachClass = coachClass;
-        this.maxPassengers = maxPassengers;
-        this.currentPassengers = currentPassengers;
+    /** @type {number} */ coachNumber;
+    /** @type {string} */ coachClass; // 'standard', 'business'
+    /** @type {number} */ maxPassengers;
+    /** @type {number} */ currentPassengers;
+
+    updateOccupancy(nPassengers) {
+        this.currentPassengers = nPassengers;
+        // persist
     }
-    updateOccupancy(nPassengers) { this.currentPassengers = nPassengers; }
 }

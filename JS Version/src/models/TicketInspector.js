@@ -1,15 +1,36 @@
 import { RegisteredUser } from './RegisteredUser.js';
+import { ValidationController } from '../controllers/ValidationController.js';
+import { ScheduleController } from '../controllers/ScheduleController.js';
 
 export class TicketInspector extends RegisteredUser {
-    constructor(...args) {
-        super(...args);
-        this.inspectorCode = '';
+    /** @type {string} */ inspectorCode;
+
+    accessSystem() {
+        // returns true if credentials valid
+        return true;
     }
-    accessSystem() { }
-    selectValidation() { }
-    manualInput(ticketId) { }
-    ticketData(ticketId) { }
-    selectTrackOccupancy() { }
-    updateOccupancy(coachNumber, nPassengers) { }
-    viewSchedule(inputId) { }
+
+    selectValidation() {
+        return ValidationController.openValidationPanel();
+    }
+
+    manualInput(ticketId) {
+        return ValidationController.validateTicketById(ticketId);
+    }
+
+    ticketData(ticketId) {
+        return ValidationController.getTicketDetails(ticketId);
+    }
+
+    selectTrackOccupancy() {
+        return OccupancyPanel.show();
+    }
+
+    updateOccupancy(coachNumber, nPassengers) {
+        return ValidationController.updateOccupancy(coachNumber, nPassengers);
+    }
+
+    viewSchedule(inputId) {
+        return ScheduleController.getScheduleForInspector(this.userId);
+    }
 }

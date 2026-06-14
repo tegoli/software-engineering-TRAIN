@@ -3,21 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <title>Area Ispettore</title>
+    <link rel="icon" type="image/png" href="images/104okok.png">
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
-        body { font-family: system-ui; background: #f0f2f5; padding: 20px; }
-        .container { max-width: 700px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
+        * { box-sizing: border-box; font-family: system-ui, sans-serif; }
+        body { background: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 700px; margin: auto; background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         button, input { padding: 10px; margin: 5px; border-radius: 8px; }
         button { background: #0066cc; color: white; border: none; cursor: pointer; }
         .card { background: #e9ecef; padding: 16px; border-radius: 16px; margin-bottom: 20px; }
+        #reader { width: 100%; max-width: 500px; margin: 10px auto; border: 1px solid #ccc; border-radius: 16px; overflow: hidden; }
+        .error { color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 8px; margin-top: 10px; }
+        .success { color: #2e7d32; background: #e8f5e9; padding: 10px; border-radius: 8px; }
     </style>
 </head>
 <body>
 <div class="container">
+    <nav>
+        <div class="language-selector" style="margin-left: auto;">
+            <select id="langSelect">
+                <option value="it">🇮🇹 IT</option>
+                <option value="en">🇬🇧 EN</option>
+                <option value="de">🇩🇪 DE</option>
+            </select>
+        </div>
+        <a href="notifications.html" data-i18n="notifications">🔔 Notifiche</a>
+    </nav>
     <h2>👮 Pannello Ispettore</h2>
     <div class="card">
         <h3>✅ Validazione biglietto</h3>
-        <input type="number" id="ticketId" placeholder="ID biglietto">
-        <button id="validateBtn">Valida</button>
+        <input type="text" id="ticketCode" placeholder="Codice biglietto (ID o QR)">
+        <button id="validateBtn">Valida manualmente</button>
+        <button id="scanBtn">📷 Scansiona QR</button>
+        <div id="reader" style="display:none;"></div>
         <div id="validationResult"></div>
     </div>
     <div class="card">
@@ -26,6 +45,7 @@
         <div id="scheduleResult"></div>
     </div>
 </div>
+
 <script>
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('userRole');
@@ -33,25 +53,72 @@
         alert('Accesso negato. Devi fare login come ispettore.');
         window.location.href = 'login.html';
     }
-    document.getElementById('validateBtn').onclick = async () => {
-        const ticketId = document.getElementById('ticketId').value;
+
+    let html5QrCode = null;
+
+    async function validateTicket(ticketId) {
         const res = await fetch('/api/validate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ ticketId: parseInt(ticketId) })
         });
         const data = await res.json();
-        document.getElementById('validationResult').innerHTML = data.valid ? '✅ Biglietto valido' : '❌ ' + data.message;
+        const resultDiv = document.getElementById('validationResult');
+        if (data.valid) {
+            if (data.type === 'subscription') {
+                resultDiv.innerHTML = `<div class="success">✅ Abbonamento valido! ${data.message}</div>`;
+            } else {
+                resultDiv.innerHTML = `<div class="success">✅ Biglietto valido! ${data.message}</div>`;
+            }
+        } else {
+            resultDiv.innerHTML = `<div class="error">❌ ${data.message}</div>`;
+        }
+    }
+
+    document.getElementById('validateBtn').onclick = () => {
+        const ticketId = document.getElementById('ticketCode').value.trim();
+        if (!ticketId) {
+            alert('Inserisci un codice biglietto');
+            return;
+        }
+        validateTicket(ticketId);
     };
+
+    document.getElementById('scanBtn').onclick = () => {
+        const readerDiv = document.getElementById('reader');
+        if (html5QrCode) {
+            // Ferma eventuale scanner attivo
+            html5QrCode.stop().then(() => {
+                html5QrCode = null;
+                readerDiv.style.display = 'none';
+            }).catch(err => console.log(err));
+        } else {
+            readerDiv.style.display = 'block';
+            html5QrCode = new Html5Qrcode("reader");
+            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                // decodedText è il testo del QR (dovrebbe essere l'ID del biglietto)
+                console.log(`QR letto: ${decodedText}`);
+                html5QrCode.stop();
+                html5QrCode = null;
+                readerDiv.style.display = 'none';
+                document.getElementById('ticketCode').value = decodedText;
+                validateTicket(decodedText);
+            };
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
+        }
+    };
+
     document.getElementById('scheduleBtn').onclick = async () => {
-        const res = await fetch('/api/inspector/schedule/3001', {
+        const inspectorId = localStorage.getItem('userId'); // deve essere 1003 per Robin
+        const res = await fetch(`/api/inspector/schedule/${inspectorId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
-        if (data.shifts) {
+        if (data.shifts && data.shifts.length) {
             document.getElementById('scheduleResult').innerHTML = data.shifts.map(s => `<p>📅 ${s.date} ${s.startTime}-${s.endTime} - ${s.route} (${s.trainCode})</p>`).join('');
         } else {
-            document.getElementById('scheduleResult').innerHTML = '<div class="error">Errore nel caricamento turni</div>';
+            document.getElementById('scheduleResult').innerHTML = '<div class="error">Nessun turno trovato</div>';
         }
     };
 </script>

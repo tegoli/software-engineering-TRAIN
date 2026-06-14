@@ -1,11 +1,16 @@
 export class TravelDocument {
-    constructor(documentId, issueDate, price, status, qrCode) {
-        this.documentId = documentId;
-        this.issueDate = issueDate;
-        this.price = price;
-        this.status = status;
-        this.qrCode = qrCode;
+    /** @type {number} */ documentId;
+    /** @type {Date} */ issueDate;
+    /** @type {number} */ price;
+    /** @type {string} */ status; // 'active', 'used', 'expired'
+    /** @type {string} */ qrCode;
+
+    validate() {
+        // implemented by subclasses
+        throw new Error('Not implemented');
     }
-    validate() { console.log('Documento validato'); }
-    isActive(currentDate) { return true; }
+
+    isActive(currentDate) {
+        return this.status === 'active';
+    }
 }

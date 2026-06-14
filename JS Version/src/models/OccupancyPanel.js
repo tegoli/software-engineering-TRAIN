@@ -1,5 +1,11 @@
+/**
+ * @brief Panel for inspector to update occupancy.
+ */
 export class OccupancyPanel {
-    constructor(panelId) {
-        this.panelId = panelId;
+    /** @type {number} */ panelId;
+
+    static show() {
+        // return panel data
+        return { coach: 1, passengers: 0 };
     }
 }

@@ -1,8 +1,12 @@
+/**
+ * @file Represents a train option the user chooses.
+ */
 export class TrainOption {
-    constructor(optionId, totalPrice, availableSeats) {
-        this.optionId = optionId;
-        this.totalPrice = totalPrice;
-        this.availableSeats = availableSeats;
+    /** @type {number} */ optionId;
+    /** @type {number} */ totalPrice;
+    /** @type {number} */ availableSeats;
+
+    displayTotal() {
+        return this.totalPrice;
     }
-    displayTotal() { return this.totalPrice; }
 }

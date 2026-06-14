@@ -1,12 +1,25 @@
 import { RegisteredUser } from './RegisteredUser.js';
 
 export class CustomerSupportAgent extends RegisteredUser {
-    constructor(...args) {
-        super(...args);
-        this.staffCode = '';
+    /** @type {string} */ staffCode;
+
+    viewUserProfile(userId) {
+        const { getUserById } = require('../database/db.js');
+        return getUserById(userId);
     }
-    viewUserProfile(userId) { }
-    manageSupportRequest(requestId) { }
-    viewLoyaltyPointsBalance(userId) { }
-    viewSchedule(staffId) { }
+
+    manageSupportRequest(requestId) {
+        const { updateSupportRequest } = require('../database/db.js');
+        return updateSupportRequest(requestId);
+    }
+
+    viewLoyaltyPointsBalance(userId) {
+        const { getUserById } = require('../database/db.js');
+        return getUserById(userId)?.loyaltyPoints;
+    }
+
+    viewSchedule(staffId) {
+        const { getSupportSchedule } = require('../database/db.js');
+        return getSupportSchedule(staffId);
+    }
 }

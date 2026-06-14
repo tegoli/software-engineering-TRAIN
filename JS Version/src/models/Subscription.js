@@ -1,12 +1,14 @@
 import { TravelDocument } from './TravelDocument.js';
 
 export class Subscription extends TravelDocument {
-    constructor(...args) {
-        super(...args);
-        this.subscriptionId = null;
-        this.startDate = null;
-        this.endDate = null;
-        this.durationDays = 0;
+    /** @type {number} */ subscriptionId;
+    /** @type {Date} */ startDate;
+    /** @type {Date} */ endDate;
+    /** @type {number} */ durationDays;
+
+    renew(durationDays) {
+        this.durationDays = durationDays;
+        this.endDate = new Date(Date.now() + durationDays * 86400000);
+        // save to DB
     }
-    renew(durationDays) { console.log(`Rinnovo abbonamento di ${durationDays} giorni`); }
 }

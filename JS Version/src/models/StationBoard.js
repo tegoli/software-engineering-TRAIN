@@ -1,8 +1,10 @@
 export class StationBoard {
-    constructor(boardId, boardType, lastUpdate) {
-        this.boardId = boardId;
-        this.boardType = boardType;
-        this.lastUpdate = lastUpdate;
+    /** @type {number} */ boardId;
+    /** @type {string} */ boardType; // 'departures', 'arrivals'
+    /** @type {Date} */ lastUpdate;
+
+    updateDisplay(entries) {
+        this.lastUpdate = new Date();
+        // refresh UI
     }
-    updateDisplay() { console.log('Board aggiornata'); }
 }

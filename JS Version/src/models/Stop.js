@@ -1,10 +1,12 @@
+/**
+ * @file Represents a stop along a route.
+ */
 export class Stop {
-    constructor(stopOrder, scheduledArrival, scheduledDeparture, estimatedArrival, estimatedDeparture, trackNumber) {
-        this.stopOrder = stopOrder;
-        this.scheduledArrival = scheduledArrival;
-        this.scheduledDeparture = scheduledDeparture;
-        this.estimatedArrival = estimatedArrival;
-        this.estimatedDeparture = estimatedDeparture;
-        this.trackNumber = trackNumber;
-    }
+    /** @type {number} */ stopOrder;
+    /** @type {number} */ stationId;
+    /** @type {string} */ scheduledArrival;   // HH:MM
+    /** @type {string} */ scheduledDeparture; // HH:MM
+    /** @type {string} */ estimatedArrival;
+    /** @type {string} */ estimatedDeparture;
+    /** @type {string} */ trackNumber;
 }

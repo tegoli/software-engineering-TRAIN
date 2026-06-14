@@ -1,8 +1,12 @@
 export class Seat {
-    constructor(seatNumber, seatStatus) {
-        this.seatNumber = seatNumber;
-        this.seatStatus = seatStatus;
+    /** @type {string} */ seatNumber;
+    /** @type {string} */ seatStatus; // 'free', 'reserved', 'occupied'
+
+    reserve() {
+        if (this.seatStatus === 'free') this.seatStatus = 'reserved';
     }
-    reserve() { this.seatStatus = 'RESERVED'; }
-    markOccupied() { this.seatStatus = 'OCCUPIED'; }
+
+    markOccupied() {
+        this.seatStatus = 'occupied';
+    }
 }

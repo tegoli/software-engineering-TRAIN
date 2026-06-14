@@ -1,10 +1,17 @@
 export class PaymentTransaction {
-    constructor(paymentId, amount, paymentDate, paymentStatus) {
-        this.paymentId = paymentId;
+    /** @type {number} */ paymentId;
+    /** @type {number} */ amount;
+    /** @type {Date} */ paymentDate;
+    /** @type {string} */ paymentStatus; // 'pending', 'completed', 'failed'
+
+    authorize(amount) {
+        // call external API
         this.amount = amount;
-        this.paymentDate = paymentDate;
-        this.paymentStatus = paymentStatus;
+        this.paymentStatus = 'completed';
     }
-    authorize(amount) { console.log(`Autorizzazione pagamento di ${amount}`); }
-    refund(amount) { console.log(`Rimborso di ${amount}`); }
+
+    refund(amount) {
+        // process refund
+        this.paymentStatus = 'refunded';
+    }
 }

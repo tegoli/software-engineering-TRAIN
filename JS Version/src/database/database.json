@@ -903,7 +903,7 @@
       "routeId": 20,
       "departureDateTime": "2026-06-15T19:44:00.000Z",
       "status": "delayed",
-      "currentDelayMinutes": 20,
+      "currentDelayMinutes": 10,
       "actualDeparture": null,
       "actualArrival": null
     },
@@ -2143,7 +2143,7 @@
       "passwordHash": "6cf615d5bcaac778352a8f1f3360d23f02f34ec182e259897fd6ce485d7870d4",
       "role": "passenger",
       "preferredLanguage": "it",
-      "loyaltyPoints": 4,
+      "loyaltyPoints": 70,
       "failedLoginAttempts": 0,
       "accountStatus": "active"
     },
@@ -2203,7 +2203,7 @@
       "preferredLanguage": "en",
       "adminCode": "ADMIN-001",
       "accountStatus": "active",
-      "failedLoginAttempts": 1
+      "failedLoginAttempts": 3
     },
     {
       "userId": 4002,
@@ -2261,7 +2261,7 @@
       "passwordHash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
       "role": "passenger",
       "preferredLanguage": "it",
-      "loyaltyPoints": 124,
+      "loyaltyPoints": 240,
       "failedLoginAttempts": 0,
       "accountStatus": "active"
     },
@@ -2294,10 +2294,22 @@
       "name": "Gianni",
       "surname": "Penasa",
       "email": "gianni@penasaa.dimaro.tn.it",
-      "passwordHash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+      "passwordHash": "c92debdaa996657ee09fa743ad113b5ccec7cb5bbabe061872bfc2eda861e1ce",
       "role": "passenger",
       "preferredLanguage": "en",
-      "loyaltyPoints": 26,
+      "loyaltyPoints": 92,
+      "failedLoginAttempts": 5,
+      "accountStatus": "blocked"
+    },
+    {
+      "userId": 4010,
+      "name": "Gabriel",
+      "surname": "Liberato",
+      "email": "gab@brazil.br",
+      "passwordHash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+      "role": "passenger",
+      "preferredLanguage": "it",
+      "loyaltyPoints": 66,
       "failedLoginAttempts": 0,
       "accountStatus": "active"
     }
@@ -2971,9 +2983,54 @@
       "seatNumber": "4D",
       "class": "standard",
       "price": 271.8,
-      "status": "active",
+      "status": "used",
       "purchaseDate": "2026-06-13T20:07:54.096Z",
       "qrCode": "QR5052bqux3s"
+    },
+    {
+      "ticketId": 5053,
+      "ticketCode": "TKT-4009-5053",
+      "userId": 4009,
+      "runId": 202,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "1B",
+      "class": "standard",
+      "price": 66.52,
+      "status": "active",
+      "purchaseDate": "2026-06-14T11:39:01.654Z",
+      "qrCode": "QR5053os2zbo"
+    },
+    {
+      "ticketId": 5054,
+      "ticketCode": "TKT-4010-5054",
+      "userId": 4010,
+      "runId": 203,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "1A",
+      "class": "standard",
+      "price": 66.52,
+      "status": "active",
+      "purchaseDate": "2026-06-14T11:52:48.550Z",
+      "qrCode": "QR5054k2lvtx"
+    },
+    {
+      "ticketId": 5055,
+      "ticketCode": "TKT-1004-5055",
+      "userId": 1004,
+      "runId": 202,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "2B",
+      "class": "standard",
+      "price": 66.52,
+      "status": "active",
+      "purchaseDate": "2026-06-14T12:11:25.906Z",
+      "qrCode": "QR5055yr27jc"
     }
   ],
   "subscriptions": [
@@ -2998,6 +3055,50 @@
       "class": "business",
       "price": 480,
       "status": "active"
+    },
+    {
+      "subscriptionId": 2003,
+      "userId": 4006,
+      "routeId": 20,
+      "startDate": "2026-06-14",
+      "endDate": "2026-07-14",
+      "class": "standard",
+      "price": 33.26,
+      "status": "active",
+      "qrCode": "SUB2003fbsapi"
+    },
+    {
+      "subscriptionId": 2004,
+      "userId": 4006,
+      "routeId": 20,
+      "startDate": "2026-06-14",
+      "endDate": "2026-07-14",
+      "class": "standard",
+      "price": 33.26,
+      "status": "active",
+      "qrCode": "SUB2004we84lx"
+    },
+    {
+      "subscriptionId": 2005,
+      "userId": 4006,
+      "routeId": 23,
+      "startDate": "2026-06-14",
+      "endDate": "2026-07-14",
+      "class": "standard",
+      "price": 17.42,
+      "status": "active",
+      "qrCode": "SUB2005mul8sb"
+    },
+    {
+      "subscriptionId": 2006,
+      "userId": 4006,
+      "routeId": 20,
+      "startDate": "2026-06-14",
+      "endDate": "2026-07-14",
+      "class": "standard",
+      "price": 33.26,
+      "status": "active",
+      "qrCode": "SUB20067x5zch"
     }
   ],
   "additionalReservations": [
@@ -3651,6 +3752,69 @@
       "paymentDate": "2026-06-13T20:07:54.096Z",
       "paymentMethod": "Simulated",
       "status": "completed"
+    },
+    {
+      "paymentId": 4055,
+      "userId": 4009,
+      "ticketId": 5053,
+      "amount": 66.52,
+      "paymentDate": "2026-06-14T11:39:01.654Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4056,
+      "userId": 4010,
+      "ticketId": 5054,
+      "amount": 66.52,
+      "paymentDate": "2026-06-14T11:52:48.550Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4057,
+      "userId": 1004,
+      "ticketId": 5055,
+      "amount": 66.52,
+      "paymentDate": "2026-06-14T12:11:25.906Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4058,
+      "userId": 4006,
+      "subscriptionId": 2003,
+      "amount": 33.26,
+      "paymentDate": "2026-06-14T12:24:24.940Z",
+      "paymentMethod": "Carta di credito (simulata)",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4059,
+      "userId": 4006,
+      "subscriptionId": 2004,
+      "amount": 33.26,
+      "paymentDate": "2026-06-14T12:25:38.910Z",
+      "paymentMethod": "Carta di credito (simulata)",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4060,
+      "userId": 4006,
+      "subscriptionId": 2005,
+      "amount": 17.42,
+      "paymentDate": "2026-06-14T12:32:06.031Z",
+      "paymentMethod": "Carta di credito (simulata)",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4061,
+      "userId": 4006,
+      "subscriptionId": 2006,
+      "amount": 33.26,
+      "paymentDate": "2026-06-14T12:32:28.583Z",
+      "paymentMethod": "Carta di credito (simulata)",
+      "status": "completed"
     }
   ],
   "supportRequests": [
@@ -3698,7 +3862,7 @@
       "message": "Il tuo biglietto TKT-1001-001 è stato acquistato con successo.",
       "type": "purchase_confirmation",
       "date": "2026-06-03T10:18:00",
-      "read": false
+      "read": true
     },
     {
       "notificationId": 7002,
@@ -3714,7 +3878,7 @@
       "message": "Promozione: 20% di sconto sui prossimi acquisti con i tuoi punti fedeltà!",
       "type": "promo",
       "date": "2026-06-01T10:00:00",
-      "read": false
+      "read": true
     },
     {
       "notificationId": 7004,
@@ -3840,7 +4004,7 @@
   "shiftSchedules": [
     {
       "shiftId": 8001,
-      "staffId": 3001,
+      "staffId": 1003,
       "date": "2026-06-14",
       "startTime": "05:30",
       "endTime": "14:00",
@@ -3850,7 +4014,7 @@
     },
     {
       "shiftId": 8002,
-      "staffId": 3001,
+      "staffId": 1003,
       "date": "2026-06-14",
       "startTime": "14:30",
       "endTime": "22:00",
@@ -3860,7 +4024,7 @@
     },
     {
       "shiftId": 8003,
-      "staffId": 3002,
+      "staffId": 1003,
       "date": "2026-06-14",
       "startTime": "08:00",
       "endTime": "17:00",
@@ -4247,6 +4411,55 @@
       "points": -40,
       "reason": "Utilizzo 40 punti per sconto",
       "date": "2026-06-13T20:07:54.096Z"
+    },
+    {
+      "transactionId": 9065,
+      "userId": 4009,
+      "points": 66,
+      "reason": "Acquisto biglietti #5053",
+      "date": "2026-06-14T11:39:01.654Z"
+    },
+    {
+      "transactionId": 9067,
+      "userId": 4010,
+      "points": 66,
+      "reason": "Acquisto biglietti #5054",
+      "date": "2026-06-14T11:52:48.550Z"
+    },
+    {
+      "transactionId": 9069,
+      "userId": 1004,
+      "points": 66,
+      "reason": "Acquisto biglietti #5055",
+      "date": "2026-06-14T12:11:25.906Z"
+    },
+    {
+      "transactionId": 9070,
+      "userId": 4006,
+      "points": 33,
+      "reason": "Acquisto abbonamento #2003",
+      "date": "2026-06-14T12:24:24.940Z"
+    },
+    {
+      "transactionId": 9071,
+      "userId": 4006,
+      "points": 33,
+      "reason": "Acquisto abbonamento #2004",
+      "date": "2026-06-14T12:25:38.910Z"
+    },
+    {
+      "transactionId": 9072,
+      "userId": 4006,
+      "points": 17,
+      "reason": "Acquisto abbonamento #2005",
+      "date": "2026-06-14T12:32:06.031Z"
+    },
+    {
+      "transactionId": 9073,
+      "userId": 4006,
+      "points": 33,
+      "reason": "Acquisto abbonamento #2006",
+      "date": "2026-06-14T12:32:28.583Z"
     }
   ],
   "seatReservations": [
@@ -4685,6 +4898,27 @@
       "coachNumber": 1,
       "seatNumber": "4D",
       "ticketId": 5052,
+      "status": "occupied"
+    },
+    {
+      "runId": 202,
+      "coachNumber": 1,
+      "seatNumber": "1B",
+      "ticketId": 5053,
+      "status": "reserved"
+    },
+    {
+      "runId": 203,
+      "coachNumber": 1,
+      "seatNumber": "1A",
+      "ticketId": 5054,
+      "status": "reserved"
+    },
+    {
+      "runId": 202,
+      "coachNumber": 1,
+      "seatNumber": "2B",
+      "ticketId": 5055,
       "status": "reserved"
     }
   ],

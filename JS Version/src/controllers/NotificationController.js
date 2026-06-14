@@ -1,11 +1,19 @@
-export class NotificationController {
-    reportDelay(trainId, delayTime) { console.log(`Ritardo segnalato per treno ${trainId}: ${delayTime} min`); }
-    getAffectedUsers(trainId) { console.log(`Utenti affetti da treno ${trainId}`); }
-    pushInAppAlert(userId, message) { console.log(`Alert in-app a ${userId}: ${message}`); }
-    sendEmailNotification(email, message) { console.log(`Email a ${email}: ${message}`); }
-    manualInput(ticketId) { console.log(`Input manuale biglietto ${ticketId}`); }
-    validateDocument(documentId) { console.log(`Documento ${documentId} validato`); }
-    alreadyValid(ticketId) { return false; }
-    invalid(ticketId) { console.log(`Biglietto ${ticketId} non valido`); }
-    updateOccupancy(nCoach, nPassengers) { console.log(`Occupazione coach ${nCoach}: ${nPassengers} passeggeri`); }
-}
+import { readDB, writeDB } from '../database/db.js';
+
+export const NotificationController = {
+    getNotifications(req, res) {
+        const db = readDB();
+        const userNotifs = db.notifications.filter(n => n.userId === req.user.userId);
+        res.json({ notifications: userNotifs });
+    },
+
+    markAsRead(req, res) {
+        const notifId = parseInt(req.params.id);
+        const db = readDB();
+        const notif = db.notifications.find(n => n.notificationId === notifId && n.userId === req.user.userId);
+        if (!notif) return res.status(404).json({ error: 'Notifica non trovata' });
+        notif.read = true;
+        writeDB(db);
+        res.json({ success: true });
+    }
+};
