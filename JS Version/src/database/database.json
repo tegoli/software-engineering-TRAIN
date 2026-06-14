@@ -3031,6 +3031,21 @@
       "status": "active",
       "purchaseDate": "2026-06-14T12:11:25.906Z",
       "qrCode": "QR5055yr27jc"
+    },
+    {
+      "ticketId": 5056,
+      "ticketCode": "TKT-4006-5056",
+      "userId": 4006,
+      "runId": 202,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "11B",
+      "class": "standard",
+      "price": 0,
+      "status": "active",
+      "purchaseDate": "2026-06-14T12:54:08.692Z",
+      "qrCode": "QR5056s6tmrc"
     }
   ],
   "subscriptions": [
@@ -3814,6 +3829,15 @@
       "amount": 33.26,
       "paymentDate": "2026-06-14T12:32:28.583Z",
       "paymentMethod": "Carta di credito (simulata)",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4062,
+      "userId": 4006,
+      "ticketId": 5056,
+      "amount": 0,
+      "paymentDate": "2026-06-14T12:54:08.692Z",
+      "paymentMethod": "Simulated",
       "status": "completed"
     }
   ],
@@ -4919,6 +4943,13 @@
       "coachNumber": 1,
       "seatNumber": "2B",
       "ticketId": 5055,
+      "status": "reserved"
+    },
+    {
+      "runId": 202,
+      "coachNumber": 1,
+      "seatNumber": "11B",
+      "ticketId": 5056,
       "status": "reserved"
     }
   ],
