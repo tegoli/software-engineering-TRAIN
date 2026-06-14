@@ -74,6 +74,8 @@ app.get('/api/routes', SubscriptionController.getRoutes);
 app.get('/api/subscription-price', SubscriptionController.getPrice);
 app.listen(PORT, () => {
     console.log(`✅ Server running on http://localhost:${PORT}`);
-    console.log(`🔐 Admin: admin@railway.it / admin`);
-    console.log(`🧪 Test: test@example.com / password`);
+    console.log(`🔐 Admin: matteo.golinelli-1@studenti.unitn.it  / password`);
+    console.log(`🧪 User: virginia.ancora@studenti.unitn.it / password`);
+    console.log(`🧪 User: caterina.alessi@studenti.unitn.it / password`);
+    console.log(`🧪 Inspector: robin.bertolini@studenti.unitn.it / password`);
 });
