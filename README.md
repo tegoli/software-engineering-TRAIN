@@ -101,29 +101,28 @@ The project follows the specifications defined in three deliverables (D1: Requir
 
 ## Project Structure
 JS Version/
-├── app.js # Main entry point (routing)
-├── public/ # Static frontend files
-│ ├── index.html # Search & map
-│ ├── login.html
-│ ├── register.html
-│ ├── dashboard.html
-│ ├── purchase.html
-│ ├── subscription.html
-│ ├── inspector.html
-│ ├── admin.html
-│ ├── train-status.html
-│ ├── tabellone.html
-│ ├── notifications.html
-│ ├── support.html
-│ └── ... (CSS, images)
+- app.js # Main entry point (routing)
+- public/ # Static frontend files
+	- index.html # Search & map
+	- login.html
+	-  register.html
+	-  dashboard.html
+	-  purchase.html
+	-  subscription.html
+	-  inspector.html
+	-  admin.html
+	-  train-status.html
+	-  tabellone.html
+	-  notifications.html
+	-  support.html
 ├── src/
-│ ├── database/
-│ │ └── db.js # JSON database read/write & seeding
-│ ├── controllers/ # All business logic (Auth, Search, Purchase, etc.)
-│ ├── models/ # Classes matching D2 class diagram (User, Ticket, Subscription, …)
-│ ├── utils/ # Crypto, geolocation, notifications
-│ └── enums/ # Constants (AccountStatus, TravelClass, …)
-└── package.json
+-  database/
+   - db.js # JSON database read/write & seeding
+-  controllers/ # All business logic (Auth, Search, Purchase, etc.)
+-  models/ # Classes matching D2 class diagram (User, Ticket, Subscription, …)
+-  utils/ # Crypto, geolocation, notifications
+- enums/ # Constants (AccountStatus, TravelClass, …)
+- package.json
 
 
 ---
@@ -192,7 +191,13 @@ DELETE	/api/account	Permanently delete account (GDPR)	Registered
 3. User Dashboard
 4. Inspector Validation
 5. Admin Statistics
+##  Project Documentation
 
+For a complete understanding of the design and requirements behind this application, please refer to the official deliverable documents:
+
+- [📄 Deliverable 1 – Requirements Analysis (D1)](./Deliverables/D1/D1_104TeamNotFound(7).pdf)
+- [📄 Deliverable 2 – Design Document (D2)](./Deliverables/D2/D2_104TeamNotFound.pdf)
+- [📄 Deliverable 3 – Implementation & Testing (D3)](./Deliverables/D3/D3_104TeamNotFound.pdf)
 ## Team
 - Robin Bertolini (Group Leader)
 - Matteo Golinelli
