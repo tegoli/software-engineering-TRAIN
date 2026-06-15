@@ -1,6 +1,19 @@
 import { readDB } from '../database/db.js';
 
+/**
+ * @const UserDashboardController
+ * @brief Controller object tasked with compiling and delivering summary metrics for an individual customer panel.
+ * @details Queries active database segments to reconstruct comprehensive passenger contexts, aggregating active
+ * travel itineraries alongside historical purchase configurations and incentive records.
+ */
 export const UserDashboardController = {
+    /**
+     * @brief Builds a complete dashboard data object containing valid passes, expired history, and loyalty parameters.
+     * @details Searches matching user records before extracting operational ticket sub-states. Iterates through linked 
+     * train runs, track stops, and geographical station properties to format legible terminal station locations.
+     * @param {number} userId - Explicit target identifier pointing to the active profile entry.
+     * @return {Object} An object holding historical summaries and active ticket listings, or error structures.
+     */
     getDashboard(userId) {
         const db = readDB();
         const user = db.users.find(u => u.userId === userId);

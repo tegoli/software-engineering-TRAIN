@@ -1,6 +1,14 @@
 import { readDB } from '../database/db.js';
 import { calculatePrice } from '../utils/geo.js';
 
+/**
+ * @brief Evaluates statistical records to predict operational train delays.
+ * @details Searches internal history logs for matching transit run signatures. If historical patterns are unavailable,
+ * computes an algorithmic random variance fallback within a standardized range.
+ * @param {number} runId - Unique identifier signature matching the target transit run execution.
+ * @param {Object} db - The in-memory schema database instance structure.
+ * @return {number} Calculated offset metric describing predicted delays in elapsed minutes.
+ */
 function getDelayPrediction(runId, db) {
     const predictions = db.delayPredictions || [];
     const historical = predictions.filter(dp => dp.runId === runId).map(dp => dp.predictedDelayMinutes);
@@ -10,7 +18,21 @@ function getDelayPrediction(runId, db) {
     return Math.floor(Math.random() * 31);
 }
 
+/**
+ * @const TrainSearchController
+ * @brief Controller object handling itinerary requests, direct train matching, transfer routing, and delay modeling.
+ * @details Evaluates complex layout metrics such as seating densities, stop sequencing patterns, 
+ * historical data snapshots, and transfer wait constraints to serve operational timelines.
+ */
 export const TrainSearchController = {
+    /**
+     * @brief Performs a standard direct transit lookup matching provided terminal names and service parameters.
+     * @details Correlates path sequences, isolates specific daily operations, enforces seating class filters, 
+     * computes total duration timelines across dynamic day limits, and evaluates structural crowding risks.
+     * @param {Object} req - Express request holding payload keys for target stations, dates, and seating types.
+     * @param {Object} res - Express response target delivering direct route options as a JSON data package.
+     * @return {Object|void} Sends an empty configuration payload if destination matches fail, otherwise returns the filtered options.
+     */
     search(req, res) {
         const { departureStationName, arrivalStationName, date, travelClass } = req.body;
         const db = readDB();
@@ -38,7 +60,7 @@ export const TrainSearchController = {
             const arrivalDateTime = new Date(runDate);
             const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
             arrivalDateTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
-            if (arrivalDateTime < departureDateTime) arrivalDateTime.setDate(arrivalDateTime.getDate() + 1);
+            if (arrivalDateTime < departureDateTime) arrivalDateTime.setDate(arrivalDateTime.setDate() + 1);
             const durationMs = arrivalDateTime - departureDateTime;
             const durationMinutes = Math.round(durationMs / 60000);
             const price = calculatePrice(fromStation, toStation, travelClass, train.trainType);
@@ -69,6 +91,15 @@ export const TrainSearchController = {
         res.json({ trains: results });
     },
 
+    /**
+     * @brief Executes an advanced itinerary matrix search assessing both direct routes and single-transfer connections.
+     * @details Maps out two-legged paths by cross-checking potential intermediate transfer hubs. Filters path 
+     * results according to custom transfer safety margins (e.g., 20 to 120 minutes), aggregates cumulative prices, 
+     * and compiles the segments into a chronologically sorted Master List.
+     * @param {Object} req - Express request object containing complex target station names, limits, and configurations.
+     * @param {Object} res - Express response target delivering the compiled multi-segment tracking lists.
+     * @return {Object|void} Sends an empty arrays index package if base stations fail identification parameters.
+     */
     searchAdvanced(req, res) {
         // Copia esatta dal tuo app.js (ricerca con cambi)
         const { departureStationName, arrivalStationName, date, travelClass, maxTransfers = 1 } = req.body;
@@ -103,7 +134,7 @@ export const TrainSearchController = {
             const arrivalDateTime = new Date(runDate);
             const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
             arrivalDateTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
-            if (arrivalDateTime < departureDateTime) arrivalDateTime.setDate(arrivalDateTime.getDate() + 1);
+            if (arrivalDateTime < departureDateTime) arrivalDateTime.setDate(arrivalDateTime.setDate() + 1);
 
             const durationMs = arrivalDateTime - departureDateTime;
             const durationMinutes = Math.round(durationMs / 60000);
@@ -257,6 +288,14 @@ export const TrainSearchController = {
         res.json({ trains: results });
     },
 
+    /**
+     * @brief Pulls telemetry status properties for a unique in-transit train run.
+     * @details Evaluates live parameters such as current delay thresholds, timestamp updates, 
+     * next sequential transit station tags, and expected scheduled arrival metrics.
+     * @param {Object} req - Express request holding param identifier configuration properties for `runId`.
+     * @param {Object} res - Express response delivery map dispatching real-time journey logs or 404 flags.
+     * @return {Object|void} Sends a 404 response structure if the transit identifier cannot be pinpointed.
+     */
     getTrainStatus(req, res) {
         const runId = parseInt(req.params.runId);
         const db = readDB();
@@ -275,6 +314,13 @@ export const TrainSearchController = {
         });
     },
 
+    /**
+     * @brief Serves predictive telemetry projections regarding arrival delays alongside calculation trust scores.
+     * @details Evaluates target indices via the internal analytical helper context to estimate arrival offsets.
+     * @param {Object} req - Express request holding target run configuration tags.
+     * @param {Object} res - Express response target supplying the output statistics data body.
+     * @return {Object|void} Sends a 404 response payload block if the matching route instance is not found.
+     */
     predictDelay(req, res) {
         const runId = parseInt(req.params.runId);
         const db = readDB();

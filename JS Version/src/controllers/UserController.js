@@ -1,12 +1,34 @@
 import { readDB, writeDB, createNotification, hashPassword } from '../database/db.js';
 
+/**
+ * @const UserController
+ * @brief Controller object managing user profiles, dashboards, ticket adjustments, and security credentials.
+ * @details Implements business logic to filter customer transaction ledger states, track loyalty incentives, 
+ * handle time-locked booking shifts, and supervise full account deletion routines safely.
+ */
 export const UserController = {
+    /**
+     * @brief Resolves the identity and authorization context of the current session holder.
+     * @details References the structural token payload data to query and extract base profile parameters.
+     * @param {Object} req - Express request target holding authenticated identity context parameters.
+     * @param {Object} res - Express response delivery map dispatching targeted credential details.
+     * @return {void}
+     */
     getMe(req, res) {
         const db = readDB();
         const user = db.users.find(u => u.userId === req.user.userId);
         res.json({ id: user.userId, name: user.name, role: user.role });
     },
 
+    /**
+     * @brief Compiles a complete aggregated view of a customer's active assets and historic orders.
+     * @details Validates identity security authorizations before parsing databases. Aggregates ongoing route 
+     * subscriptions alongside dynamic remaining validity counters, maps pending trips with destination tags, 
+     * and structures completed travel histories into unified collections.
+     * @param {Object} req - Express request holding param properties for `userId` and authorization scopes.
+     * @param {Object} res - Express response delivery map returning structured asset summaries or access blocks.
+     * @return {Object|void} Sends a 403 authorization error, a 404 target error, or a status data body.
+     */
     getDashboard(req, res) {
         const targetId = parseInt(req.params.userId);
         if (req.user.userId !== targetId && req.user.role !== 'administrator') {
@@ -16,30 +38,30 @@ export const UserController = {
         const user = db.users.find(u => u.userId === targetId);
         if (!user) return res.status(404).json({ error: 'Utente non trovato' });
         const tickets = db.tickets.filter(t => t.userId === targetId);
+        
         // Sottoscrizioni attive dell'utente
-const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.status === 'active').map(s => {
-    const route = db.routes.find(r => r.routeId === s.routeId);
-    const fromStation = db.stations.find(st => st.stationId === route?.stops[0].stationId);
-    const toStation = db.stations.find(st => st.stationId === route?.stops[route.stops.length-1].stationId);
-    const startDate = new Date(s.startDate);
-    const endDate = new Date(s.endDate);
-    const today = new Date();
-    const remainingDays = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
-    return {
-        subscriptionId: s.subscriptionId,
-        routeName: route?.routeName || 'Sconosciuta',
-        from: fromStation?.name || '?',
-        to: toStation?.name || '?',
-        startDate: s.startDate,
-        endDate: s.endDate,
-        remainingDays,
-        class: s.class,
-        qrCode: s.qrCode,
-        price: s.price,
-        status: s.status
-    };
-});
-
+        const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.status === 'active').map(s => {
+            const route = db.routes.find(r => r.routeId === s.routeId);
+            const fromStation = db.stations.find(st => st.stationId === route?.stops[0].stationId);
+            const toStation = db.stations.find(st => st.stationId === route?.stops[route.stops.length-1].stationId);
+            const startDate = new Date(s.startDate);
+            const endDate = new Date(s.endDate);
+            const today = new Date();
+            const remainingDays = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
+            return {
+                subscriptionId: s.subscriptionId,
+                routeName: route?.routeName || 'Sconosciuta',
+                from: fromStation?.name || '?',
+                to: toStation?.name || '?',
+                startDate: s.startDate,
+                endDate: s.endDate,
+                remainingDays,
+                class: s.class,
+                qrCode: s.qrCode,
+                price: s.price,
+                status: s.status
+            };
+        });
 
         const activeTickets = tickets.filter(t => t.status === 'active').map(t => {
             const run = db.trainRuns.find(r => r.runId === t.runId);
@@ -77,7 +99,6 @@ const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.st
             };
         });
 
-        
         res.json({
             name: user.name,
             loyaltyPoints: user.loyaltyPoints,
@@ -87,6 +108,13 @@ const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.st
         });
     },
 
+    /**
+     * @brief Collects the aggregate loyalty program point tracking totals for a consumer.
+     * @details References the explicit session key indexes to retrieve real-time incentive stats.
+     * @param {Object} req - Express request holding credentials structure information.
+     * @param {Object} res - Express response delivery map dispatching reward totals or 404 errors.
+     * @return {Object|void} Returns a 404 response payload if identity logs cannot be located.
+     */
     getPoints(req, res) {
         const db = readDB();
         const user = db.users.find(u => u.userId === req.user.userId);
@@ -94,6 +122,15 @@ const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.st
         res.json({ points: user.loyaltyPoints || 0 });
     },
 
+    /**
+     * @brief Updates reservation timelines under operational time restriction parameters.
+     * @details Evaluates time distance factors prior to departure. If the request occurs more than 24 hours 
+     * ahead of schedule, shifts booking associations onto alternate calendar runs. If under 24 hours, adjusts 
+     * current operational timestamp tracks directly, assuming requested windows fall in future constraints.
+     * @param {Object} req - Express request body specifying target `ticketId`, `newDate`, and `newTime` modifications.
+     * @param {Object} res - Express response target tracking confirmation status messages.
+     * @return {Object|void} Sends error summaries for invalid permissions or time blocks, else logs dynamic alerts.
+     */
     modifyTicket(req, res) {
         const { ticketId, newDate, newTime } = req.body;
         const db = readDB();
@@ -128,6 +165,14 @@ const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.st
         res.json({ success: true, message: `Email di conferma inviata a ${user.email}` });
     },
 
+    /**
+     * @brief Performs secure user credential replacement and creates transaction notifications.
+     * @details Evaluates current password hashes to grant modification permissions. Requires new selections 
+     * to fulfill length minimum constraints before updating security keys.
+     * @param {Object} req - Express request holding credential parameters `oldPassword` and `newPassword`.
+     * @param {Object} res - Express response targeting execution reports.
+     * @return {Object|void} Dispatches a 401 or 400 framework code if checks fail, otherwise confirms updates.
+     */
     changePassword(req, res) {
         const { oldPassword, newPassword } = req.body;
         const userId = req.user.userId;
@@ -143,6 +188,13 @@ const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.st
         res.json({ success: true, message: `Email di conferma inviata a ${user.email}` });
     },
 
+    /**
+     * @brief Houses logic hooks placeholder designed to clear local context token blocks.
+     * @details Evaluates incoming authorization headers to locate strings for programmatic adjustments.
+     * @param {Object} req - Express request containing authorization metadata headers.
+     * @param {Object} res - Express response signaling programmatic closure status logs.
+     * @return {void}
+     */
     logout(req, res) {
         const auth = req.headers.authorization;
         if (auth && auth.startsWith('Bearer ')) {
@@ -153,6 +205,14 @@ const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.st
         res.json({ success: true });
     },
 
+    /**
+     * @brief Deletes a passenger account profile after checking for active bookings.
+     * @details Verifies if active tickets exist to prevent premature profile drops. 
+     * Purges user database keys and decouples historic ticket logs by nullifying reference constraints.
+     * @param {Object} req - Express request containing verified identity variables.
+     * @param {Object} res - Express response target tracking success outputs.
+     * @return {Object|void} Dispatches 404 or 400 codes on validation errors, otherwise logs account deletion.
+     */
     deleteAccount(req, res) {
         const userId = req.user.userId;
         const db = readDB();

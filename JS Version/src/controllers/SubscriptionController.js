@@ -1,7 +1,21 @@
 import { readDB, writeDB, createNotification } from '../database/db.js';
 import { calculatePrice } from '../utils/geo.js';
 
+/**
+ * @const SubscriptionController
+ * @brief Controller object handling commuter subscriptions, pricing rules, and travel routes.
+ * @details Manages queries for active routes, dynamic price forecasts based on geographical coordinate spans, 
+ * and transactional purchasing workflows with associated loyalty program integrations.
+ */
 export const SubscriptionController = {
+    /**
+     * @brief Retrieves all available travel routes mapping their respective starting and terminal stations.
+     * @details Searches the full collection of system routes and maps station identification numbers 
+     * to descriptive physical station names.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response delivery map returning structured route summary arrays.
+     * @return {void}
+     */
     getRoutes(req, res) {
         const db = readDB();
         const routes = db.routes.map(route => ({
@@ -13,6 +27,14 @@ export const SubscriptionController = {
         res.json(routes);
     },
 
+    /**
+     * @brief Computes estimated pricing attributes for subscription combinations before commitment.
+     * @details Parses query strings for travel parameters, extracts endpoint station metadata, 
+     * and relies on internal geometric calculations to multiply regional base rates across the selected duration.
+     * @param {Object} req - Express request object housing `routeId`, `months`, and `class` query tags.
+     * @param {Object} res - Express response target dispatching calculated price data or 404 notifications.
+     * @return {Object|void} Sends a 404 response if the route is invalid, otherwise returns the computed total price.
+     */
     getPrice(req, res) {
         const { routeId, months, class: travelClass } = req.query;
         const db = readDB();
@@ -25,6 +47,15 @@ export const SubscriptionController = {
         res.json({ price: totalPrice });
     },
 
+    /**
+     * @brief Processes purchases for travel subscriptions and creates payment logs.
+     * @details Performs validation checks on user profiles and route endpoints, calculates final prices, 
+     * generates date ranges, creates unique scan tracking QR codes, credits customer loyalty balances, 
+     * logs completed transactional payment details, and triggers confirmation alerts.
+     * @param {Object} req - Express request payload carrying `routeId`, `durationMonths`, and `travelClass`.
+     * @param {Object} res - Express response endpoint providing transaction logs or error descriptors.
+     * @return {Object|void} Sends a 400 response on verification constraints, or a success message upon completion.
+     */
     purchase(req, res) {
         const { routeId, durationMonths, travelClass } = req.body;
         const userId = req.user.userId;

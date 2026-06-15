@@ -1,6 +1,20 @@
 import { readDB, writeDB, createNotification } from '../database/db.js';
 
+/**
+ * @const AdminController
+ * @brief Controller object handling analytics, reporting, and operational simulations for administrators.
+ * @details Extracts detailed statistics regarding global metrics, subscriptions, station congestion, 
+ * and handles infrastructure events like train delay simulations and corresponding notifications.
+ */
 export const AdminController = {
+    /**
+     * @brief Computes system-wide performance and engagement analytics metrics.
+     * @details Collects revenue totals, active user counts, aggregate delay statistics, top 5 highest-selling 
+     * ticket routes, top 5 busiest train stations based on active routes, and subscription metrics.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object used to deliver JSON analytics data.
+     * @return {void}
+     */
     getStats(req, res) {
         const db = readDB();
         const totalRevenue = db.payments.reduce((sum, p) => sum + (p.amount || 0), 0);
@@ -53,6 +67,15 @@ export const AdminController = {
         });
     },
 
+    /**
+     * @brief Simulates an operational delay event for a target train run.
+     * @details Updates the run record state to 'delayed' with the given minute payload, identifies active 
+     * unique ticket-holders booked onto that specific run, triggers immediate internal system alerts, 
+     * and logs a simulated notification email output.
+     * @param {Object} req - Express request object containing `runId` and `delayMinutes` inside the body.
+     * @param {Object} res - Express response object used to reply with error updates or operation summaries.
+     * @return {Object|void} Sends a 404 response if the train run is invalid, otherwise sends a success confirmation.
+     */
     simulateDelay(req, res) {
         const { runId, delayMinutes } = req.body;
         const db = readDB();

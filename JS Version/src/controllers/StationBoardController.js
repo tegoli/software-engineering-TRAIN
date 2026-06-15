@@ -1,6 +1,19 @@
 import { readDB } from '../database/db.js';
 
+/**
+ * @const StationBoardController
+ * @brief Controller object handling operational tracking boards for physical train stations.
+ * @details Computes scheduling tables dynamically to mimic real-time physical arrival and departure monitors.
+ */
 export const StationBoardController = {
+    /**
+     * @brief Generates a chronological list of train departures for a specific station and date.
+     * @details Extracts individual transit stop sequences, maps endpoint destination terminals, attaches delay 
+     * profiles, and applies alphabetical sorting based on targeted timing variables.
+     * @param {Object} req - Express request object containing path parameter `stationId` and an optional `date` query variable.
+     * @param {Object} res - Express response delivery map returning structured board configuration arrays.
+     * @return {void}
+     */
     getDepartures(req, res) {
         const stationId = parseInt(req.params.stationId);
         const requestedDate = req.query.date || new Date().toISOString().slice(0,10);
