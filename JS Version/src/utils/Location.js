@@ -1,14 +1,13 @@
 /**
  * @class Location
- * @brief Represents a pair of geographic coordinates on the Earth's surface using a standard coordinate system.
- * @details Encapsulates latitudinal and longitudinal values to track rolling stock fleet assets, calculate physical 
- * station distances, and integrate with external mapping APIs.
+ * @brief A pair of geographic coordinates (latitude, longitude).
+ * @details Used to track positions, calculate distances, and interact with mapping APIs.
  */
 export class Location {
     /**
-     * @brief Instantiates a geometric coordinate position tracking block.
-     * @param {number} lat - Latitude in degrees, indicating angular distance north or south of the equator.
-     * @param {number} lon - Longitude in degrees, indicating angular distance east or west of the prime meridian.
+     * @brief Creates a new Location.
+     * @param {number} lat - Latitude in degrees.
+     * @param {number} lon - Longitude in degrees.
      */
     constructor(lat, lon) {
         /** @type {number} */ this.lat = lat;

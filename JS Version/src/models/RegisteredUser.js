@@ -4,41 +4,39 @@ import { AuthController } from '../controllers/AuthController.js';
 /**
  * @class RegisteredUser
  * @extends User
- * @brief Domain actor model representing an authenticated customer or internal system profile.
- * @details Extends basic guest parameters by embedding credential hash matrices, account lockout protections, 
- * security management routines, and integration bridges to pull valid travel entitlement assets from databases.
+ * @brief Represents a user who has signed up and logged in.
+ * @details Extends the basic User class with login, password management, and account security features.
  */
 export class RegisteredUser extends User {
-    /** * @brief Cryptographically encrypted password string used to verify safe profile access during authentications.
+    /** * @brief Hashed password for login.
      * @type {string} 
      */ 
     passwordHash;
 
-    /** * @brief Current identity access state constraint tracker (e.g., 'active', 'locked').
+    /** * @brief Whether the account is active or locked.
      * @type {string} 
      */ 
     accountStatus; // 'active', 'locked'
 
-    /** * @brief Numeric tally tracking sequential incorrect credentials entered against this login vector.
+    /** * @brief Number of failed login attempts.
      * @type {number} 
      */ 
     failedLoginAttempts;
 
     /**
-     * @brief Dispatches authentication attributes down-pipe to resolve access token rights.
-     * @details Invokes the underlying AuthController handling loop to process security matching, manage 
-     * login tracking arrays, and generate cryptographically signed verification tokens.
-     * @param {string} email - Unique registration identity communication address targeting a user account.
-     * @param {string} password - Raw string token passphrase containing user secret entries.
-     * @return {Promise<Object|boolean>} Asynchronous resolving payload conveying session tokens or access flags.
+     * @brief Logs the user in and gets a session token.
+     * @details Calls the auth controller to check the email and password and create a session.
+     * @param {string} email - The user's email address.
+     * @param {string} password - The user's password.
+     * @return {Promise<Object|boolean>} Promise with session data or false.
      */
     async login(email, password) {
         return AuthController.loginInternal(email, password);
     }
 
     /**
-     * @brief Signals security registries to invalidate current cryptographic session hashes.
-     * @details Informs identity control gateways to tear down authorization tracking arrays assigned to this profile context.
+     * @brief Logs the user out by clearing their session.
+     * @details Tells the auth controller to end this user's session.
      * @return {void}
      */
     logout() {
@@ -46,43 +44,39 @@ export class RegisteredUser extends User {
     }
 
     /**
-     * @brief Evaluates existing credentials before committing structural updates to identity attributes.
-     * @details Bridges securely to validation handlers to test current string sequences before safely hashing 
-     * and writing new authorization structures to system records.
-     * @param {string} oldPass - Active old passphrase used to confirm individual operational validation.
-     * @param {string} newPass - Target replacement security passphrase string requested for future logins.
-     * @return {Promise<boolean>} Asynchronous status confirmation indicating ledger write success.
+     * @brief Changes the user's password after checking the old one.
+     * @details Validates the old password, then hashes and saves the new one.
+     * @param {string} oldPass - The current password.
+     * @param {string} newPass - The new password to set.
+     * @return {Promise<boolean>} Promise that resolves to true if it worked.
      */
     async changePassword(oldPass, newPass) {
         return AuthController.changePassword(this.userId, oldPass, newPass);
     }
 
     /**
-     * @brief Initiates defensive password reset pathways for profiles with compromised or forgotten tokens.
-     * @details Instructs communication engines to bundle temporary single-use cryptographic recovery landing paths 
-     * and dispatch them to verified communication addresses.
-     * @param {string} email - Unique registration communication address associated with the target account profile.
-     * @return {Promise<boolean>} Asynchronous acknowledgment indicating dispatch pipeline resolution.
+     * @brief Sends a password recovery email to the user.
+     * @details Tells the auth controller to send a recovery link to the user's email.
+     * @param {string} email - The user's email address.
+     * @return {Promise<boolean>} Promise that resolves to true if sent.
      */
     async requestPasswordRecovery(email) {
         return AuthController.requestRecovery(email);
     }
 
     /**
-     * @brief Executes soft or hard profile erasure loops across corporate transit metadata tables.
-     * @details Clears personalized user indices, tracking flags, and identity profiles from main database layers 
-     * while preserving anonymous auditing fields required by compliance guidelines.
-     * @return {Promise<Object>} Asynchronous confirmation mapping completion status metadata.
+     * @brief Deletes the user's account from the system.
+     * @details Removes the user's data from the database but keeps anonymous audit records.
+     * @return {Promise<Object>} Promise with status info.
      */
     async eliminateAccount() {
         return AuthController.deleteAccount(this.userId);
     }
 
     /**
-     * @brief Pulls all unexpired booking, travel pass, and credential assets mapped to this user identifier.
-     * @details Lazy-loads internal query utilities to filter operational database tables for valid ticket shapes 
-     * and active chronological subscription models matching the profile context.
-     * @return {Array<Object>} Collection of active valid travel entitlement and pass documentation data objects.
+     * @brief Gets all active tickets and passes for this user.
+     * @details Queries the database for documents that are still valid.
+     * @return {Array<Object>} List of active documents.
      */
     viewActiveDocuments() {
         // returns active tickets/subscriptions

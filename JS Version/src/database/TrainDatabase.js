@@ -1,23 +1,23 @@
 /**
  * @class TrainDatabase
- * @brief Manages information and logic relating to train services, paths, and availability.
- * @details Provides specialized search and verification workflows to query railway infrastructure components.
+ * @brief Handles train data and route availability in the database.
+ * @details Provides methods for checking train availability and searching stations.
  */
 export class TrainDatabase {
     /**
-     * @brief Checks if a specific operational choice or criteria meets immediate system availability.
-     * @param {Object|string} option - The travel asset, seat category, or route option to verify.
-     * @return {boolean} True if available and compliant with system rules; false otherwise.
+     * @brief Checks if a train option is available.
+     * @param {Object|string} option - The train, seat or route to check.
+     * @return {boolean} True if available.
      */
     checkAvailability(option) { return true; }
     
     /**
-     * @brief Searches for scheduled trains traversing specified locations given time-based criteria.
-     * @param {Array<string>} stationCodes - The array of short-codes characterizing the requested route stop-points.
-     * @param {string} date - The specified target day of travel.
-     * @param {string} time - The chosen baseline time parameter boundary for departure or arrival.
-     * @param {string} travelClass - The tier profile or onboard service level requested (e.g., 'standard', 'business').
-     * @return {Array<Object>} A collection of candidate journey segments matching the search profile.
+     * @brief Searches for trains between stations on a given date and time.
+     * @param {Array<string>} stationCodes - The station codes for the route.
+     * @param {string} date - The date of travel.
+     * @param {string} time - The departure or arrival time.
+     * @param {string} travelClass - The travel class ('standard' or 'business').
+     * @return {Array<Object>} A list of train options found.
      */
     queryTrainStations(stationCodes, date, time, travelClass) { return []; }
 }

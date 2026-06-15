@@ -2,16 +2,15 @@ import { readDB, writeDB, createNotification, hashPassword } from '../database/d
 
 /**
  * @const UserController
- * @brief Controller object managing user profiles, dashboards, ticket adjustments, and security credentials.
- * @details Implements business logic to filter customer transaction ledger states, track loyalty incentives, 
- * handle time-locked booking shifts, and supervise full account deletion routines safely.
+ * @brief Handles user dashboard, ticket modification, password change and account deletion.
+ * @details Manages user profile data, active tickets, booking history, loyalty points,
+ * and security operations like password changes and account removal.
  */
 export const UserController = {
     /**
-     * @brief Resolves the identity and authorization context of the current session holder.
-     * @details References the structural token payload data to query and extract base profile parameters.
-     * @param {Object} req - Express request target holding authenticated identity context parameters.
-     * @param {Object} res - Express response delivery map dispatching targeted credential details.
+     * @brief Returns basic info about the authenticated user.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
      * @return {void}
      */
     getMe(req, res) {
@@ -21,13 +20,12 @@ export const UserController = {
     },
 
     /**
-     * @brief Compiles a complete aggregated view of a customer's active assets and historic orders.
-     * @details Validates identity security authorizations before parsing databases. Aggregates ongoing route 
-     * subscriptions alongside dynamic remaining validity counters, maps pending trips with destination tags, 
-     * and structures completed travel histories into unified collections.
-     * @param {Object} req - Express request holding param properties for `userId` and authorization scopes.
-     * @param {Object} res - Express response delivery map returning structured asset summaries or access blocks.
-     * @return {Object|void} Sends a 403 authorization error, a 404 target error, or a status data body.
+     * @brief Returns the dashboard data for a user: active tickets, history and subscriptions.
+     * @details Checks that the requester is either the target user or an admin.
+     * Includes remaining days for active subscriptions.
+     * @param {Object} req - Express request with userId as a route parameter.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 403 if not authorized, 404 if user not found, otherwise the dashboard data.
      */
     getDashboard(req, res) {
         const targetId = parseInt(req.params.userId);
@@ -109,11 +107,10 @@ export const UserController = {
     },
 
     /**
-     * @brief Collects the aggregate loyalty program point tracking totals for a consumer.
-     * @details References the explicit session key indexes to retrieve real-time incentive stats.
-     * @param {Object} req - Express request holding credentials structure information.
-     * @param {Object} res - Express response delivery map dispatching reward totals or 404 errors.
-     * @return {Object|void} Returns a 404 response payload if identity logs cannot be located.
+     * @brief Returns the loyalty points balance of the authenticated user.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 404 if user not found, otherwise the points count.
      */
     getPoints(req, res) {
         const db = readDB();
@@ -123,13 +120,12 @@ export const UserController = {
     },
 
     /**
-     * @brief Updates reservation timelines under operational time restriction parameters.
-     * @details Evaluates time distance factors prior to departure. If the request occurs more than 24 hours 
-     * ahead of schedule, shifts booking associations onto alternate calendar runs. If under 24 hours, adjusts 
-     * current operational timestamp tracks directly, assuming requested windows fall in future constraints.
-     * @param {Object} req - Express request body specifying target `ticketId`, `newDate`, and `newTime` modifications.
-     * @param {Object} res - Express response target tracking confirmation status messages.
-     * @return {Object|void} Sends error summaries for invalid permissions or time blocks, else logs dynamic alerts.
+     * @brief Modifies a ticket's date or time.
+     * @details If more than 24h before departure, allows changing the date (full modification).
+     * If less than 24h, only allows changing the time.
+     * @param {Object} req - Express request with ticketId, newDate and newTime.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} Error if not authorized or invalid, otherwise success.
      */
     modifyTicket(req, res) {
         const { ticketId, newDate, newTime } = req.body;
@@ -166,12 +162,11 @@ export const UserController = {
     },
 
     /**
-     * @brief Performs secure user credential replacement and creates transaction notifications.
-     * @details Evaluates current password hashes to grant modification permissions. Requires new selections 
-     * to fulfill length minimum constraints before updating security keys.
-     * @param {Object} req - Express request holding credential parameters `oldPassword` and `newPassword`.
-     * @param {Object} res - Express response targeting execution reports.
-     * @return {Object|void} Dispatches a 401 or 400 framework code if checks fail, otherwise confirms updates.
+     * @brief Changes the user's password.
+     * @details Verifies the old password first, then updates to the new one if it is at least 8 chars.
+     * @param {Object} req - Express request with oldPassword and newPassword.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 401 if old password is wrong, 400 if new is too short, otherwise success.
      */
     changePassword(req, res) {
         const { oldPassword, newPassword } = req.body;
@@ -189,10 +184,10 @@ export const UserController = {
     },
 
     /**
-     * @brief Houses logic hooks placeholder designed to clear local context token blocks.
-     * @details Evaluates incoming authorization headers to locate strings for programmatic adjustments.
-     * @param {Object} req - Express request containing authorization metadata headers.
-     * @param {Object} res - Express response signaling programmatic closure status logs.
+     * @brief Logs out the current user.
+     * @details Currently just returns success; the client handles token removal.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
      * @return {void}
      */
     logout(req, res) {
@@ -206,12 +201,12 @@ export const UserController = {
     },
 
     /**
-     * @brief Deletes a passenger account profile after checking for active bookings.
-     * @details Verifies if active tickets exist to prevent premature profile drops. 
-     * Purges user database keys and decouples historic ticket logs by nullifying reference constraints.
-     * @param {Object} req - Express request containing verified identity variables.
-     * @param {Object} res - Express response target tracking success outputs.
-     * @return {Object|void} Dispatches 404 or 400 codes on validation errors, otherwise logs account deletion.
+     * @brief Deletes the user's account.
+     * @details Only allows deletion if there are no active tickets.
+     * Removes the user from the database and anonymizes their ticket history.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 400 if there are active tickets, otherwise success.
      */
     deleteAccount(req, res) {
         const userId = req.user.userId;

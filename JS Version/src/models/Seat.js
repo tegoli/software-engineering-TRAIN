@@ -1,24 +1,22 @@
 /**
  * @class Seat
- * @brief Represents a physical passenger seat asset situated within a specific train coach configuration.
- * @details Models inventory allocation states, allowing booking pipelines and onboard auditing crews 
- * to track, lock down, or transition transactional placement statuses as trips progress.
+ * @brief A single seat on a train that can be reserved or occupied.
+ * @details Tracks if a seat is free, reserved, or taken so nobody double-books it.
  */
 export class Seat {
-    /** * @brief Alphanumeric tracking coordinate tag designating the row and column position (e.g., '14A').
+    /** @brief The seat's label like '14A' showing its row and position.
      * @type {string} 
      */ 
     seatNumber;
 
-    /** * @brief Current booking inventory state designator flag (e.g., 'free', 'reserved', 'occupied').
+    /** @brief Whether the seat is free, reserved, or occupied.
      * @type {string} 
      */ 
     seatStatus; // 'free', 'reserved', 'occupied'
 
     /**
-     * @brief Locks the individual inventory item state to prevent duplicate seat assignments.
-     * @details Evaluates the active state configuration and applies a secure temporary hold pattern 
-     * by updating the tracking flag to 'reserved' if the resource is completely unallocated.
+     * @brief Marks the seat as reserved so nobody else can take it.
+     * @details Only works if the seat is currently free.
      * @return {void}
      */
     reserve() {
@@ -26,9 +24,7 @@ export class Seat {
     }
 
     /**
-     * @brief Transitions the seat lifecycle tracker into an active onboard passenger presence state.
-     * @details Updates internal telemetry properties to 'occupied', signaling to ticket inspectors 
-     * and live seat-map widgets that the customer has checked into or physical filled this coordinate space.
+     * @brief Marks the seat as occupied when a passenger sits down.
      * @return {void}
      */
     markOccupied() {

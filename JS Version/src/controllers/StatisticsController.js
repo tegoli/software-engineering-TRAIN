@@ -2,16 +2,16 @@ import { readDB } from '../database/db.js';
 
 /**
  * @const StatisticsController
- * @brief Controller object handling general platform auditing and high-level core business analytics.
- * @details Computes core operational KPIs for display across dashboard interfaces.
+ * @brief Handles basic statistics for the admin dashboard.
+ * @details Computes total revenue, bookings, delayed trains and active users.
  */
 export const StatisticsController = {
     /**
-     * @brief Aggregates and returns primary system operational and financial performance indicators.
-     * @details Computes cumulative platform revenues, total ticket reservations, delayed run statistics, 
-     * and isolated numbers for active passenger profiles.
+     * @brief Returns basic platform statistics.
+     * @details Calculates total revenue from payments, number of bookings,
+     * delayed train runs and active passenger accounts.
      * @param {Object} req - Express request object.
-     * @param {Object} res - Express response target delivering the compiled business tracking object as JSON.
+     * @param {Object} res - Express response object.
      * @return {void}
      */
     getStatistics(req, res) {

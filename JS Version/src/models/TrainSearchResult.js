@@ -1,30 +1,28 @@
 /**
  * @file TrainSearchResult.js
- * @brief Domain entity encapsulating the structural collection of itineraries returned from a database journey lookup.
- * @details Manages collection counts, hosts structural lists of matched train run configurations, 
- * and provides operational methods to filter or sort results before exporting payloads to front-end views.
+ * @brief Holds the list of train routes returned by a search.
+ * @details Stores the search results and lets you filter and sort them before sending them to the UI.
  */
 export class TrainSearchResult {
-    /** * @brief Unique identifier key allocated to tracking this specific lookup query snapshot instance.
+    /** * @brief Unique ID for this search result set.
      * @type {number} 
      */ 
     resultId;
 
-    /** * @brief Total number of distinct transit itineraries matched during execution.
+    /** * @brief Number of trains found in the search.
      * @type {number} 
      */ 
     resultCount;
 
-    /** * @brief Aggregated collection of train runs and multi-segment transit routing objects.
+    /** * @brief The list of train objects from the search.
      * @type {Array} 
      */ 
     trains;
 
     /**
-     * @brief Prepares and formats the matched itinerary collection for consumer user-interface layouts.
-     * @details Compiles the baseline dataset according to specific formatting presets or sorting configurations 
-     * dictated by search queries.
-     * @param {SearchCriteria} criteria - Search profile configuration rules defining active rendering priorities.
+     * @brief Formats the results so they can be shown on screen.
+     * @details Uses the search criteria to sort and format the results.
+     * @param {SearchCriteria} criteria - Search criteria used for formatting.
      * @return {void|Array}
      */
     displayResults(criteria) {
@@ -32,10 +30,9 @@ export class TrainSearchResult {
     }
 
     /**
-     * @brief Refines the underlying itinerary array collection down to a precise subset based on post-query criteria.
-     * @details Subsets results using additional client-side constraints such as secondary price thresholds, 
-     * specific layover durations, or preferred transit operators.
-     * @param {SearchCriteria} criteria - Dynamic constraint ruleset structure applied to trim matching records.
+     * @brief Filters the train list based on extra rules.
+     * @details Lets you narrow down results by things like price or travel time after the search is done.
+     * @param {SearchCriteria} criteria - Filter rules to apply.
      * @return {void|Array}
      */
     applyFilters(criteria) {

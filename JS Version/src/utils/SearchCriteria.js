@@ -1,19 +1,18 @@
 /**
  * @class SearchCriteria
- * @brief Utility payload structure encapsulating primary parameters for filtering passenger transit schedules.
- * @details Models core variables for travel inquiries, supporting both standard journey tracking parameters 
- * and advanced operational limits (such as vehicle class and passenger volume configurations).
+ * @brief Filters for searching train schedules.
+ * @details Contains departure, arrival, date, time, train type, class and passenger count.
  */
 export class SearchCriteria {
     /**
-     * @brief Instantiates a structured transit schedule search filter block.
-     * @param {string} departureStationName - Human-readable label identifying the starting platform or station node.
-     * @param {string} arrivalStationName - Human-readable label identifying the terminating platform or station node.
-     * @param {string} date - Calendar tracking date requested for the outward journey sequence.
-     * @param {string} time - Operational departure time boundary or starting travel window parameter.
-     * @param {string} trainType - Classification flag filter for specific rolling stock fleets (e.g., 'high_speed', 'regional').
-     * @param {string} travelClass - Tier designation parameter mapped to specific cabin services (e.g., 'standard', 'business').
-     * @param {number} passengerCount - Aggregate number of seats requested for allocation processing.
+     * @brief Creates a new SearchCriteria.
+     * @param {string} departureStationName - The departure station.
+     * @param {string} arrivalStationName - The arrival station.
+     * @param {string} date - The date of travel.
+     * @param {string} time - The departure time.
+     * @param {string} trainType - The train type (e.g. 'high_speed', 'regional').
+     * @param {string} travelClass - The travel class ('standard', 'business').
+     * @param {number} passengerCount - Number of passengers.
      */
     constructor(departureStationName, arrivalStationName, date, time, trainType, travelClass, passengerCount) {
         /** @type {string} */ this.departureStationName = departureStationName;
@@ -26,10 +25,8 @@ export class SearchCriteria {
     }
 
     /**
-     * @brief Evaluates structured filtering variables to confirm strict technical and relational integrity.
-     * @details Validates that requested calendar strings fall within operational boundaries and ensures station 
-     * target names meet standard character sequence patterns before querying downstream lookup indices.
-     * @return {boolean} True if structural property states conform to search safety constraints.
+     * @brief Validates the search criteria.
+     * @return {boolean} Always returns true.
      */
     validate() { return true; }
 }

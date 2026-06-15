@@ -1,32 +1,32 @@
 /**
  * @file TicketChangeRequest.js
- * @brief Domain entity capturing parameters and business logic constraints for modifying an issued transit booking.
- * @details Models data structures for processing date and time changes, evaluating request timestamps against 
- * fare rule boundaries to determine eligible modification types.
+ * @brief Stores info needed to change a ticket after booking.
+ * @details Keeps the new date and time, and decides if
+ * the user can do a full change or just time-only.
  */
 export class TicketChangeRequest {
-    /** * @brief The target calendar day requested for the rescheduled journey sequence.
+    /** * @brief The new date the user wants to travel.
      * @type {Date} 
      */ 
     newDate;
 
-    /** * @brief The updated operational departure time window target requested for the itinerary.
+    /** * @brief The new time the user wants to leave.
      * @type {string} 
      */ 
     newTime;
 
-    /** * @brief Resolved structural classification code dictating the allowable modification tier (e.g., 'full' or 'time-only').
+    /** * @brief Either 'full' or 'time-only' depending on rules.
      * @type {string} 
      */ 
     changeType; // 'full' or 'time-only'
 
     /**
-     * @brief Evaluates the remaining chronological window before departure to enforce modification rate rules.
-     * @details Calculates the real-time delta between current system execution times and the target route departure window. 
-     * Applies a strict 24-hour business rule threshold to filter whether the ticket is eligible for structural parameters shifts 
-     * or restricted strictly to timeline adjustments.
-     * @param {Date} departureTime - The original scheduled departure timestamp of the active booking asset.
-     * @return {string} Operational modifier code ('full' if window > 24 hours, otherwise fallback 'time-only').
+     * @brief Checks if the ticket is too close to departure for full changes.
+     * @details Works out how many hours are left before the train leaves.
+     * If it's more than 24 hours, you can do a full change.
+     * Otherwise, only time changes are allowed.
+     * @param {Date} departureTime - When the train was supposed to leave.
+     * @return {string} 'full' if over 24 hours, else 'time-only'.
      */
     validateAgainstThreshold(departureTime) {
         const hoursLeft = (departureTime - new Date()) / (1000 * 3600);

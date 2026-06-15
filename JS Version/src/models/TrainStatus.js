@@ -1,42 +1,40 @@
 /**
  * @class TrainStatus
- * @brief Represents the real-time operational telemetry and tracking metrics of an active train route.
- * @details Encapsulates explicit timestamp data structures tracking scheduling shifts, current delays, 
- * and estimated arrival/departure variance properties across physical network nodes.
+ * @brief Represents live tracking info for a running train.
+ * @details Stores the scheduled and estimated times for departures and arrivals, plus any delay. Used to show passengers where the train is and if it is late.
  */
 export class TrainStatus {
-    /** * @brief Original scheduled departure timestamp published in the system master timeline.
+    /** * @brief The time the train was meant to leave according to the official schedule.
      * @type {Date} 
      */ 
     scheduledDeparture;
 
-    /** * @brief Recalculated operational departure timestamp reflecting real-time track telemetry.
+    /** * @brief The updated departure time based on current conditions.
      * @type {Date} 
      */ 
     estimatedDeparture;
 
-    /** * @brief Original scheduled arrival timestamp mapped to the terminal station node.
+    /** * @brief The time the train was meant to arrive according to the schedule.
      * @type {Date} 
      */ 
     scheduledArrival;
 
-    /** * @brief Recalculated operational arrival timestamp accounting for journey track speed shifts.
+    /** * @brief The updated arrival time based on current conditions.
      * @type {Date} 
      */ 
     estimatedArrival;
 
-    /** * @brief Net scheduling deviation offset calculated in minutes relative to master timelines.
+    /** * @brief How late the train is, in minutes.
      * @type {number} 
      */ 
     delayMinutes;
 
     /**
-     * @brief Generates a structured UI data layout representing the tracking timeline of a running train.
-     * @details Compiles current geographical position references alongside active minute offsets to feed 
-     * user dashboard tracking components and station station board visual displays.
-     * @param {Object|string} location - Current coordinates or station identifier node tracking the train's position.
-     * @param {number} delay - Real-time tracking minute offset configuration to inject into timeline intervals.
-     * @return {Object} An object containing the processed timeline array segments and active station location payload.
+     * @brief Builds a timeline object for showing the train's progress in the UI.
+     * @details Takes the current location and delay and packages them into something a front-end component can display to the user.
+     * @param {Object|string} location - Current location of the train.
+     * @param {number} delay - Current delay in minutes.
+     * @return {Object} Object with timeline data and current location.
      */
     displayVisualTimeline(location, delay) {
         // Build UI representation

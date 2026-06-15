@@ -15,10 +15,8 @@ import { StationBoardController } from './src/controllers/StationBoardController
 
 /**
  * @file app.js
- * @brief Application entry point and routing orchestration engine for the Transit Management Server.
- * @details Initializes standard local in-memory mock databases, binds systemic REST endpoint pathways, 
- * mounts static client interface directories, manages multi-tier session state access middleware, 
- * and maps internal business controllers to programmatic HTTP verb execution layers.
+ * @brief Main entry point for the Express server.
+ * @details Sets up the app, loads the database, defines all API routes, and starts the server on port 3000.
  */
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -31,11 +29,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 initDatabase();
 seedDefaultUsers();
 
-// ==================== ROTTE PUBBLICHE ====================
+// ROTTE PUBBLICHE 
 
 /**
  * @route GET /api/stations
- * @brief Retrieves the master list of all geographical train stations and platforms from storage.
+ * @brief Returns all stations.
  */
 app.get('/api/stations', (req, res) => {
     res.json(getStations());
@@ -43,177 +41,177 @@ app.get('/api/stations', (req, res) => {
 
 /**
  * @route POST /api/language
- * @brief Sets or alters the internationalization (i18n) locale preference code for the current context.
+ * @brief Changes the language setting.
  */
 app.post('/api/language', AuthController.setLanguage);
 
 /**
  * @route POST /api/login
- * @brief Authenticates matching credentials and provisions session identifiers for secure profiles.
+ * @brief Logs in a user.
  */
 app.post('/api/login', AuthController.login);
 
 /**
  * @route POST /api/register
- * @brief Registers a new consumer profile within the relational system configuration data store.
+ * @brief Creates a new account.
  */
 app.post('/api/register', AuthController.register);
 
 /**
  * @route POST /api/search
- * @brief Performs a traditional direct transit itinerary search matching user structural parameters.
+ * @brief Searches for train trips.
  */
 app.post('/api/search', TrainSearchController.search);
 
 /**
  * @route POST /api/search-advanced
- * @brief Executes a comprehensive routing search tracking direct runs alongside multi-segment transfers.
+ * @brief Searches with advanced options.
  */
 app.post('/api/search-advanced', TrainSearchController.searchAdvanced);
 
 /**
  * @route GET /api/train-status/:runId
- * @brief Queries real-time status details, current delays, and next step sequences for an in-transit train run.
+ * @brief Gets the live status of a train.
  */
 app.get('/api/train-status/:runId', TrainSearchController.getTrainStatus);
 
 /**
  * @route GET /api/predict-delay/:runId
- * @brief Serves telemetry projections regarding arrival time offsets via historical database lookup logic.
+ * @brief Predicts how late a train will be.
  */
 app.get('/api/predict-delay/:runId', TrainSearchController.predictDelay);
 
 /**
  * @route GET /api/departures/:stationId
- * @brief Compiles a virtual schedule arrival and departure billboard view tailored for an explicit station node.
+ * @brief Gets departures for a station.
  */
 app.get('/api/departures/:stationId', StationBoardController.getDepartures);
 
 /**
  * @route POST /api/recover-password
- * @brief Validates profile details to trigger security credential password recovery notification workflows.
+ * @brief Sends a password recovery email.
  */
 app.post('/api/recover-password', AuthController.recoverPassword);
 
-// ==================== ROTTE PROTETTE ====================
+// ROTTE PROTETTE
 
 /**
- * @brief Intercepts lifecycle execution to enforce authorization checks past this boundary point.
- * @details Validates bearer authorization headers against active cryptographic context structures.
+ * @brief Verifies the auth token.
+ * @details All routes below this point need a valid token.
  */
 app.use(AuthController.authenticate); // da qui in avanti serve token
 
 /**
  * @route GET /api/me
- * @brief Extracts the identity configuration attributes and authorization role parameters of the active caller.
+ * @brief Gets the current user's info.
  */
 app.get('/api/me', UserController.getMe);
 
 /**
  * @route GET /api/user/dashboard/:userId
- * @brief Compiles an administrative or personal panel view tracking valid user assets and historic profiles.
+ * @brief Gets the user dashboard.
  */
 app.get('/api/user/dashboard/:userId', UserController.getDashboard);
 
 /**
  * @route GET /api/user/points
- * @brief Collects the current cumulative loyalty point metrics associated with the authenticated session holder.
+ * @brief Gets the user's loyalty points.
  */
 app.get('/api/user/points', UserController.getPoints);
 
 /**
  * @route GET /api/seat-map/:runId
- * @brief Returns the grid array map visualization of available versus occupied vehicle cabin seating positions.
+ * @brief Gets the seat map for a train.
  */
 app.get('/api/seat-map/:runId', TicketPurchaseController.getSeatMap);
 
 /**
  * @route POST /api/purchase
- * @brief Handles financial authorization routing, points calculations, and booking generations for a chosen trip.
+ * @brief Buys a ticket.
  */
 app.post('/api/purchase', TicketPurchaseController.purchase);
 
 /**
  * @route PUT /api/ticket
- * @brief Modifies existing booking dates or schedules subject to pre-departure time-lock limits.
+ * @brief Changes an existing ticket.
  */
 app.put('/api/ticket', UserController.modifyTicket);
 
 /**
  * @route POST /api/change-password
- * @brief Changes account access credentials after verifying old security passwords match system records.
+ * @brief Changes the user's password.
  */
 app.post('/api/change-password', UserController.changePassword);
 
 /**
  * @route POST /api/logout
- * @brief Deactivates authorization records to safely invalidate active session keys.
+ * @brief Logs out the user.
  */
 app.post('/api/logout', UserController.logout);
 
 /**
  * @route DELETE /api/account
- * @brief Purges account listings from data records if no active travel passes are left pending.
+ * @brief Deletes the user's account.
  */
 app.delete('/api/account', UserController.deleteAccount);
 
 /**
  * @route POST /api/validate
- * @brief Updates individual ticket state definitions from active to used upon transit personnel checks.
+ * @brief Validates a ticket (marks it as used).
  */
 app.post('/api/validate', InspectorController.validateTicket);
 
 /**
  * @route GET /api/inspector/schedule/:inspectorId
- * @brief Pulls assigned duty structures and line operations rosters linked to specific employee signatures.
+ * @brief Gets an inspector's work schedule.
  */
 app.get('/api/inspector/schedule/:inspectorId', InspectorController.getSchedule);
 
 /**
  * @route GET /api/admin/stats
- * @brief Compiles analytical system business metrics including overall passenger totals, popular corridors, and revenues.
+ * @brief Returns admin statistics.
  */
 app.get('/api/admin/stats', AdminController.getStats);
 
 /**
  * @route POST /api/support
- * @brief Registers user feedback threads or operational technical issue descriptions for resolution queues.
+ * @brief Submits a support request.
  */
 app.post('/api/support', SupportController.submit);
 
 /**
  * @route GET /api/notifications
- * @brief Returns a collection of dispatch announcements and alert objects directed to the active customer.
+ * @brief Gets the user's notifications.
  */
 app.get('/api/notifications', NotificationController.getNotifications);
 
 /**
  * @route PUT /api/notifications/:id/read
- * @brief Flags historical alert items to read states to remove unread notification signals.
+ * @brief Marks a notification as read.
  */
 app.put('/api/notifications/:id/read', NotificationController.markAsRead);
 
 /**
  * @route POST /api/subscription
- * @brief Processes payments and registers continuous pass durations on preferred routes.
+ * @brief Buys a subscription pass.
  */
 app.post('/api/subscription', SubscriptionController.purchase);
 
 /**
  * @route POST /api/simulate-delay
- * @brief Adjusts scheduling records directly to reflect unexpected operational service offsets.
+ * @brief Simulates a train delay (admin).
  */
 app.post('/api/simulate-delay', AdminController.simulateDelay);
 
 /**
  * @route GET /api/routes
- * @brief Exposes the dictionary collection tracking configured transit corridor routes across networks.
+ * @brief Returns the list of available routes.
  */
 app.get('/api/routes', SubscriptionController.getRoutes);
 
 /**
  * @route GET /api/debug
- * @brief Diagnostics checkpoint endpoint transmitting metrics on stored profile numbers and active session maps.
+ * @brief Debug: shows DB stats and active sessions.
  */
 app.get('/api/debug', (req, res) => {
     const db = readDB();
@@ -222,14 +220,14 @@ app.get('/api/debug', (req, res) => {
 
 /**
  * @route GET /api/subscription-price
- * @brief Resolves mathematical calculation grids to return tier pricing rates for standard recurring memberships.
+ * @brief Gets the price for a subscription.
  */
 app.get('/api/subscription-price', SubscriptionController.getPrice);
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
     console.log(`Admin: matteo.golinelli-1@studenti.unitn.it  / password`);
-    console.log(`🧪 User: virginia.ancora@studenti.unitn.it / password`);
-    console.log(`🧪 User: caterina.alessi@studenti.unitn.it / password`);
-    console.log(`🧪 Inspector: robin.bertolini@studenti.unitn.it / password`);
+    console.log(`User: virginia.ancora@studenti.unitn.it / password`);
+    console.log(`User: caterina.alessi@studenti.unitn.it / password`);
+    console.log(`Inspector: robin.bertolini@studenti.unitn.it / password`);
 });

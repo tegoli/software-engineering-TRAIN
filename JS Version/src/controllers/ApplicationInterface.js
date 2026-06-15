@@ -1,43 +1,42 @@
 /**
  * @class ApplicationInterface
- * @brief Manages the visual rendering components and runtime user interaction tasks.
- * @details Provides interface bridges for updating layouts, showing system-wide confirmation dialogs, 
- * pushing contextual data matrices, and handling runtime tracking errors.
+ * @brief Manages UI interactions like displaying dashboards, errors and confirmations.
+ * @details Simple interface class for showing dashboard data, filtered results,
+ * error messages, confirmation dialogs and updating the UI language.
  */
 export class ApplicationInterface {
     /**
-     * @brief Renders the primary administrative or analytics tracking dashboard.
-     * @param {Object} stats - Formatted metric indexes, financial indexes, or system diagnostics datasets.
+     * @brief Shows the dashboard with stats.
+     * @param {Object} stats - The statistics data to display.
      * @return {void}
      */
     displayDashboard(stats) { console.log('Dashboard mostrata', stats); }
     
     /**
-     * @brief Displays collection data subsets modified through active filter rule definitions.
-     * @param {Array<Object>|Object} data - The array or payload collection to display.
-     * @param {Object} filters - Active restriction fields applied during data processing.
+     * @brief Shows filtered data.
+     * @param {Array<Object>|Object} data - The data to display.
+     * @param {Object} filters - The filters that were applied.
      * @return {void}
      */
     displayData(data, filters) { console.log('Dati filtrati', data); }
     
     /**
-     * @brief Dispatches structural error statements to target runtime terminal or logs.
-     * @param {string} message - The system exception trace or readable statement descriptor.
+     * @brief Shows an error message.
+     * @param {string} message - The error message to show.
      * @return {void}
      */
     showError(message) { console.error(message); }
     
     /**
-     * @brief Dispatches a synchronous binary window verification alert to screen streams.
-     * @note This layout workflow depends on browser environments providing global validation engines.
-     * @param {string} message - Interrogative modal choice phrase presented to active users.
-     * @return {boolean} True if accepted by user input; false if canceled.
+     * @brief Shows a confirmation dialog.
+     * @param {string} message - The confirmation text.
+     * @return {boolean} True if the user confirmed, false otherwise.
      */
     showConfirmation(message) { return confirm(message); } // solo browser
     
     /**
-     * @brief Re-evaluates active visual configurations to re-localize current text parameters.
-     * @param {string} lang - Universal localized tracking token targeting an explicit vocabulary standard.
+     * @brief Updates the UI to use a new language.
+     * @param {string} lang - The language code ('it', 'en', 'de').
      * @return {void}
      */
     updatedUI(lang) { console.log(`UI aggiornata a ${lang}`); }

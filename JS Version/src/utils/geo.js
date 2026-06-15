@@ -1,24 +1,21 @@
 /**
- * @file PriceCalculator.js
- * @brief Geographical and algorithmic utilities for computing dynamic transit passenger fares.
- * @details Implements the Haversine trigonometric formula to determine exact great-circle distance coordinates 
- * across the Earth's surface, applying tiered price multi-pliers for high-speed rolling stock assets and premium cabin tiers.
+ * @file geo.js
+ * @brief Utility functions for calculating ticket prices based on distance.
+ * @details Uses the Haversine formula to compute the distance between two stations
+ * and applies pricing multipliers based on train type and travel class.
  */
 
 /**
- * @brief Computes real-time ticket pricing structures based on geographic tracking metrics and cabin service variables.
- * @details Calculates surface track kilometers across geographic coordinate structures using Haversine equations. 
- * Establishes standard regional pricing tiers per kilometer, scaling baselines upward for high-speed rail express 
- * classes and premium executive business arrangements.
- * @param {Object} fromStation - Origin station coordinates containing physical latitude and longitude parameters.
- * @param {number} fromStation.latitude - Geographic latitude in degrees for the departure station platform.
- * @param {number} fromStation.longitude - Geographic longitude in degrees for the departure station platform.
- * @param {Object} toStation - Destination station coordinates containing physical latitude and longitude parameters.
- * @param {number} toStation.latitude - Geographic latitude in degrees for the terminating station platform.
- * @param {number} toStation.longitude - Geographic longitude in degrees for the terminating station platform.
- * @param {string} travelClass - Structural comfort class categorization selector flag (e.g., 'standard' or 'business').
- * @param {string} trainType - Classification descriptor tag indicating the rolling stock speed profile (e.g., 'Regionale').
- * @returns {number} Consolidated final currency value formatted in Euros rounded strictly to two decimal precision.
+ * @brief Calculates the ticket price between two stations.
+ * @param {Object} fromStation - Origin station coordinates.
+ * @param {number} fromStation.latitude - Latitude of departure station.
+ * @param {number} fromStation.longitude - Longitude of departure station.
+ * @param {Object} toStation - Destination station coordinates.
+ * @param {number} toStation.latitude - Latitude of arrival station.
+ * @param {number} toStation.longitude - Longitude of arrival station.
+ * @param {string} travelClass - The travel class ('standard' or 'business').
+ * @param {string} trainType - The train type (e.g. 'Regionale').
+ * @returns {number} The ticket price in Euros.
  */
 export function calculatePrice(fromStation, toStation, travelClass, trainType) {
     const R = 6371; // Earth radius in Km

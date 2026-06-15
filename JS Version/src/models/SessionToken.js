@@ -1,24 +1,23 @@
 /**
  * @file SessionToken.js
- * @brief Domain entity capturing the cryptographic lifecycle state of an authenticated user session context.
- * @details Models short-lived validation keys, housing signature character vectors alongside security 
- * duration bounds to guard remote API gateway access channels from unauthorized requests.
+ * @brief Keeps track of a user's login session with a token and expiry time.
+ * @details Stores the token string and when it expires so the system knows if the user is still logged in.
  */
 export class SessionToken {
-    /** * @brief The active cryptographic string token payload submitted alongside HTTP request headers.
+    /** @brief The actual token string sent with API requests.
      * @type {string} 
      */ 
     tokenValue;
 
-    /** * @brief Exact calendar timestamp marking when this security clearance token passes its validation threshold.
+    /** @brief When this token stops being valid.
      * @type {Date} 
      */ 
     expirationTime;
 
     /**
-     * @brief Instantiates a structured token verification tracker instance.
-     * @param {string} tokenValue - Cryptographic signature hash tracking current session authorization.
-     * @param {Date} expirationTime - Target lifecycle terminal timestamp bound.
+     * @brief Makes a new session token with a value and expiry.
+     * @param {string} tokenValue - The token string for the session.
+     * @param {Date} expirationTime - When the token should expire.
      */
     constructor(tokenValue, expirationTime) {
         this.tokenValue = tokenValue;
@@ -26,11 +25,10 @@ export class SessionToken {
     }
 
     /**
-     * @brief Assesses if the session window has crossed past its maximum allowed lifecycle boundary.
-     * @details Compares a target comparison timestamp against internal expiration criteria to determine 
-     * if client access frameworks must trigger a formal re-authentication routing flow.
-     * @param {Date} currentTime - Active reference system clock timestamp used for verification checks.
-     * @return {boolean} True if the reference timestamp equals or exceeds the absolute validation boundary.
+     * @brief Checks if the token has expired yet.
+     * @details Compares the given time to the expiration time.
+     * @param {Date} currentTime - The current time to check against.
+     * @return {boolean} True if the current time is past the expiry.
      */
     isExpired(currentTime) {
         return currentTime > this.expirationTime;

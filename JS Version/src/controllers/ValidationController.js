@@ -2,19 +2,18 @@ import { readDB, writeDB } from '../database/db.js';
 
 /**
  * @const ValidationController
- * @brief Controller object tasked with real-time digital ticket processing and physical transit verification.
- * @details Manages live ticket operational state checks, updates usage records to prevent reuse, and synchronization loops
- * that modify associated seat inventory distributions on active routes.
+ * @brief Handles ticket validation for inspectors.
+ * @details Looks up a ticket by ID, checks if it is active, marks it as used,
+ * and updates the seat reservation to occupied.
  */
 export const ValidationController = {
     /**
-     * @brief Evaluates an incoming reservation token signature to verify dynamic travel permissions.
-     * @details Searches the centralized ticket register for matching identifiers. Confirms the pass is currently active, 
-     * switches its lifecycle status to prevent duplicate boarding fraud, and transitionally locks the assigned cabin seat 
-     * reservation to occupied status.
-     * @param {Object} req - Express request holding payload data parameters including `ticketId`.
-     * @param {Object} res - Express response target delivering the confirmation status report object.
-     * @return {Object} Returns a structural JSON verification report detailing validation flags or error descriptions.
+     * @brief Validates a ticket by its ID.
+     * @details Searches for the ticket, checks that it is active, marks it as used,
+     * and updates the corresponding seat to occupied.
+     * @param {Object} req - Express request with ticketId in the body.
+     * @param {Object} res - Express response object.
+     * @return {Object} JSON with valid flag and a message.
      */
     validateTicket(req, res) {
         const { ticketId } = req.body;

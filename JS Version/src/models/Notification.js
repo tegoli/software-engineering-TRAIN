@@ -1,35 +1,33 @@
 /**
  * @class Notification
- * @brief Domain messaging entity tracking transaction logs and real-time operational service bulletins.
- * @details Manages alert lifecycles, formatting raw system alerts into targeted user bulletins and routing 
- * urgent transit status updates through active web-socket channels or traditional background email pipelines.
+ * @brief Sends messages to users about what's happening with their trip.
+ * @details Stores info about alerts and decides if they show up in the app or get sent by email.
  */
 export class Notification {
-    /** * @brief Unique identity primary key generated to track this individual dispatch record within the analytics ledger.
+    /** @brief Unique ID for this notification in the database.
      * @type {number} 
      */ 
     notificationId;
 
-    /** * @brief Core informational text or status change narrative targeted for passenger consumption.
+    /** @brief The text shown to the passenger.
      * @type {string} 
      */ 
     message;
 
-    /** * @brief Absolute calendar timestamp recording when this notification event was compiled and published.
+    /** @brief When this notification was created.
      * @type {Date} 
      */ 
     notificationDate;
 
-    /** * @brief Operational alert classification flag dictating urgent dispatch routing priorities (e.g., 'delay', 'cancellation').
+    /** @brief What kind of alert this is (e.g., 'delay', 'cancellation').
      * @type {string} 
      */ 
     notificationType; // 'delay', 'cancellation'
 
     /**
-     * @brief Dispatches real-time UI warnings immediately to active user interface view listeners.
-     * @details Hooks into established persistent WebSocket connection arrays to project immediate, context-specific 
-     * schedule adjustments onto the target passenger's active screen framework.
-     * @param {number|string} userId - Unique tracking key identifying the target customer profile within the system.
+     * @brief Shows the alert right away in the user's app.
+     * @details Sends the message over a live WebSocket connection so the user sees it immediately.
+     * @param {number|string} userId - The user to send the alert to.
      * @return {void}
      */
     pushInAppAlert(userId) {
@@ -37,10 +35,9 @@ export class Notification {
     }
 
     /**
-     * @brief Enqueues a structured email transmission task into background communication worker rings.
-     * @details Hands off formatted notification text vectors and recipient addresses to SMTP relay gateways 
-     * to manage asynchronous out-of-app delivery.
-     * @param {string} email - Valid communication destination address matching the target passenger's account record.
+     * @brief Sends the notification through email instead.
+     * @details Puts the message in a queue to be sent out later by the email system.
+     * @param {string} email - The user's email address.
      * @return {void}
      */
     sendEmailNotification(email) {

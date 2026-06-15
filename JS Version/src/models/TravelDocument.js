@@ -1,39 +1,37 @@
 /**
  * @class TravelDocument
- * @brief Abstract structural base class representing all legal transit assets issued by the clearing network.
- * @details Establishes universal tracking parameters, financial metrics, state lifecycles, and verification hooks 
- * inherited by concrete travel items like physical single-trip tickets or recurring route subscriptions.
+ * @brief Base class for all types of travel tickets and passes.
+ * @details Defines common fields like price, issue date, and status that all ticket types share.
  */
 export class TravelDocument {
-    /** * @brief Unique database record identifier index allocated to this specific transit asset.
+    /** * @brief Unique ID for this document.
      * @type {number} 
      */ 
     documentId;
 
-    /** * @brief Exact calendar timestamp tracking when the document structure was compiled and paid for.
+    /** * @brief When the document was issued.
      * @type {Date} 
      */ 
     issueDate;
 
-    /** * @brief Financial settlement value processed during purchase, stored in local currency units.
+    /** * @brief How much the document cost.
      * @type {number} 
      */ 
     price;
 
-    /** * @brief Internal operational state lifecycle configuration code (e.g., 'active', 'used', 'expired').
+    /** * @brief Current state of the document.
      * @type {string} 
      */ 
     status; // 'active', 'used', 'expired'
 
-    /** * @brief Cryptographic string payload formatted into matrix barcode layouts for conductor optical scans.
+    /** * @brief QR code string used for scanning at the gate.
      * @type {string} 
      */ 
     qrCode;
 
     /**
-     * @brief Abstract contract interface designed to run rule validation checks against current pass states.
-     * @details Must be overridden by functional child components to verify exact route alignment parameters 
-     * or timeline deadlines before granting passage clearance.
+     * @brief Checks if the ticket is valid for travel.
+     * @details Subclasses must override this to check route and time rules.
      * @abstract
      * @throws {Error} Throws an operational exception if invoked directly without concrete subtype implementation.
      * @return {ValidationResult}
@@ -44,10 +42,10 @@ export class TravelDocument {
     }
 
     /**
-     * @brief Assesses if the document is current, authorized, and available for immediate boarding use.
-     * @details Checks baseline administrative status variables to determine if the asset's active validation window is open.
-     * @param {Date} currentDate - Reference system timestamp parameter used to measure timeline validation bounds.
-     * @return {boolean} True if the internal status match matches the authorized 'active' tag sequence.
+     * @brief Checks if the document can be used for boarding right now.
+     * @details Looks at the status field to see if the document is active.
+     * @param {Date} currentDate - Current date for checking validity.
+     * @return {boolean} True if the document is active.
      */
     isActive(currentDate) {
         return this.status === 'active';

@@ -2,17 +2,16 @@ import { readDB, writeDB, createNotification } from '../database/db.js';
 
 /**
  * @const TicketPurchaseController
- * @brief Controller object handling seat mapping lookups and ticket transactional checkouts.
- * @details Manages queries to evaluate seat occupancies across specific train car layouts and coordinates 
- * composite point discounting, active subscription validations, and extra carriage reservations (bikes/luggage).
+ * @brief Handles seat map display and ticket purchase logic.
+ * @details Manages seat availability, subscription discounts, loyalty points,
+ * and extra services like bike and luggage reservations.
  */
 export const TicketPurchaseController = {
     /**
-     * @brief Computes a comprehensive visual seat availability matrix for a target train run.
-     * @details Fetches train configurations and isolates coach segments. Iterates through structural matrices 
-     * using designated sequence lettering to flag seat rows as either free or occupied based on active reservation logs.
-     * @param {Object} req - Express request object housing the parameter `runId`.
-     * @param {Object} res - Express response target dispatching structured JSON coach seat configurations.
+     * @brief Returns the seat map for a given train run.
+     * @details Gets the train layout and marks which seats are already taken based on reservations.
+     * @param {Object} req - Express request with runId as a route parameter.
+     * @param {Object} res - Express response object.
      * @return {void}
      */
     getSeatMap(req, res) {
@@ -64,15 +63,13 @@ export const TicketPurchaseController = {
     },
 
     /**
-     * @brief Processes multi-passenger ticket purchasing logs and completes checkouts.
-     * @details Evaluates profile parameters to check for active customer subscriptions, applying a 100% discount 
-     * to the primary user if a matching commuter route exists. Incorporates flat pricing add-ons for bicycles and sizes 
-     * of checked luggage. Subtractes standard loyalty reward points at a 10% cash value conversion rate, increments 
-     * points on successful non-discount checkouts, reserves seat configurations, logs individual payment transactions, 
-     * appends ancillary extra payloads, and triggers confirmation alerts.
-     * @param {Object} req - Express request holding payload structures detailing passenger matrices, ancillary extras, and usage points.
-     * @param {Object} res - Express response delivery map returning transaction summaries or conflict error codes.
-     * @return {Object|void} Sends a 400 or 409 error on validation failures, otherwise returns successful purchase details.
+     * @brief Buys one or more tickets for a train run.
+     * @details Checks for active subscriptions to apply a discount, calculates
+     * extra costs for bike and luggage, applies loyalty points, reserves seats,
+     * and creates payment records.
+     * @param {Object} req - Express request with runId, passengers, extras, usedPoints etc.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 400 or 409 on error, otherwise the purchase details.
      */
     purchase(req, res) {
         const { runId, passengers, extras, usedPoints = 0, bikeCount = 0, luggageCount = 0, luggageSize = 'small' } = req.body;

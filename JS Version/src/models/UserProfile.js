@@ -1,31 +1,30 @@
 /**
  * @class UserProfile
- * @brief Domain entity model encapsulating customer state records displayed within the secure account space.
- * @details Serves as a centralized data repository tracking core personal attributes, active transit credentials, 
- * historical transaction ledger entries, and cumulative loyalty program point balances.
+ * @brief Stores customer account data shown in the user profile area.
+ * @details Keeps the user's personal info, active tickets, booking history, and loyalty points in one place.
  */
 export class UserProfile {
-    /** * @brief Unique identifier mapped directly to the user profile entry record.
+    /** * @brief Unique ID for this profile.
      * @type {number} 
      */ 
     profileId;
 
-    /** * @brief Underlying core user identity details such as email, name, and operational authorization roles.
+    /** * @brief User info like name and email.
      * @type {Object} 
      */ 
     user;
 
-    /** * @brief Collection of active travel documentation, including ongoing subscriptions and valid transit tickets.
+    /** * @brief List of active tickets and subscriptions.
      * @type {Array} 
      */ 
     activeDocuments;
 
-    /** * @brief Historical archive tracking completed journeys, expired reservations, and cancelled bookings.
+    /** * @brief Past bookings, including expired and cancelled ones.
      * @type {Array} 
      */ 
     bookingHistory;
 
-    /** * @brief Total current balance of accrued marketing loyalty points eligible for reward conversions.
+    /** * @brief How many loyalty points the user has.
      * @type {number} 
      */ 
     loyaltyPoints;

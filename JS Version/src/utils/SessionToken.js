@@ -1,14 +1,13 @@
 /**
  * @class SessionToken
- * @brief Cryptographic state tracking model representing an active user authentication session lifecycle.
- * @details Encapsulates the core signature payload string alongside an explicit expiration timestamp,
- * providing the baseline validation checks necessary to safely verify session security limits.
+ * @brief Represents an active user session.
+ * @details Stores a token value and expiration time.
  */
 export class SessionToken {
     /**
-     * @brief Instantiates a secure session validation tracking token entity.
-     * @param {string} tokenValue - The literal alphanumeric security payload string sent by authenticating clients.
-     * @param {Date|number} expirationTime - The chronological threshold limit indicating when authorization records expire.
+     * @brief Creates a new SessionToken.
+     * @param {string} tokenValue - The session token string.
+     * @param {Date|number} expirationTime - When the session expires.
      */
     constructor(tokenValue, expirationTime) {
         /** @type {string} */ this.tokenValue = tokenValue;
@@ -16,11 +15,9 @@ export class SessionToken {
     }
 
     /**
-     * @brief Assesses whether the current validation window has exceeded its authorization time limits.
-     * @details Compares a current runtime timestamp property against the internal token expiration limit 
-     * to determine if access permissions must be programmatically dropped.
-     * @param {Date|number} currentTime - The present time parameters used to evaluate token validity.
-     * @return {boolean} True if the reference time is greater than the defined expiration threshold.
+     * @brief Checks if the session has expired.
+     * @param {Date|number} currentTime - The current time.
+     * @return {boolean} True if expired.
      */
     isExpired(currentTime) {
         return currentTime > this.expirationTime;

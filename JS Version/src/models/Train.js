@@ -1,35 +1,36 @@
 /**
  * @class Train
- * @brief Represents a physical rolling stock fleet asset operating within the transit network infrastructure.
- * @details Encapsulates high-level metadata tags including equipment classification levels, service class lists, 
- * and access methods to probe underlying track signaling APIs or telemetric database tracking indexes.
+ * @brief Represents a real train that runs on the network.
+ * @details Stores info like the train code, type, service
+ * classes, and has methods to check its location and delays.
  */
 export class Train {
-    /** * @brief Unique database asset inventory reference identifier.
+    /** * @brief Unique database ID for this train.
      * @type {number} 
      */ 
     trainId;
 
-    /** * @brief Public alphanumeric identifier code representing the operational route line designation (e.g., 'FR9532').
+    /** * @brief Public code like 'FR9532'.
      * @type {string} 
      */ 
     trainCode;
 
-    /** * @brief Operational speed and brand classification designator (e.g., 'Frecciarossa', 'Intercity', 'Regionale').
+    /** * @brief Type like 'Frecciarossa', 'Intercity', 'Regionale'.
      * @type {string} 
      */ 
     trainType;
 
-    /** * @brief Array of available cabin hospitality tiers supported on this physical rolling stock asset (e.g., ['Standard', 'Business']).
+    /** * @brief Seat classes like ['Standard', 'Business'].
      * @type {string[]} 
      */ 
     serviceClasses;
 
     /**
-     * @brief Queries external satellite track telemetry arrays or regional transponder logs to fetch current coordinates.
-     * @details Connects to telemetry endpoints to retrieve active physical positions during journey tracking windows.
-     * @param {number} trainId - Unique asset inventory key assigned to the physical rolling stock unit.
-     * @return {Object} Geographic coordinate dictionary containing latitude and longitude position pairs.
+     * @brief Gets the current GPS location of the train.
+     * @details Calls an external API or reads from the
+     * database to find where the train is right now.
+     * @param {number} trainId - ID of the train to locate.
+     * @return {Object} Latitude and longitude coordinates.
      */
     getLiveLocation(trainId) {
         // call external API or read from DB
@@ -37,10 +38,11 @@ export class Train {
     }
 
     /**
-     * @brief Evaluates active line telemetry inputs against master timeline configurations to predict route deviations.
-     * @details References tracking nodes to determine scheduling delays across the immediate track network infrastructure.
-     * @param {number} trainId - Unique asset inventory key assigned to the physical rolling stock unit.
-     * @return {number} Estimated itinerary shift duration calculated in minutes.
+     * @brief Estimates how late the train will be.
+     * @details Checks sensor data and schedule info
+     * to figure out the delay in minutes.
+     * @param {number} trainId - ID of the train to check.
+     * @return {number} Estimated delay in minutes.
      */
     getDelayEstimate(trainId) {
         return Math.floor(Math.random() * 30);

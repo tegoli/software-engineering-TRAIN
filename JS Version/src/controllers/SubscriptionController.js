@@ -3,17 +3,15 @@ import { calculatePrice } from '../utils/geo.js';
 
 /**
  * @const SubscriptionController
- * @brief Controller object handling commuter subscriptions, pricing rules, and travel routes.
- * @details Manages queries for active routes, dynamic price forecasts based on geographical coordinate spans, 
- * and transactional purchasing workflows with associated loyalty program integrations.
+ * @brief Handles subscription purchases, route listing and price calculation.
+ * @details Manages the full subscription workflow: listing available routes,
+ * computing prices based on distance, and processing purchases with loyalty points.
  */
 export const SubscriptionController = {
     /**
-     * @brief Retrieves all available travel routes mapping their respective starting and terminal stations.
-     * @details Searches the full collection of system routes and maps station identification numbers 
-     * to descriptive physical station names.
+     * @brief Lists all available routes with their start and end stations.
      * @param {Object} req - Express request object.
-     * @param {Object} res - Express response delivery map returning structured route summary arrays.
+     * @param {Object} res - Express response object.
      * @return {void}
      */
     getRoutes(req, res) {
@@ -28,12 +26,12 @@ export const SubscriptionController = {
     },
 
     /**
-     * @brief Computes estimated pricing attributes for subscription combinations before commitment.
-     * @details Parses query strings for travel parameters, extracts endpoint station metadata, 
-     * and relies on internal geometric calculations to multiply regional base rates across the selected duration.
-     * @param {Object} req - Express request object housing `routeId`, `months`, and `class` query tags.
-     * @param {Object} res - Express response target dispatching calculated price data or 404 notifications.
-     * @return {Object|void} Sends a 404 response if the route is invalid, otherwise returns the computed total price.
+     * @brief Calculates the price of a subscription.
+     * @details Uses the Haversine distance to compute a monthly price,
+     * then multiplies by the number of months.
+     * @param {Object} req - Express request with routeId, months and class as query params.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 404 if the route is not found, otherwise the total price.
      */
     getPrice(req, res) {
         const { routeId, months, class: travelClass } = req.query;
@@ -48,13 +46,12 @@ export const SubscriptionController = {
     },
 
     /**
-     * @brief Processes purchases for travel subscriptions and creates payment logs.
-     * @details Performs validation checks on user profiles and route endpoints, calculates final prices, 
-     * generates date ranges, creates unique scan tracking QR codes, credits customer loyalty balances, 
-     * logs completed transactional payment details, and triggers confirmation alerts.
-     * @param {Object} req - Express request payload carrying `routeId`, `durationMonths`, and `travelClass`.
-     * @param {Object} res - Express response endpoint providing transaction logs or error descriptors.
-     * @return {Object|void} Sends a 400 response on verification constraints, or a success message upon completion.
+     * @brief Buys a subscription for a route.
+     * @details Validates the user and route, calculates the price, creates the subscription
+     * with start/end dates, awards loyalty points, and logs a payment.
+     * @param {Object} req - Express request with routeId, durationMonths and travelClass.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 400 if validation fails, otherwise success with the subscription ID.
      */
     purchase(req, res) {
         const { routeId, durationMonths, travelClass } = req.body;

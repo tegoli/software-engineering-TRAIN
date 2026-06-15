@@ -1,21 +1,20 @@
 /**
  * @file Dashboard.js
- * @brief View-model container representing the structure of an administrative analytical command layout.
- * @details Aggregates high-level business performance statistics, system telemetry counts, and contextual 
- * display labels into a unified object shape to populate corporate web monitoring interfaces.
+ * @brief Holds stats and info shown on an admin's main screen.
+ * @details Groups together things like revenue numbers, delay counts, and other business data for display.
  */
 export class Dashboard {
-    /** * @brief Unique master identification tracking key assigned to this specific visualization dashboard instance.
+    /** @brief Unique ID for this dashboard instance.
      * @type {number} 
      */ 
     dashboardId;
 
-    /** * @brief Distinct display heading or localized text title used to label the active management panel view.
+    /** @brief The name or heading shown at the top of the dashboard.
      * @type {string} 
      */ 
     title;
 
-    /** * @brief Multi-layered metadata payload housing aggregated operational trends, revenue metrics, and delay statistics.
+    /** @brief Contains all the numbers and data shown on the dashboard.
      * @type {object} 
      */ 
     statistics;

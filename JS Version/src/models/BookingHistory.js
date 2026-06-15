@@ -1,25 +1,23 @@
 /**
  * @file BookingHistory.js
- * @brief Profile analytics aggregator tracking historical commercial transactions and past travel itineraries.
- * @details Compiles historic reservation records to assemble an audit trail of past purchases, providing localized 
- * analytical methods to evaluate frequent transit nodes and generate passenger personalization profiles.
+ * @brief Keeps track of past bookings a user has made.
+ * @details Stores old reservations and can figure out which stations the user visits the most.
  */
 export class BookingHistory {
-    /** * @brief Unique master identification tracking key assigned to this specific historical collection instance.
+    /** * @brief Unique ID for this history record.
      * @type {number} 
      */ 
     historyId;
 
-    /** * @brief Collection of historic booking structures containing expired travel receipts, route paths, and price entries.
+    /** * @brief List of all past booking objects.
      * @type {Array<Object>} 
      */ 
     pastBookings;
 
     /**
-     * @brief Parses historical travel nodes to isolate and return the most frequently visited transit hubs.
-     * @details Scans internal reservation arrays, aggregating origin and destination terminal markers into a ranked tally 
-     * to surface localized station recommendations or shortcuts for the client interface.
-     * @return {Array<string>} Collection list of frequently recurring station names sorted by relative usage volume.
+     * @brief Finds the stations the user goes to most often.
+     * @details Goes through past bookings and counts how many times each station shows up.
+     * @return {Array<string>} Station names sorted by how popular they are.
      */
     getPopularStations() {
         // return frequently used stations

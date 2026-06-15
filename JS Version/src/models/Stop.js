@@ -1,41 +1,40 @@
 /**
  * @file Stop.js
- * @brief Domain entity model representing an explicit schedule checkpoint or station stop along a train route.
- * @details Captures critical itinerary stop sequence orders, scheduled versus real-time arrival/departure metrics, 
- * and platform track assignments to supply tracking boards and routing matrix engines.
+ * @brief Represents one station stop along a train's route.
+ * @details Stores the order of the stop, station ID, scheduled and estimated times, and the track number.
  */
 export class Stop {
-    /** * @brief Sequential position index tracking this stop's location along the linear journey timeline.
+    /** @brief Where this stop falls in the train's route order.
      * @type {number} 
      */ 
     stopOrder;
 
-    /** * @brief Unique database identifier key linking this stop entry to a physical train station node.
+    /** @brief The database ID for the station where this stop is.
      * @type {number} 
      */ 
     stationId;
 
-    /** * @brief Target arrival time published in the master timetable layout formatted in 'HH:MM' precision.
+    /** @brief The official arrival time from the timetable.
      * @type {string} 
      */ 
     scheduledArrival;   // HH:MM
 
-    /** * @brief Target departure time published in the master timetable layout formatted in 'HH:MM' precision.
+    /** @brief The official departure time from the timetable.
      * @type {string} 
      */ 
     scheduledDeparture; // HH:MM
 
-    /** * @brief Dynamically recalculated arrival timestamp estimation tracking live network speed fluctuations.
+    /** @brief The updated arrival time based on current conditions.
      * @type {string} 
      */ 
     estimatedArrival;
 
-    /** * @brief Dynamically recalculated departure timestamp estimation tracking live network speed fluctuations.
+    /** @brief The updated departure time based on current conditions.
      * @type {string} 
      */ 
     estimatedDeparture;
 
-    /** * @brief Designated platform or track assignment identifier where the physical rolling stock assets dock.
+    /** @brief Which platform or track the train stops at.
      * @type {string} 
      */ 
     trackNumber;

@@ -3,37 +3,34 @@ import { TravelDocument } from './TravelDocument.js';
 /**
  * @class Subscription
  * @extends TravelDocument
- * @brief Domain entity model representing a recurring, time-bound transit pass asset.
- * @details Extends the core TravelDocument framework by embedding explicit validity windows, 
- * tracking duration parameters, and exposing structural lifecycles to calculate continuous operational 
- * renewal structures across the transit clearinghouse network.
+ * @brief A travel pass that lasts for a set amount of time.
+ * @details Works like a regular ticket but has a start date, end date, and how many days it's good for.
  */
 export class Subscription extends TravelDocument {
-    /** * @brief Unique database record primary key mapping this subscription to the data ledger.
+    /** * @brief Primary key for this subscription in the database.
      * @type {number} 
      */ 
     subscriptionId;
 
-    /** * @brief Calendar date indicating the exact start of the authorized transit validity window.
+    /** * @brief When the subscription starts being valid.
      * @type {Date} 
      */ 
     startDate;
 
-    /** * @brief Calendar date tracking the expiration threshold after which the document becomes invalid.
+    /** * @brief When the subscription stops being valid.
      * @type {Date} 
      */ 
     endDate;
 
-    /** * @brief Total number of consecutive calendar days allocated to the current active validity cycle.
+    /** * @brief How many days the subscription lasts.
      * @type {number} 
      */ 
     durationDays;
 
     /**
-     * @brief Extends the operational lifecycle of the subscription by a specified block of valid days.
-     * @details Updates internal duration metrics and projects a new future termination timestamp calculated 
-     * by stacking millisecond offsets onto the active system clock baseline, staging records for database update loops.
-     * @param {number} durationDays - Total count of consecutive calendar days to add to the asset term.
+     * @brief Extends the subscription by adding more days.
+     * @details Updates the duration and pushes the end date forward by the given number of days.
+     * @param {number} durationDays - How many days to add on.
      * @return {void}
      */
     renew(durationDays) {

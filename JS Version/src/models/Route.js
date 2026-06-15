@@ -1,32 +1,30 @@
 /**
  * @class Route
- * @brief Domain entity model representing a structured railway line configuration path across the network.
- * @details Establishes a foundational spatial line blueprint mapping static paths between terminals, housing 
- * core structural identifiers alongside calculation methods to measure standard timeline durations.
+ * @brief Represents a train route between stations.
+ * @details Stores the route ID and name, and can calculate how long the trip takes.
  */
 export class Route {
     /**
-     * @brief Instantiates an operational path structure definition container.
-     * @param {number|string} routeId - Unique registry identification primary key mapping this line path.
-     * @param {string} routeName - Descriptive commercial naming tag assigned to the line corridor (e.g., 'Milan-Rome Express').
+     * @brief Creates a new Route object.
+     * @param {number|string} routeId - ID for this route.
+     * @param {string} routeName - Name of the route.
      */
     constructor(routeId, routeName) {
-        /** * @brief Unique master identification tracking key assigned to this specific line path configuration.
+        /** * @brief Unique ID for this route.
          * @type {number|string} 
          */
         this.routeId = routeId;
 
-        /** * @brief Descriptive title layout detailing origin, target, or corridor attributes for clear identification.
+        /** * @brief Display name for the route.
          * @type {string} 
          */
         this.routeName = routeName;
     }
 
     /**
-     * @brief Computes the nominal time duration envelope required to traverse the entire structural line sequence.
-     * @details Evaluates baseline static timetable parameters across sequential track milestones to return 
-     * a standardized baseline duration tally.
-     * @return {number} Calculated baseline transit duration expressed in minutes.
+     * @brief Works out how long the route takes.
+     * @details Uses schedule data to estimate travel time in minutes.
+     * @return {number} Travel time in minutes.
      */
     calculateDuration() { 
         return 0; 

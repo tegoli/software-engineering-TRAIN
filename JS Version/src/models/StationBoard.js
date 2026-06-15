@@ -1,30 +1,28 @@
 /**
  * @class StationBoard
- * @brief View-model manager representing a physical or digital train station passenger information display.
- * @details Powers terminal display monitors by tracking current operational states, distinguishing between 
- * incoming and outgoing traffic pipelines, and logging temporal snapshots to coordinate refresh frequencies.
+ * @brief Represents a station board that shows arrivals or departures.
+ * @details Stores the board type, entries, and last update time so passengers can see live train info.
  */
 export class StationBoard {
-    /** * @brief Unique identifier index tracking this specific display board context or physical terminal monitor node.
+    /** * @brief Unique ID for this board.
      * @type {number} 
      */ 
     boardId;
 
-    /** * @brief Operational view orientation flag classifying the target direction loop (e.g., 'departures', 'arrivals').
+    /** * @brief Whether this board shows departures or arrivals.
      * @type {string} 
      */ 
     boardType; // 'departures', 'arrivals'
 
-    /** * @brief Precise timestamp recording when the active display rows were last synchronized with telemetry caches.
+    /** * @brief When the board was last refreshed.
      * @type {Date} 
      */ 
     lastUpdate;
 
     /**
-     * @brief Injects an updated collection of timetable entries into the active board layout and ticks the sync clock.
-     * @details Updates the internal operational reference log with the current execution time, flushing out stale metadata 
-     * rows to present real-time transit telemetry directly to waiting station passengers.
-     * @param {Array<Object>} entries - Array of structured itinerary records containing live tracking updates and track allocations.
+     * @brief Updates the board with new train entries and sets the time.
+     * @details Replaces the old entries with fresh ones and records the update time.
+     * @param {Array<Object>} entries - New train data to show on the board.
      * @return {void}
      */
     updateDisplay(entries) {

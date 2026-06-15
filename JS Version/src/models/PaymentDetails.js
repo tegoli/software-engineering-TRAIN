@@ -1,25 +1,23 @@
 /**
  * @file PaymentDetails.js
- * @brief Data transfer object containing the necessary references and vectors to initiate a secure transaction.
- * @details Encapsulates high-level payment channels alongside tokenized proxy signatures, ensuring compliance 
- * with payment security standards by preventing raw account or card details from circulating through internal application loops.
+ * @brief Holds payment info needed to process a transaction.
+ * @details Stores the payment method and a token instead of raw card details, so we stay safe and compliant.
  */
 export class PaymentDetails {
-    /** * @brief Designated transactional framework channel category (e.g., 'credit_card', 'paypal', 'apple_pay').
+    /** * @brief Payment method used.
      * @type {string} 
      */ 
     paymentMethod;
 
-    /** * @brief PCI-compliant obfuscated hash reference mapping back to raw card details stored in a secure external vault.
+    /** * @brief Secure token referencing the real card info.
      * @type {string} 
      */ 
     tokenizedReference;
 
     /**
-     * @brief Evaluates whether the critical payment properties are fully populated.
-     * @details Performs basic structural validation by asserting the presence of both the processing method type 
-     * and its associated security reference token before submitting the payload to downstream authorization controllers.
-     * @return {boolean} True if both essential payment parameters are present and non-empty.
+     * @brief Checks that payment fields are filled in.
+     * @details Makes sure both payment method and token are present before sending to the payment service.
+     * @return {boolean} True if payment info is complete.
      */
     validate() {
         return !!this.paymentMethod && !!this.tokenizedReference;

@@ -1,26 +1,25 @@
 /**
  * @file BoardEntry.js
- * @brief View-model definition representing a single row configuration on an station departure or arrival board.
- * @details Captures the immediate tactical telemetry points for a scheduled train stop—pairing original baseline timetables 
- * with dynamic estimated adjustments, track platform designations, and operational tracking flags to build live passenger displays.
+ * @brief Represents one row on a station departure or arrival board.
+ * @details Holds the scheduled time, estimated time, platform, and status for a single train on the board.
  */
 export class BoardEntry {
-    /** * @brief Baseline chronological timestamp coordinate originally mapped and published in standard network timetables.
+    /** * @brief The scheduled time from the timetable.
      * @type {Date} 
      */ 
     scheduledTime;
 
-    /** * @brief Dynamic, real-time recalculation timestamp accounting for active network constraints, delays, or physical track sensors.
+    /** * @brief The updated time if the train is delayed.
      * @type {Date} 
      */ 
     estimatedTime;
 
-    /** * @brief Designated station track or platform node terminal sequence identifier where passengers physically board the train.
+    /** * @brief Platform number for boarding.
      * @type {string} 
      */ 
     platform;
 
-    /** * @brief High-level systemic operational readiness or warning flag displayed to passengers (e.g., 'on-time', 'delayed', 'cancelled').
+    /** * @brief Current status of the train.
      * @type {string} 
      */ 
     entryStatus; // 'on-time', 'delayed', 'cancelled'

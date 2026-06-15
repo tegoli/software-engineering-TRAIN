@@ -1,40 +1,40 @@
 /**
  * @file User.js
- * @brief Abstract base class defining fundamental attributes and common behaviors for all system identities.
- * @details Establishes core demographic schema fields and global localization functions inherited 
- * by all participant roles across the transport management platform, such as Passengers, Conductors, and Administrators.
+ * @brief Base class with basic info and methods for all users.
+ * @details Defines the common fields (name, email, etc.) that
+ * Passenger, Conductor, and Admin all inherit.
  */
 export class User {
-    /** * @brief Unique database primary key assigned to the identity record.
+    /** * @brief Unique database ID for this user.
      * @type {number} 
      */ 
     userId;
 
-    /** * @brief Legal given name of the individual.
+    /** * @brief The user's first name.
      * @type {string} 
      */ 
     name;
 
-    /** * @brief Legal family name of the individual.
+    /** * @brief The user's last name.
      * @type {string} 
      */ 
     surname;
 
-    /** * @brief Primary electronic mail address used for authentication routing and operational receipts.
+    /** * @brief Email address used for login and notifications.
      * @type {string} 
      */ 
     email;
 
-    /** * @brief ISO language code specifying the user's localized content rendering selection (e.g., 'it', 'en').
+    /** * @brief Language code like 'it' or 'en'.
      * @type {string} 
      */ 
     preferredLanguage; // 'it', 'en', etc.
 
     /**
-     * @brief Persists a new internationalization (i18n) localization preference code for the current context.
-     * @details Updates internal localization preferences to guide structural template rendering, 
-     * matching localized date-time values, and selecting system communication notification translations.
-     * @param {string} lang - Two-letter ISO language configuration code (e.g., 'it', 'en').
+     * @brief Changes the user's preferred language.
+     * @details Updates the language setting which affects dates,
+     * templates, and notification messages.
+     * @param {string} lang - Two-letter language code.
      * @return {void}
      */
     changeLanguage(lang) {

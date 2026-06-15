@@ -1,29 +1,30 @@
 /**
  * @file TrainOption.js
- * @brief Domain entity encapsulating a specific itinerary choice selected by a passenger during booking checkout.
- * @details Models a transient selection tracking state, binding financial price configurations alongside live 
- * real-time physical seat inventory allocations before locking in final reservations.
+ * @brief Holds a specific trip option a passenger picked during booking.
+ * @details Stores the price and how many seats are free
+ * for this option before the booking is finalized.
  */
 export class TrainOption {
-    /** * @brief Unique identifier string or key mapping this specific travel choice option to the current user checkout context.
+    /** * @brief Unique ID for this option in the checkout.
      * @type {number} 
      */ 
     optionId;
 
-    /** * @brief Accumulated currency total for the chosen itinerary, incorporating cabin tiers and base kilometer calculations.
+    /** * @brief Total price for this trip option.
      * @type {number} 
      */ 
     totalPrice;
 
-    /** * @brief Current volume of unallocated seats remaining on the physical carriage configuration for this run selection.
+    /** * @brief How many seats are still free.
      * @type {number} 
      */ 
     availableSeats;
 
     /**
-     * @brief Formats and yields the complete financial total for the selected itinerary option.
-     * @details Provides raw numeric price points directly to billing modules or front-end checkout display layers.
-     * @return {number} The aggregated currency value total.
+     * @brief Returns the total price of the option.
+     * @details Gives the price number to billing or
+     * the checkout page so it can be displayed.
+     * @return {number} The total price amount.
      */
     displayTotal() {
         return this.totalPrice;

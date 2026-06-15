@@ -2,17 +2,17 @@ import { readDB } from '../database/db.js';
 
 /**
  * @const ScheduleController
- * @brief Controller object handling shift management and roster lookups for internal staff members.
- * @details Provides interfaces to securely fetch and cross-reference operational duties with relevant transport assets.
+ * @brief Handles inspector shift schedules.
+ * @details Returns the work schedule for a specific inspector, enriched with train info.
  */
 export const ScheduleController = {
     /**
-     * @brief Retrieves and contextually enriches the active work shift calendar for a targeted staff member.
-     * @details Validates identity mappings to ensure the active requester matches the requested employee data context.
-     * Searches database structures, maps associated train run vectors, handles route descriptions, and aggregates active rolling stock designations.
-     * @param {Object} req - Express request object housing the routing parameter `inspectorId` alongside token authorization boundaries.
-     * @param {Object} res - Express response delivery map handling error outputs or providing data arrays.
-     * @return {Object|void} Sends a 403 response if identity ownership bounds are violated, otherwise dispatches shifts array.
+     * @brief Gets the shift schedule for an inspector.
+     * @details Checks that the requester is the inspector themselves, then returns
+     * their shifts with train and route details.
+     * @param {Object} req - Express request with inspectorId as a route parameter.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 403 if not authorized, otherwise the list of shifts.
      */
     getSchedule(req, res) {
         const inspectorId = parseInt(req.params.inspectorId);

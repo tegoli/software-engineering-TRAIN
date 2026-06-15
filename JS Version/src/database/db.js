@@ -67,12 +67,11 @@ export function getUserById(userId) {
 }
 
 /**
- * @brief Creates and pushes a new notification for a specific user into the database.
- * @details Generates an auto-incremented notification ID, sets the current ISO timestamp,
- * and defaults the read status to false.
- * @param {number|string} userId - The ID of the recipient user.
- * @param {string} message - The content of the notification message.
- * @param {string} type - The category or type of notification (e.g., alert, info).
+ * @brief Creates a notification for a user and saves it.
+ * @details Generates an auto-incremented ID, sets the current time, read status to false.
+ * @param {number|string} userId - The ID of the user to notify.
+ * @param {string} message - The notification text.
+ * @param {string} type - The type of notification (e.g., alert, info).
  * @return {void}
  */
 export function createNotification(userId, message, type) {
@@ -129,10 +128,9 @@ export function initDatabase() {
 }
 
 /**
- * @brief Seeds the database with default test users and work schedules.
- * @details Checks for the existence of an administrator account, a standard test user account, 
- * and an inspector account. If missing, it adds them with encrypted passwords alongside 
- * corresponding mock shift schedules for tomorrow.
+ * @brief Adds default test users and schedules to the database.
+ * @details Checks if admin, test user and inspector accounts exist.
+ * If missing, creates them with default passwords and mock shift schedules.
  * @return {void}
  */
 export function seedDefaultUsers() {

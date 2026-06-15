@@ -1,68 +1,67 @@
 /**
  * @class TicketDatabase
- * @brief Handles database transactions and logic relating to passenger tickets.
- * @details Provides interfaces for saving, updating, and filtering ticket records, 
- * as well as identifying affected users for specific train configurations.
+ * @brief Handles ticket data in the database.
+ * @details Provides methods for saving, updating and looking up ticket records.
  */
 export class TicketDatabase {
     /**
-     * @brief Saves a new ticket entry to the database.
-     * @param {Object} data - The configuration data and properties of the ticket to save.
+     * @brief Saves a new ticket to the database.
+     * @param {Object} data - The ticket data to save.
      * @return {void}
      */
     saveTicket(data) { console.log('Ticket salvato', data); }
     
     /**
-     * @brief Retrieves detailed information for a specific ticket by its ID.
-     * @param {number|string} ticketId - The unique identifier of the ticket.
-     * @return {Object} An object containing the ticket's formal details.
+     * @brief Gets ticket details by ID.
+     * @param {number|string} ticketId - The ID of the ticket.
+     * @return {Object} An object with the ticket's details.
      */
     getTicketDetails(ticketId) { return {}; }
     
     /**
-     * @brief Updates an existing ticket's information with new metadata.
-     * @param {number|string} ticketId - The unique identifier of the ticket to modify.
-     * @param {Object} newDetails - The subset of fields or updated parameters to apply.
+     * @brief Updates an existing ticket with new data.
+     * @param {number|string} ticketId - The ID of the ticket to update.
+     * @param {Object} newDetails - The new values to apply.
      * @return {void}
      */
     updateTicket(ticketId, newDetails) { }
     
     /**
-     * @brief Identifies and collects users affected by changes to a specific train.
-     * @param {number|string} trainId - The unique identifier of the train run or service.
-     * @return {Array<Object>} A list of user descriptors corresponding to the affected ticket holders.
+     * @brief Finds users affected by a train change.
+     * @param {number|string} trainId - The ID of the train run.
+     * @return {Array<Object>} A list of affected users.
      */
     getAffectedUsers(trainId) { return []; }
     
     /**
-     * @brief Fetches raw data records categorized by an internal database collection type.
-     * @param {string} type - The key or schema segment identifier to retrieve.
+     * @brief Gets data from the database by type.
+     * @param {string} type - The type of data to retrieve.
      * @return {void}
      */
     retrieveData(type) { }
     
     /**
-     * @brief Requests or initializes the available filter configurations for queries.
+     * @brief Sets up the available filters for queries.
      * @return {void}
      */
     requestFilters() { }
     
     /**
-     * @brief Applies programmatic sorting or filtering parameters onto the active collection.
-     * @param {Object} filters - A mapping configuration specifying rules to filter records by.
+     * @brief Applies filters to the data.
+     * @param {Object} filters - The filters to apply.
      * @return {void}
      */
     applyFilters(filters) { }
     
     /**
-     * @brief Determines if the dataset is completely devoid of records or elements.
-     * @return {boolean} True if no valid data is available; false otherwise.
+     * @brief Checks if there is no data available.
+     * @return {boolean} True if the dataset is empty.
      */
     noData() { return false; }
     
     /**
-     * @brief Dispatches or renders a formal error communication string to console streams.
-     * @param {string} message - The system logging message or user-facing statement to display.
+     * @brief Shows an error message in the console.
+     * @param {string} message - The error message to show.
      * @return {void}
      */
     showErrorMessage(message) { console.error(message); }

@@ -1,45 +1,43 @@
 /**
  * @file Station.js
- * @brief Domain entity model representing a physical railway station node inside the transit infrastructure network.
- * @details Encapsulates geometric location metadata parameters, geographic naming conventions, and shorthand 
- * telegraphic route station code identifiers used to calculate mapping layouts and power localized informational hub updates.
+ * @brief Represents a single railway station.
+ * @details Stores the station's name, city, code, and GPS coordinates.
  */
 export class Station {
-    /** * @brief Unique master structural primary key indexing this railway facility within the operational transit ledger.
+    /** * @brief Unique ID for this station.
      * @type {number} 
      */ 
     stationId;
 
-    /** * @brief Formal commercial title of the passenger railway station terminal (e.g., 'Milano Centrale').
+    /** * @brief Full name of the station.
      * @type {string} 
      */ 
     name;
 
-    /** * @brief The target municipality, metropolitan region, or city area where the physical facility resides.
+    /** * @brief City where the station is located.
      * @type {string} 
      */ 
     city;
 
-    /** * @brief Standardized shorthand alphanumeric tracking code assigned to the node (e.g., 'MIL', 'ROM').
+    /** * @brief Short code for the station.
      * @type {string} 
      */ 
     code;
 
-    /** * @brief Geographic coordinate marker tracking the absolute latitude vector position of the terminal center.
+    /** * @brief Latitude coordinate of the station.
      * @type {number} 
      */ 
     latitude;
 
-    /** * @brief Geographic coordinate marker tracking the absolute longitude vector position of the terminal center.
+    /** * @brief Longitude coordinate of the station.
      * @type {number} 
      */ 
     longitude;
 
     /**
-     * @brief Refreshes passenger informational displays mapped to this station terminal framework.
-     * @details Dispatches structured route arrays and delay telemetry snapshots directly to web interfaces, 
-     * mobile widgets, or physical digital displays matching this transit node context.
-     * @param {Array<Object>} data - Structured collection of incoming or outgoing train run metadata objects.
+     * @brief Updates the station's departure/arrival boards.
+     * @details Sends train data to web, mobile, or physical displays for this station.
+     * @param {Array<Object>} data - Train data to show on the board.
      * @return {void}
      */
     displayBoard(data) {

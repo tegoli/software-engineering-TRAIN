@@ -1,22 +1,23 @@
 /**
- * @file Account management (password recovery, deletion).
+ * @file Account management: password change, deletion, recovery.
  */
 import { readDB, writeDB, hashPassword } from '../database/db.js';
 
 /**
  * @const AccountController
- * @brief Controller object handling operational logic for user accounts.
- * @details Manages security validations, full account data erasure, and recovery workflows.
+ * @brief Handles account operations like password changes, deletion and recovery.
+ * @details Provides async methods for changing passwords, deleting accounts
+ * and requesting password recovery.
  */
 export const AccountController = {
     /**
-     * @brief Validates security records and changes a user's password.
-     * @details Compares the hash of the old password against storage records, validates that 
-     * the new password meets the minimum length requirement, updates the record, and persists modifications.
-     * @param {number|string} userId - The unique identifier of the user changing their credentials.
-     * @param {string} oldPass - The current plain text password for identity verification.
-     * @param {string} newPass - The new plain text password to be applied.
-     * @return {Promise<boolean>} Resolves to true if password modification succeeded; false if verification failed or criteria weren't met.
+     * @brief Changes the user's password.
+     * @details Checks the old password hash, validates the new password length,
+     * and updates the database.
+     * @param {number|string} userId - The ID of the user.
+     * @param {string} oldPass - The current password.
+     * @param {string} newPass - The new password (min 8 chars).
+     * @return {Promise<boolean>} True if the password was changed, false otherwise.
      */
     async changePassword(userId, oldPass, newPass) {
         const db = readDB();
@@ -29,11 +30,10 @@ export const AccountController = {
     },
 
     /**
-     * @brief Permanently deletes a user account and purges associated data.
-     * @details Removes the user's specific registration entry and cascades the deletion to remove 
-     * all records matching their user identifier within the tickets database.
-     * @param {number|string} userId - The unique identifier of the target account to erase.
-     * @return {Promise<boolean>} Resolves to true once database filters are completed and saved.
+     * @brief Deletes a user account and all associated data.
+     * @details Removes the user from the database and deletes all their tickets.
+     * @param {number|string} userId - The ID of the user to delete.
+     * @return {Promise<boolean>} True when the deletion is complete.
      */
     async deleteAccount(userId) {
         const db = readDB();
@@ -44,10 +44,9 @@ export const AccountController = {
     },
 
     /**
-     * @brief Initiates the password recovery procedure for a user given their email identity.
-     * @details Mock implementation for generating and sending an automated credential reset link.
-     * @param {string} email - The registered email address associated with the recovery request.
-     * @return {Promise<boolean>} Resolves to true indicating processing operations were completed.
+     * @brief Sends a password recovery email (simulated).
+     * @param {string} email - The email address for the recovery request.
+     * @return {Promise<boolean>} True when the process is complete.
      */
     async requestRecovery(email) {
         // send reset link

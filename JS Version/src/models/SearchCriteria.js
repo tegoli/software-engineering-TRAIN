@@ -1,50 +1,48 @@
 /**
  * @file SearchCriteria.js
- * @brief Configuration data transfer object enclosing user-specified query boundaries for itinerary lookups.
- * @details Packages search coordinates, chronological limits, and rolling stock preferences required to 
- * query transit databases, providing structural logic validations before dispatching requests to routing engines.
+ * @brief Stores what the user searched for when looking up train trips.
+ * @details Holds departure and arrival stations, date, time, train type, class, and number of passengers.
  */
 export class SearchCriteria {
-    /** * @brief Name or title designation matching the physical starting terminal node of the journey.
+    /** @brief The station the user wants to leave from.
      * @type {string} 
      */ 
     departureStationName;
 
-    /** * @brief Name or title designation matching the physical ending terminal node of the journey.
+    /** @brief The station the user wants to arrive at.
      * @type {string} 
      */ 
     arrivalStationName;
 
-    /** * @brief Target calendar date requested for the route lookup sequence.
+    /** @brief What day the user wants to travel.
      * @type {Date} 
      */ 
     date;
 
-    /** * @brief Preferred baseline daily timestamp marker limiting the initial search window.
+    /** @brief What time the user wants to leave.
      * @type {string} 
      */ 
     time;
 
-    /** * @brief Velocity or branding tier preference filtering the transit vehicle profile (e.g., 'Frecciarossa', 'Regionale').
+    /** @brief The type of train the user wants (e.g., 'Frecciarossa', 'Regionale').
      * @type {string} 
      */ 
     trainType;
 
-    /** * @brief Desired cabin tier structure option utilized to filter accommodating rolling stock configurations.
+    /** @brief What class of travel the user wants.
      * @type {string} 
      */ 
     travelClass;
 
-    /** * @brief Quantity index capturing total passenger count allocations to scope available inventory targets.
+    /** @brief How many people are traveling.
      * @type {number} 
      */ 
     passengerCount;
 
     /**
-     * @brief Executes foundational integrity checks on the internal criteria parameters.
-     * @details Verifies that origin and destination station targets do not match, and applies temporal calculations 
-     * to confirm that the requested calendar date falls on or after the start of the current day.
-     * @return {boolean} True if the structured query criteria parameters satisfy core operational boundaries.
+     * @brief Checks if the search details make sense before sending.
+     * @details Makes sure the departure and arrival stations are different and the date isn't in the past.
+     * @return {boolean} True if the search is valid, false otherwise.
      */
     validate() {
         return this.departureStationName !== this.arrivalStationName &&

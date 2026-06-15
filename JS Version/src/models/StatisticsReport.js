@@ -1,35 +1,33 @@
 /**
  * @file StatisticsReport.js
- * @brief Analytical report entity compiling operational performance, financial datasets, and system-wide metrics.
- * @details Aggregates raw telemetry snapshots and transactional records into standardized data structures, 
- * providing built-in filtering mechanisms and view models tailored for management dashboards.
+ * @brief Stores a report with stats like revenue or passenger numbers.
+ * @details Holds the report data and lets you filter it or format it for display.
  */
 export class StatisticsReport {
-    /** * @brief Unique database record primary key tracking this compiled report instance.
+    /** * @brief Unique ID for this report.
      * @type {number} 
      */ 
     reportId;
 
-    /** * @brief Categorization tag defining the report scope (e.g., 'revenue', 'delay-analytics', 'passenger-volume').
+    /** * @brief What kind of report this is.
      * @type {string} 
      */ 
     reportType;
 
-    /** * @brief Exact calendar date and time tracking when this analytical snapshot was generated.
+    /** * @brief When the report was generated.
      * @type {Date} 
      */ 
     generationDate;
 
-    /** * @brief Core payload container object housing structured statistical metrics, arrays, and trend matrices.
+    /** * @brief The actual report data.
      * @type {Object} 
      */ 
     data;
 
     /**
-     * @brief Filters the internal data payload based on a specified multi-variable constraint criteria object.
-     * @details Subsets the core metrics array or object keys by applying granular bounds such as 
-     * explicit date ranges, regional station nodes, or rolling stock classifications.
-     * @param {Object} filters - Dictionary of constraint parameters used to isolate target analytical metrics.
+     * @brief Filters the report data based on given rules.
+     * @details Narrows down the data using filters like date range or station.
+     * @param {Object} filters - Filters to apply to the data.
      * @return {void}
      */
     applyFilters(filters) {
@@ -37,10 +35,9 @@ export class StatisticsReport {
     }
 
     /**
-     * @brief Formats and transforms the internal data structure for UI component rendering pipelines.
-     * @details Map raw tabular analytics into standardized JSON presentations optimized for direct injection 
-     * into front-end chart components or administrative export modules.
-     * @return {Object|Array} The structured, presentable view-model layout of the data payload.
+     * @brief Formats the report data so it can be shown in the UI.
+     * @details Converts the data into a format that front-end charts and exports can use.
+     * @return {Object|Array} Formatted data for the UI.
      */
     displayData() {
         // return formatted data

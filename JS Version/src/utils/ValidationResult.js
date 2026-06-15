@@ -1,29 +1,28 @@
 /**
  * @file ValidationResult.js
- * @brief Represents the data payload structure returned from an official ticket validation event.
- * @details Models validation state properties, handling state flags that separate valid transit 
- * permissions, duplicate check warnings, and readable status log reports.
+ * @brief Represents the result of a ticket validation.
+ * @details Stores whether the ticket is valid, if it was already used, and a message.
  */
 export class ValidationResult {
-    /** * @brief Core status flag confirming if the pass is currently authorized for active boarding.
+    /** * @brief True if the ticket is valid.
      * @type {boolean} 
      */ 
     valid = false;
 
-    /** * @brief Anti-fraud security property signaling if the asset was previously scanned and set to a used state.
+    /** * @brief True if the ticket was already validated.
      * @type {boolean} 
      */ 
     alreadyValidated = false;
 
-    /** * @brief Detailed message string containing error details or successful validation clearance reports.
+    /** * @brief A message describing the result.
      * @type {string} 
      */ 
     message = '';
 
     /**
-     * @brief Instantiates a new validation result schema layout block.
-     * @param {boolean} [valid=false] - Baseline verification flag state.
-     * @param {string} [message=''] - Explanatory metadata description string.
+     * @brief Creates a new ValidationResult.
+     * @param {boolean} [valid=false] - Whether the ticket is valid.
+     * @param {string} [message=''] - A description of the result.
      */
     constructor(valid = false, message = '') {
         this.valid = valid;

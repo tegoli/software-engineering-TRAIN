@@ -2,19 +2,18 @@ import { readDB, writeDB } from '../database/db.js';
 
 /**
  * @const InspectorController
- * @brief Controller object handling ticket inspections and shift schedules for ticket inspectors.
- * @details Validates traditional travel tickets and multi-use subscriptions, tracking expiration ranges 
- * and updating in-memory status maps. Provides secure access interfaces to view personalized staff schedules.
+ * @brief Handles ticket validation and shift schedules for inspectors.
+ * @details Validates tickets and subscriptions, marks tickets as used,
+ * and returns the inspector's work schedule for the day.
  */
 export const InspectorController = {
     /**
-     * @brief Validates a provided verification entry token against known travel credentials.
-     * @details Searches across ticket arrays and down into subscriptions if unmatched. Checks structural 
-     * properties like date intervals, active indicators, and state tags. If a normal ticket is identified 
-     * as active, updates its lifecycle profile state to 'used' and locks corresponding seat rows.
-     * @param {Object} req - Express request object containing `ticketId` inside the body payload.
-     * @param {Object} res - Express response object returning validation status matrices and textual updates.
-     * @return {Object|void} Sends a JSON status response confirming validity attributes.
+     * @brief Validates a ticket or subscription by its ID.
+     * @details Tries to find the document among tickets first, then subscriptions.
+     * Marks tickets as used, but subscriptions stay active until their end date.
+     * @param {Object} req - Express request with ticketId in the body.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} JSON with valid flag and a message.
      */
     validateTicket(req, res) {
         const { ticketId } = req.body;
@@ -65,13 +64,12 @@ export const InspectorController = {
     },
 
     /**
-     * @brief Retrieves and builds detailed work assignment structures for an authorized staff inspector.
-     * @details Evaluates session descriptors to verify that the requesting user matches the targeted staff ID 
-     * or holds administrator access permissions. Searches schedule records and links train runs, 
-     * route information, and rolling stock parameters.
-     * @param {Object} req - Express request object containing `inspectorId` parameters and custom identity contexts.
-     * @param {Object} res - Express response object handling access denials or structured shift itineraries.
-     * @return {Object|void} Sends a 403 authorization error on mismatch, or a list of enriched shift itineraries.
+     * @brief Returns the shift schedule for an inspector.
+     * @details Checks that the requester is the inspector themselves or an admin.
+     * Enriches shifts with train and route info.
+     * @param {Object} req - Express request with inspectorId as a route parameter.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 403 if not authorized, otherwise the list of shifts.
      */
     getSchedule(req, res) {
         const inspectorId = parseInt(req.params.inspectorId);

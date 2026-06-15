@@ -4,49 +4,48 @@ import { StatisticsController } from '../controllers/StatisticsController.js';
 /**
  * @class RailwayAdministrator
  * @extends RegisteredUser
- * @brief Domain actor model representing an enterprise system administrator with executive privileges.
- * @details Extends corporate employee definitions by exposing privileged administrative console routing hooks, 
- * raw telemetry extraction routines, and analytical multi-variable filtering wrappers to audit system performance metrics.
+ * @brief An admin user with extra powers over the system.
+ * @details Has special access to view statistics and manage the railway. Can filter data and see raw reports.
  */
 export class RailwayAdministrator extends RegisteredUser {
-    /** * @brief Unique corporate workforce identifier tracking administrator clearance parameters.
+    /** * @brief Unique code that identifies this admin.
      * @type {string} 
      */ 
     adminCode;
 
     /**
-     * @brief Assesses active session signature scopes to verify high-level clearance parameters before rendering control environments.
-     * @details Acts as a high-level guard check to unlock specialized administrative actions and infrastructure panels.
-     * @return {boolean} True if the current administrative identity context satisfies necessary security rules.
+     * @brief Checks if the current user can access the admin panel.
+     * @details Makes sure the user has the right permissions before showing admin stuff.
+     * @return {boolean} True if the user is allowed in.
      */
     requestAdminArea() {
         return true;
     }
 
     /**
-     * @brief Extracts raw transaction logs and infrastructure performance matrices directly from storage engines.
-     * @details Calls down into the StatisticsController to fetch deep unaggregated business metadata snapshots.
-     * @return {Object} Large collection containing unparsed, raw data points spanning infrastructure operations.
+     * @brief Gets raw data directly from the database.
+     * @details Calls the stats controller to pull unprocessed data about how things are running.
+     * @return {Object} Big object full of raw system data.
      */
     loadStatistics() {
         return StatisticsController.getRawStatistics();
     }
 
     /**
-     * @brief Constraints large operational matrices using temporal and regional tracking parameters.
-     * @details Submits refinement filters to target specific line segments and calendar dates, returning narrowed datasets for analysis.
-     * @param {Date|string} date - Chronological filter limit applied to slice database event timestamps.
-     * @param {string} trainLine - Target transit corridor layout identifier used to slice geographical log records.
-     * @return {Array<Object>} Subset collection of analytical records conforming to the specified parameters.
+     * @brief Filters statistics by date and train line.
+     * @details Lets the admin narrow down data to specific dates and routes.
+     * @param {Date|string} date - Date to filter by.
+     * @param {string} trainLine - Train line to look at.
+     * @return {Array<Object>} Filtered list of records matching the filters.
      */
     applyFilters(date, trainLine) {
         return StatisticsController.filterStatistics(date, trainLine);
     }
 
     /**
-     * @brief Pulls parsed, ready-to-render view models optimized for visual presentation interfaces.
-     * @details Queries the core reporting controller to fetch aggregated and transformed performance metrics tailored for administration dashboards.
-     * @return {Object} Organized visualization data schemas structured for immediate injection into UI components.
+     * @brief Gets cleaned-up statistics ready for display.
+     * @details Pulls formatted stats from the controller so the admin can see them on a dashboard.
+     * @return {Object} Organized data ready to show on screen.
      */
     viewStatistics() {
         return StatisticsController.getFormattedStatistics();
