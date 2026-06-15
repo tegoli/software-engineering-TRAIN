@@ -420,7 +420,7 @@
             return;
         }
         
-        resultsDiv.innerHTML = `<h3>✈️ Trovati ${filteredTrains.length} treni:</h3>`;
+        resultsDiv.innerHTML = `<h3> Trovati ${filteredTrains.length} treni:</h3>`;
         for (const t of filteredTrains) {
             let transferHtml = '';
             if (t.transfers && t.transfers > 0) {
