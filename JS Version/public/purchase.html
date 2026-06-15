@@ -88,7 +88,7 @@
 </div>
 
 <script>
-    // -------------------- TRADUZIONI --------------------
+    // Traduzioni 
     const translations = {
         it: { title: " Acquisto biglietti", points_available: " Punti disponibili:", use_points: "Usa punti (1 punto = 0.10 € sconto):", passengers_label: "Numero di passeggeri (incluso te):", apply_btn: "Applica", bike_label: " Posti bici (max 2 a persona):", luggage_label: " Bagaglio:", small: "Piccolo (5€)", medium: "Medio (8€)", large: "Grande (12€)", total_before: "Totale prima sconto:", discount_amount: "Sconto punti:", total_final: "Totale finale:", confirm_payment: "Conferma pagamento", cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta" },
         en: { title: " Buy tickets", points_available: " Points available:", use_points: "Use points (1 point = 0.10 € discount):", passengers_label: "Number of passengers (including you):", apply_btn: "Apply", bike_label: " Bike spaces (max 2 per person):", luggage_label: " Luggage:", small: "Small (5€)", medium: "Medium (8€)", large: "Large (12€)", total_before: "Total before discount:", discount_amount: "Points discount:", total_final: "Final total:", confirm_payment: "Confirm payment", cookie_text: " This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject" },
@@ -111,7 +111,7 @@
         // Non chiamare updateTotal qui perché potrebbe non essere ancora definita
     }
 
-    // -------------------- VARIABILI GLOBALI --------------------
+    //Variabili globali
     const token = localStorage.getItem('token');
     if (!token) window.location.href = 'login.html';
     const runData = JSON.parse(localStorage.getItem('selectedRun'));
@@ -122,7 +122,7 @@
     let passengerSelections = [];
     let userPoints = 0;
 
-    // -------------------- CARICAMENTO INFORMAZIONI TRENO (incluso ritardo) --------------------
+    // Caricamento info sul treno (incluso ritardo) 
     async function loadTrainInfo() {
         try {
             const res = await fetch(`/api/train-status/${runData.runId}`);
@@ -137,7 +137,7 @@
         } catch (err) { console.warn('Errore caricamento ritardo:', err); }
     }
 
-    // -------------------- CARICAMENTO PUNTI --------------------
+    // Caricamento punti 
     async function loadUserPoints() {
         try {
             const res = await fetch('/api/user/points', { headers: { 'Authorization': `Bearer ${token}` } });
@@ -145,7 +145,7 @@
         } catch (err) { console.error('Errore recupero punti:', err); }
     }
 
-    // -------------------- MAPPA POSTI --------------------
+    // Mappa posti 
     async function loadSeatMap() {
         try {
             const res = await fetch(`/api/seat-map/${runData.runId}`, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -260,7 +260,7 @@
 
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
 
-    // -------------------- EVENTI --------------------
+    // Eventi 
     document.getElementById('applyCount').onclick = () => {
         let newCount = parseInt(document.getElementById('passengerCount').value);
         if (newCount < 1) newCount = 1;
@@ -315,7 +315,7 @@ for (let i = 0; i < currentPassengers; i++) {
     document.getElementById('luggageCount').addEventListener('input', updateTotal);
     document.getElementById('usedPoints').addEventListener('input', updateTotal);
 
-    // -------------------- AVVIO --------------------
+    // Avvio 
     document.getElementById('tripInfo').innerHTML = `<p><strong>${runData.from} → ${runData.to}</strong><br>Treno: ${runData.trainCode || '---'} (${runData.travelClass})<br>Prezzo base a persona: € ${runData.price.toFixed(2)}</p>`;
     
     // Imposta lingua dopo che tutto è definito

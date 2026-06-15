@@ -69,7 +69,7 @@
 </div>
 
 <script>
-    // ----- TRADUZIONI -----
+    // Traduzioni
     const translations = {
         it: { title: " Crea un account", sub: "Accedi a tutti i servizi di prenotazione", name: "Nome", surname: "Cognome", email: "Email", password: "Password", confirm_password: "Conferma password", register_btn: " Registrati", have_account: "Hai già un account?", login_link: "Accedi qui", gdpr_note: "La registrazione è gratuita. I tuoi dati saranno trattati in conformità al GDPR.", cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta" },
         en: { title: " Create an account", sub: "Access all booking services", name: "First name", surname: "Last name", email: "Email", password: "Password", confirm_password: "Confirm password", register_btn: " Register", have_account: "Already have an account?", login_link: "Login here", gdpr_note: "Registration is free. Your data will be processed in accordance with GDPR.", cookie_text: " This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject" },
@@ -84,7 +84,7 @@
     document.getElementById('langSelect').value = currentLang; setLanguage(currentLang);
     document.getElementById('langSelect').addEventListener('change', e => setLanguage(e.target.value));
 
-    // ----- LOGICA REGISTRAZIONE -----
+    // Logica registrazione 
     const registerBtn = document.getElementById('registerBtn');
     const messageDiv = document.getElementById('message');
     function showMessage(text, isError = true) {

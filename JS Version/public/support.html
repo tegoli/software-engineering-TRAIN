@@ -62,7 +62,7 @@
 </div>
 
 <script>
-    // ----- TRADUZIONI -----
+    // Traduzioni 
     const translations = {
         it: {
             title: " Contatta il supporto", description: "Compila il modulo per richiedere informazioni, un rimborso o segnalare un problema.",
@@ -118,7 +118,7 @@
         }
     }
 
-    // ----- LOGICA SUPPORTO -----
+    // Logica supporto 
     const token = localStorage.getItem('token');
     if (!token) {
         alert(translations[currentLang]?.login_required || 'Devi essere loggato per contattare il supporto');

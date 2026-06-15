@@ -174,7 +174,7 @@
 </div>
 
 <script>
-    // -------------------- TRADUZIONI (solo per elementi statici) --------------------
+    //Traduzioni per gli elementi statici
     const translations = {
         it: {
             home: " Cerca treni", login: " Login", dashboard: " Dashboard", purchase: " Acquista",
@@ -258,10 +258,10 @@
             fetch('/api/language', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ language: lang }) }).catch(e => console.warn);
         }
     }
-    // Inizializza lingua dopo che tutto è definito (evita chiamate anticipate)
+    // Inizializza lingua dopo che tutto è definito 
     // La lingua verrà applicata al caricamento della pagina e al cambio select
 
-    // -------------------- TUTTA LA LOGICA ORIGINALE (MAPPA, RICERCA, FILTRI) --------------------
+    // Logica originale (mappa, ricerca, filtri) 
     let map, stations = [], selectedStation = null;
     let stationNames = [];
     let currentTrains = [];
