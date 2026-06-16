@@ -189,6 +189,15 @@
       "region": "Puglia",
       "latitude": 41.1173,
       "longitude": 16.8719
+    },
+    {
+      "stationId": 40,
+      "name": "Fuori Lecce",
+      "city": "Lecce",
+      "code": "LC",
+      "region": "Puglia",
+      "latitude": 40.3456,
+      "longitude": 18.1661
     }
   ],
   "routes": [
