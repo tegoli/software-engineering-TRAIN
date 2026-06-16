@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="title">Tabellone Partenze</title>
     <link rel="icon" type="image/png" href="images/104okok.png">
+    <link rel="stylesheet" href="/css/navbar.css">
     <style>
         body { font-family: system-ui; background: #f0f2f5; padding: 20px; }
         .container { max-width: 800px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
@@ -14,8 +15,8 @@
         th { background: #0066cc; color: white; }
         .delayed { color: red; }
         .error { color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 12px; margin-top: 20px; text-align: center; }
+        .info-loading { background: #e3f2fd; padding: 12px; border-radius: 12px; margin-top: 20px; text-align: center; }
     </style>
-    <link rel="stylesheet" href="/css/navbar.css">
 </head>
 <body>
 <div class="container">
@@ -37,39 +38,67 @@
 
 <script src="/js/navbar.js"></script>
 <script>
+    // TRADUZIONI COMPLETE (navbar + pagina)
     const translations = {
         it: {
+            // Navbar
+            home: " Cerca treni", login: " Login", dashboard: " Dashboard", purchase: " Acquista",
+            inspector: " Ispettore", admin: " Admin", support: " Supporto", status: " Stato treno",
+            subscription: " Abbonamenti", tabellone: " Tabellone", logout: "Logout",
+            // Pagina tabellone
             title: " Tabellone Partenze", select_station: "Seleziona stazione", show_departures: "Mostra partenze",
             no_departures: "Nessuna partenza per la data selezionata.", train: "Treno", destination: "Destinazione",
             time: "Orario", track: "Binario", status: "Stato", delayed: "Ritardo", minutes: "min",
-            cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta",
-            logout: "Logout"
+            loading: "Caricamento in corso...",
+            // Cookie
+            cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.",
+            accept: "Accetta", reject: "Rifiuta"
         },
         en: {
+            // Navbar
+            home: " Search trains", login: " Login", dashboard: " Dashboard", purchase: " Buy",
+            inspector: " Inspector", admin: " Admin", support: " Support", status: " Train status",
+            subscription: " Subscriptions", tabellone: " Departures", logout: "Logout",
+            // Pagina tabellone
             title: " Departures Board", select_station: "Select station", show_departures: "Show departures",
             no_departures: "No departures for the selected date.", train: "Train", destination: "Destination",
             time: "Time", track: "Platform", status: "Status", delayed: "Delayed", minutes: "min",
-            cookie_text: " This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject",
-            logout: "Logout"
+            loading: "Loading...",
+            // Cookie
+            cookie_text: " This site uses cookies to improve your experience.",
+            accept: "Accept", reject: "Reject"
         },
         de: {
+            // Navbar
+            home: " Zug suchen", login: " Anmelden", dashboard: " Dashboard", purchase: " Kaufen",
+            inspector: " Schaffner", admin: " Admin", support: " Support", status: " Zugstatus",
+            subscription: " Abos", tabellone: " Abfahrten", logout: "Logout",
+            // Pagina tabellone
             title: " Abfahrttafel", select_station: "Bahnhof auswählen", show_departures: "Abfahrten anzeigen",
             no_departures: "Keine Abfahrten für das ausgewählte Datum.", train: "Zug", destination: "Ziel",
             time: "Zeit", track: "Gleis", status: "Status", delayed: "Verspätung", minutes: "min",
-            cookie_text: " Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen",
-            logout: "Logout"
+            loading: "Laden...",
+            // Cookie
+            cookie_text: " Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.",
+            accept: "Akzeptieren", reject: "Ablehnen"
         }
     };
 
     let currentLang = localStorage.getItem('lang') || 'it';
+
     function setLanguage(lang) {
         currentLang = lang;
         localStorage.setItem('lang', lang);
+        // Traduci elementi statici con data-i18n
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (translations[lang] && translations[lang][key]) {
-                if (el.tagName === 'SELECT' && el.id !== 'langSelect') {
-                    // non alterare le option già popolate
+                // Per i select, traduciamo solo le option con data-i18n (es. la prima opzione vuota)
+                if (el.tagName === 'SELECT') {
+                    el.querySelectorAll('option[data-i18n]').forEach(opt => {
+                        const optKey = opt.getAttribute('data-i18n');
+                        if (translations[lang][optKey]) opt.innerText = translations[lang][optKey];
+                    });
                 } else {
                     el.innerText = translations[lang][key];
                 }
@@ -81,69 +110,119 @@
         }
     }
 
+    // Inizializza navbar e lingua
     setLanguage(currentLang);
     renderNavbar();
 
+    // Ora la logica della pagina (invariata)
     const stationSelect = document.getElementById('stationSelect');
     const dateInput = document.getElementById('dateSelect');
-    dateInput.valueAsDate = new Date();
+    const boardDiv = document.getElementById('board');
+    const loadBtn = document.getElementById('loadBtn');
 
-    fetch('/api/stations')
-        .then(res => res.json())
-        .then(stations => {
+    // Imposta data odierna
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    dateInput.value = `${yyyy}-${mm}-${dd}`;
+
+    // Carica stazioni
+    async function loadStations() {
+        try {
+            const res = await fetch('/api/stations');
+            if (!res.ok) throw new Error('Errore nel caricamento stazioni');
+            const stations = await res.json();
+            stationSelect.innerHTML = `<option value="" data-i18n="select_station">${translations[currentLang].select_station}</option>`;
             stations.forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s.stationId;
                 opt.textContent = `${s.name} (${s.city})`;
                 stationSelect.appendChild(opt);
             });
-        })
-        .catch(err => console.error('Errore caricamento stazioni:', err));
+        } catch (err) {
+            console.error('Errore caricamento stazioni:', err);
+            boardDiv.innerHTML = `<div class="error">❌ Impossibile caricare le stazioni: ${err.message}</div>`;
+        }
+    }
 
     async function loadDepartures() {
         const stationId = stationSelect.value;
         const date = dateInput.value;
-        if (!stationId) return;
+        if (!stationId) {
+            boardDiv.innerHTML = `<div class="error">⚠️ Seleziona una stazione.</div>`;
+            return;
+        }
+        if (!date) {
+            boardDiv.innerHTML = `<div class="error">⚠️ Seleziona una data.</div>`;
+            return;
+        }
+
+        boardDiv.innerHTML = `<div class="info-loading">⏳ ${translations[currentLang].loading || 'Caricamento...'}</div>`;
+
         try {
             const res = await fetch(`/api/departures/${stationId}?date=${date}`);
-            if (!res.ok) throw new Error('Errore caricamento');
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`HTTP ${res.status}: ${text}`);
+            }
             const departures = await res.json();
-            const boardDiv = document.getElementById('board');
-            if (departures.length === 0) {
-                boardDiv.innerHTML = `<div class="error">${translations[currentLang]?.no_departures || 'Nessuna partenza per la data selezionata.'}</div>`;
+            console.log('Dati ricevuti:', departures);
+
+            if (!Array.isArray(departures) || departures.length === 0) {
+                boardDiv.innerHTML = `<div class="error">${translations[currentLang].no_departures}</div>`;
                 return;
             }
+
             boardDiv.innerHTML = `
                 <table>
                     <thead>
-                        <tr><th>${translations[currentLang]?.train || 'Treno'}</th>
-                            <th>${translations[currentLang]?.destination || 'Destinazione'}</th>
-                            <th>${translations[currentLang]?.time || 'Orario'}</th>
-                            <th>${translations[currentLang]?.track || 'Binario'}</th>
-                            <th>${translations[currentLang]?.status || 'Stato'}</th>
+                        <tr>
+                            <th>${translations[currentLang].train}</th>
+                            <th>${translations[currentLang].destination}</th>
+                            <th>${translations[currentLang].time}</th>
+                            <th>${translations[currentLang].track}</th>
+                            <th>${translations[currentLang].status}</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${departures.map(d => `
                             <tr>
-                                <td>${d.trainCode}</td>
-                                <td>${d.destination}</td>
-                                <td>${d.scheduledDeparture}</td>
-                                <td>${d.track}</td>
-                                <td class="${d.delay > 0 ? 'delayed' : ''}">${d.status} ${d.delay > 0 ? `(+${d.delay} ${translations[currentLang]?.minutes || 'min'})` : ''}</td>
+                                <td>${d.trainCode || d.train || '--'}</td>
+                                <td>${d.destination || '--'}</td>
+                                <td>${d.scheduledDeparture || d.departureTime || '--'}</td>
+                                <td>${d.track || '--'}</td>
+                                <td class="${(d.delay || 0) > 0 ? 'delayed' : ''}">
+                                    ${d.status || 'In orario'}
+                                    ${(d.delay || 0) > 0 ? ` (+${d.delay} ${translations[currentLang].minutes})` : ''}
+                                </td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
             `;
         } catch (err) {
-            document.getElementById('board').innerHTML = `<div class="error">Errore: ${err.message}</div>`;
+            console.error('Errore durante il caricamento delle partenze:', err);
+            boardDiv.innerHTML = `<div class="error">❌ Errore: ${err.message}</div>`;
         }
     }
 
-    document.getElementById('loadBtn').onclick = loadDepartures;
+    // Eventi
+    loadBtn.addEventListener('click', loadDepartures);
+    stationSelect.addEventListener('change', loadDepartures);
+    dateInput.addEventListener('change', loadDepartures);
 
-    if (!localStorage.getItem('cookieChoice')) document.getElementById('cookieBanner').style.display = 'block';
+    // Carica stazioni e, se già selezionata una stazione, carica le partenze
+    loadStations().then(() => {
+        if (stationSelect.value) {
+            loadDepartures();
+        }
+    });
+
+    // Cookie banner
+    if (!localStorage.getItem('cookieChoice')) {
+        document.getElementById('cookieBanner').style.display = 'block';
+    }
     document.getElementById('acceptCookies').onclick = () => {
         localStorage.setItem('cookieChoice', 'accepted');
         document.getElementById('cookieBanner').style.display = 'none';

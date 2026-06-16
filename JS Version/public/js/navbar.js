@@ -90,7 +90,6 @@ function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     localStorage.removeItem('userRole');
-    // Chiamata opzionale al backend per invalidare la sessione
     fetch('/api/logout', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
