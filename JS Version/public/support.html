@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="title">Supporto Clienti</title>
     <link rel="icon" type="image/png" href="images/104okok.png">
-
     <style>
         * { box-sizing: border-box; font-family: system-ui, sans-serif; }
         body { background: #f0f2f5; padding: 20px; }
         .container { max-width: 700px; margin: auto; background: white; border-radius: 24px; padding: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        nav { display: flex; justify-content: flex-end; margin-bottom: 20px; }
-        .lang-selector select { padding: 5px 8px; border-radius: 20px; background: #e9ecef; border: 1px solid #ccc; cursor: pointer; width: auto; }
         h2 { color: #1e3c72; }
         label { font-weight: 600; display: block; margin-top: 16px; }
         select, textarea, input, button { width: 100%; padding: 12px; margin: 6px 0 12px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; }
@@ -20,19 +17,11 @@
         .error { background: #ffebee; color: #d32f2f; padding: 12px; border-radius: 12px; margin-top: 16px; }
         a { color: #0066cc; text-decoration: none; }
     </style>
+    <link rel="stylesheet" href="/css/navbar.css">
 </head>
 <body>
 <div class="container">
-    <nav>
-        <a href="notifications.html" data-i18n="notifications"> Notifiche</a>
-        <div class="lang-selector">
-            <select id="langSelect">
-                <option value="it">🇮🇹 IT</option>
-                <option value="en">🇬🇧 EN</option>
-                <option value="de">🇩🇪 DE</option>
-            </select>
-        </div>
-    </nav>
+    <div id="navbar"></div>
     <h2 data-i18n="title"> Contatta il supporto</h2>
     <p data-i18n="description">Compila il modulo per richiedere informazioni, un rimborso o segnalare un problema.</p>
 
@@ -61,8 +50,8 @@
     <button id="rejectCookies" data-i18n="reject">Rifiuta</button>
 </div>
 
+<script src="/js/navbar.js"></script>
 <script>
-    // ----- TRADUZIONI -----
     const translations = {
         it: {
             title: " Contatta il supporto", description: "Compila il modulo per richiedere informazioni, un rimborso o segnalare un problema.",
@@ -71,7 +60,8 @@
             back_home: "← Torna alla home", cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta",
             login_required: "Devi essere loggato per contattare il supporto", fill_description: "Per favore, descrivi la tua richiesta.",
             success: "✅ Richiesta inviata con successo. Riceverai risposta via email entro 48 ore.",
-            error_generic: "❌ Errore: Impossibile inviare la richiesta", network_error: "Errore di rete"
+            error_generic: "❌ Errore: Impossibile inviare la richiesta", network_error: "Errore di rete",
+            logout: "Logout"
         },
         en: {
             title: " Contact Support", description: "Fill out the form to request information, a refund, or report an issue.",
@@ -80,7 +70,8 @@
             back_home: "← Back to home", cookie_text: " This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject",
             login_required: "You must be logged in to contact support", fill_description: "Please describe your request.",
             success: "✅ Request sent successfully. You will receive a reply by email within 48 hours.",
-            error_generic: "❌ Error: Could not send request", network_error: "Network error"
+            error_generic: "❌ Error: Could not send request", network_error: "Network error",
+            logout: "Logout"
         },
         de: {
             title: " Support kontaktieren", description: "Füllen Sie das Formular aus, um Informationen, eine Rückerstattung anzufordern oder ein Problem zu melden.",
@@ -89,7 +80,8 @@
             back_home: "← Zurück zur Startseite", cookie_text: " Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen",
             login_required: "Sie müssen angemeldet sein, um den Support zu kontaktieren", fill_description: "Bitte beschreiben Sie Ihre Anfrage.",
             success: "✅ Anfrage erfolgreich gesendet. Sie erhalten innerhalb von 48 Stunden eine Antwort per E-Mail.",
-            error_generic: "❌ Fehler: Anfrage konnte nicht gesendet werden", network_error: "Netzwerkfehler"
+            error_generic: "❌ Fehler: Anfrage konnte nicht gesendet werden", network_error: "Netzwerkfehler",
+            logout: "Logout"
         }
     };
 
@@ -118,7 +110,9 @@
         }
     }
 
-    // ----- LOGICA SUPPORTO -----
+    setLanguage(currentLang);
+    renderNavbar();
+
     const token = localStorage.getItem('token');
     if (!token) {
         alert(translations[currentLang]?.login_required || 'Devi essere loggato per contattare il supporto');
@@ -154,12 +148,6 @@
         }
     };
 
-    // Inizializza lingua
-    document.getElementById('langSelect').value = currentLang;
-    setLanguage(currentLang);
-    document.getElementById('langSelect').addEventListener('change', e => setLanguage(e.target.value));
-
-    // Cookie banner
     if (!localStorage.getItem('cookieChoice')) document.getElementById('cookieBanner').style.display = 'block';
     document.getElementById('acceptCookies').onclick = () => {
         localStorage.setItem('cookieChoice', 'accepted');

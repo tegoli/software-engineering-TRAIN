@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="title">Registrazione - Train App</title>
     <link rel="icon" type="image/png" href="images/104okok.png">
-
     <style>
         * { box-sizing: border-box; font-family: system-ui, 'Segoe UI', sans-serif; }
         body { background: linear-gradient(135deg, #f0f2f5 0%, #e0e5ec 100%); margin: 0; padding: 20px; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
@@ -23,19 +22,12 @@
         .login-link { text-align: center; margin-top: 24px; }
         hr { margin: 24px 0; }
         .info-note { font-size: 0.75rem; color: #6c757d; text-align: center; margin-top: 20px; }
-        .lang-selector { position: absolute; top: 20px; right: 20px; }
-        .lang-selector select { padding: 5px 8px; border-radius: 20px; background: #e9ecef; border: 1px solid #ccc; cursor: pointer; }
     </style>
+    <link rel="stylesheet" href="/css/navbar.css">
 </head>
 <body>
-<div class="lang-selector">
-    <select id="langSelect">
-        <option value="it">🇮🇹 IT</option>
-        <option value="en">🇬🇧 EN</option>
-        <option value="de">🇩🇪 DE</option>
-    </select>
-</div>
 <div class="container">
+    <div id="navbar"></div>
     <h2 data-i18n="title"> Crea un account</h2>
     <div class="sub" data-i18n="sub">Accedi a tutti i servizi di prenotazione</div>
     <div>
@@ -59,7 +51,7 @@
     <label class="privacy-checkbox">
         <input type="checkbox" name="privacy_policy">
         <p>I've read and accept the Privacy Policy (optional)</p>
-      </label>
+    </label>
     <div class="info-note" data-i18n="gdpr_note">La registrazione è gratuita. I tuoi dati saranno trattati in conformità al GDPR.</div>
 </div>
 <div id="cookieBanner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: white; padding: 15px; text-align: center; z-index: 1000; display: none;">
@@ -68,23 +60,36 @@
     <button id="rejectCookies" data-i18n="reject">Rifiuta</button>
 </div>
 
+<script src="/js/navbar.js"></script>
 <script>
-    // ----- TRADUZIONI -----
     const translations = {
-        it: { title: " Crea un account", sub: "Accedi a tutti i servizi di prenotazione", name: "Nome", surname: "Cognome", email: "Email", password: "Password", confirm_password: "Conferma password", register_btn: " Registrati", have_account: "Hai già un account?", login_link: "Accedi qui", gdpr_note: "La registrazione è gratuita. I tuoi dati saranno trattati in conformità al GDPR.", cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta" },
-        en: { title: " Create an account", sub: "Access all booking services", name: "First name", surname: "Last name", email: "Email", password: "Password", confirm_password: "Confirm password", register_btn: " Register", have_account: "Already have an account?", login_link: "Login here", gdpr_note: "Registration is free. Your data will be processed in accordance with GDPR.", cookie_text: " This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject" },
-        de: { title: " Konto erstellen", sub: "Alle Buchungsdienste nutzen", name: "Vorname", surname: "Nachname", email: "E-Mail", password: "Passwort", confirm_password: "Passwort bestätigen", register_btn: " Registrieren", have_account: "Bereits ein Konto?", login_link: "Hier anmelden", gdpr_note: "Die Registrierung ist kostenlos. Ihre Daten werden gemäß der DSGVO verarbeitet.", cookie_text: " Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen" }
+        it: {
+            title: " Crea un account", sub: "Accedi a tutti i servizi di prenotazione", name: "Nome", surname: "Cognome", email: "Email", password: "Password", confirm_password: "Conferma password", register_btn: " Registrati", have_account: "Hai già un account?", login_link: "Accedi qui", gdpr_note: "La registrazione è gratuita. I tuoi dati saranno trattati in conformità al GDPR.", cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta",
+            logout: "Logout"
+        },
+        en: {
+            title: " Create an account", sub: "Access all booking services", name: "First name", surname: "Last name", email: "Email", password: "Password", confirm_password: "Confirm password", register_btn: " Register", have_account: "Already have an account?", login_link: "Login here", gdpr_note: "Registration is free. Your data will be processed in accordance with GDPR.", cookie_text: " This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject",
+            logout: "Logout"
+        },
+        de: {
+            title: " Konto erstellen", sub: "Alle Buchungsdienste nutzen", name: "Vorname", surname: "Nachname", email: "E-Mail", password: "Passwort", confirm_password: "Passwort bestätigen", register_btn: " Registrieren", have_account: "Bereits ein Konto?", login_link: "Hier anmelden", gdpr_note: "Die Registrierung ist kostenlos. Ihre Daten werden gemäß der DSGVO verarbeitet.", cookie_text: " Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen",
+            logout: "Logout"
+        }
     };
     let currentLang = localStorage.getItem('lang') || 'it';
     function setLanguage(lang) {
-        currentLang = lang; localStorage.setItem('lang', lang);
-        document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (translations[lang] && translations[lang][key]) el.innerText = translations[lang][key]; });
-        const token = localStorage.getItem('token'); if (token) fetch('/api/language', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ language: lang }) }).catch(e=>console.warn);
+        currentLang = lang;
+        localStorage.setItem('lang', lang);
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang] && translations[lang][key]) el.innerText = translations[lang][key];
+        });
+        const token = localStorage.getItem('token');
+        if (token) fetch('/api/language', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ language: lang }) }).catch(e=>console.warn);
     }
-    document.getElementById('langSelect').value = currentLang; setLanguage(currentLang);
-    document.getElementById('langSelect').addEventListener('change', e => setLanguage(e.target.value));
+    setLanguage(currentLang);
+    renderNavbar();
 
-    // ----- LOGICA REGISTRAZIONE -----
     const registerBtn = document.getElementById('registerBtn');
     const messageDiv = document.getElementById('message');
     function showMessage(text, isError = true) {
@@ -113,7 +118,6 @@
         registerBtn.disabled = true; registerBtn.textContent = 'Registrazione in corso...';
         registerUser(name, surname, email, password).finally(() => { registerBtn.disabled = false; registerBtn.textContent = ' Registrati'; });
     });
-    // Cookie banner
     if (!localStorage.getItem('cookieChoice')) document.getElementById('cookieBanner').style.display = 'block';
     document.getElementById('acceptCookies').onclick = () => {
         localStorage.setItem('cookieChoice', 'accepted');

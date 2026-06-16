@@ -5,12 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="title">Tabellone Partenze</title>
     <link rel="icon" type="image/png" href="images/104okok.png">
-
     <style>
         body { font-family: system-ui; background: #f0f2f5; padding: 20px; }
         .container { max-width: 800px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
-        nav { display: flex; justify-content: flex-end; margin-bottom: 20px; }
-        .lang-selector select { padding: 5px 8px; border-radius: 20px; background: #e9ecef; border: 1px solid #ccc; cursor: pointer; width: auto; }
         select, button, input[type="date"] { padding: 10px; margin: 10px 0; width: 100%; }
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
@@ -18,19 +15,11 @@
         .delayed { color: red; }
         .error { color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 12px; margin-top: 20px; text-align: center; }
     </style>
+    <link rel="stylesheet" href="/css/navbar.css">
 </head>
 <body>
 <div class="container">
-    <nav>
-        <a href="notifications.html" data-i18n="notifications"> Notifiche</a>
-        <div class="lang-selector">
-            <select id="langSelect">
-                <option value="it">🇮🇹 IT</option>
-                <option value="en">🇬🇧 EN</option>
-                <option value="de">🇩🇪 DE</option>
-            </select>
-        </div>
-    </nav>
+    <div id="navbar"></div>
     <h2 data-i18n="title"> Tabellone Partenze</h2>
     <select id="stationSelect">
         <option value="" data-i18n="select_station">Seleziona stazione</option>
@@ -46,26 +35,29 @@
     <button id="rejectCookies" data-i18n="reject">Rifiuta</button>
 </div>
 
+<script src="/js/navbar.js"></script>
 <script>
-    // ----- TRADUZIONI -----
     const translations = {
         it: {
             title: " Tabellone Partenze", select_station: "Seleziona stazione", show_departures: "Mostra partenze",
             no_departures: "Nessuna partenza per la data selezionata.", train: "Treno", destination: "Destinazione",
             time: "Orario", track: "Binario", status: "Stato", delayed: "Ritardo", minutes: "min",
-            cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta"
+            cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta",
+            logout: "Logout"
         },
         en: {
             title: " Departures Board", select_station: "Select station", show_departures: "Show departures",
             no_departures: "No departures for the selected date.", train: "Train", destination: "Destination",
             time: "Time", track: "Platform", status: "Status", delayed: "Delayed", minutes: "min",
-            cookie_text: " This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject"
+            cookie_text: " This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject",
+            logout: "Logout"
         },
         de: {
             title: " Abfahrttafel", select_station: "Bahnhof auswählen", show_departures: "Abfahrten anzeigen",
             no_departures: "Keine Abfahrten für das ausgewählte Datum.", train: "Zug", destination: "Ziel",
             time: "Zeit", track: "Gleis", status: "Status", delayed: "Verspätung", minutes: "min",
-            cookie_text: " Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen"
+            cookie_text: " Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen",
+            logout: "Logout"
         }
     };
 
@@ -89,7 +81,9 @@
         }
     }
 
-    // ----- LOGICA TABELLONE -----
+    setLanguage(currentLang);
+    renderNavbar();
+
     const stationSelect = document.getElementById('stationSelect');
     const dateInput = document.getElementById('dateSelect');
     dateInput.valueAsDate = new Date();
@@ -149,12 +143,6 @@
 
     document.getElementById('loadBtn').onclick = loadDepartures;
 
-    // Inizializza lingua
-    document.getElementById('langSelect').value = currentLang;
-    setLanguage(currentLang);
-    document.getElementById('langSelect').addEventListener('change', e => setLanguage(e.target.value));
-
-    // Cookie banner
     if (!localStorage.getItem('cookieChoice')) document.getElementById('cookieBanner').style.display = 'block';
     document.getElementById('acceptCookies').onclick = () => {
         localStorage.setItem('cookieChoice', 'accepted');

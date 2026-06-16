@@ -7,9 +7,6 @@
     <style>
         body { font-family: system-ui; background: #f0f2f5; padding: 20px; }
         .container { max-width: 600px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
-        nav { display: flex; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; align-items: center; }
-        nav a { text-decoration: none; color: #0066cc; font-weight: 500; }
-        .lang-selector select { padding: 5px 8px; border-radius: 20px; background: #e9ecef; border: 1px solid #ccc; cursor: pointer; width: auto; }
         input, button, select { width: 100%; padding: 10px; margin: 10px 0; }
         .info { background: #e9ecef; padding: 15px; border-radius: 16px; margin-top: 20px; }
         .delayed { color: red; }
@@ -18,22 +15,11 @@
         button { background: #0066cc; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         button:disabled { opacity: 0.6; cursor: not-allowed; }
     </style>
+    <link rel="stylesheet" href="/css/navbar.css">
 </head>
 <body>
 <div class="container">
-    <nav>
-        <a href="index.html" data-i18n="home"> Home</a>
-        <a href="dashboard.html" data-i18n="dashboard"> Dashboard</a>
-        <a href="train-status.html" data-i18n="status"> Stato treno</a>
-        <a href="admin.html" data-i18n="admin"> Admin</a>
-        <div class="lang-selector">
-            <select id="langSelect">
-                <option value="it">🇮🇹 IT</option>
-                <option value="en">🇬🇧 EN</option>
-                <option value="de">🇩🇪 DE</option>
-            </select>
-        </div>
-    </nav>
+    <div id="navbar"></div>
     <h2 data-i18n="title"> Stato Treno in Tempo Reale</h2>
     <input type="number" id="runId" placeholder="ID corsa (es. 1)" value="1">
     <button id="searchBtn" data-i18n="search_status">Cerca stato</button>
@@ -48,6 +34,7 @@
     </div>
 </div>
 
+<script src="/js/navbar.js"></script>
 <script>
     const translations = {
         it: {
@@ -58,7 +45,8 @@
             last_update: "Ultimo aggiornamento", next_station: "Prossima stazione", arrival_expected: "arrivo previsto",
             minutes_short: "min", delayed: "Ritardo", prediction: "Previsione ritardo", based_on: "basata su", confidence: "confidenza",
             no_data: "Nessun dato", error_fetch: "Errore nel caricamento", delay_applied: "✅ Ritardo applicato con successo",
-            delay_error: "❌ Errore durante l'applicazione del ritardo"
+            delay_error: "❌ Errore durante l'applicazione del ritardo",
+            logout: "Logout"
         },
         en: {
             home: " Home", dashboard: " Dashboard", status: " Train status", admin: " Admin",
@@ -68,7 +56,8 @@
             last_update: "Last update", next_station: "Next station", arrival_expected: "expected arrival",
             minutes_short: "min", delayed: "Delayed", prediction: "Delay prediction", based_on: "based on", confidence: "confidence",
             no_data: "No data", error_fetch: "Error loading", delay_applied: "✅ Delay applied successfully",
-            delay_error: "❌ Error applying delay"
+            delay_error: "❌ Error applying delay",
+            logout: "Logout"
         },
         de: {
             home: " Startseite", dashboard: " Dashboard", status: " Zugstatus", admin: " Admin",
@@ -78,7 +67,8 @@
             last_update: "Letzte Aktualisierung", next_station: "Nächster Bahnhof", arrival_expected: "voraussichtliche Ankunft",
             minutes_short: "Min", delayed: "Verspätet", prediction: "Verspätungsvorhersage", based_on: "basiert auf", confidence: "Konfidenz",
             no_data: "Keine Daten", error_fetch: "Fehler beim Laden", delay_applied: "✅ Verspätung erfolgreich angewendet",
-            delay_error: "❌ Fehler beim Anwenden der Verspätung"
+            delay_error: "❌ Fehler beim Anwenden der Verspätung",
+            logout: "Logout"
         }
     };
 
@@ -95,9 +85,8 @@
             if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key];
         });
     }
-    document.getElementById('langSelect').value = currentLang;
     setLanguage(currentLang);
-    document.getElementById('langSelect').addEventListener('change', e => setLanguage(e.target.value));
+    renderNavbar();
 
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('userRole');
@@ -119,7 +108,6 @@
         predDiv.innerHTML = '';
 
         try {
-            // Stato attuale
             const statusRes = await fetch(`/api/train-status/${runId}`);
             if (!statusRes.ok) throw new Error('Treno non trovato');
             const statusData = await statusRes.json();
@@ -133,7 +121,6 @@
                 </div>
             `;
 
-            // Predizione
             const predRes = await fetch(`/api/predict-delay/${runId}`);
             if (predRes.ok) {
                 const predData = await predRes.json();
@@ -151,7 +138,6 @@
 
     document.getElementById('searchBtn').onclick = searchAndPredict;
 
-    // Simula ritardo (solo admin)
     document.getElementById('simulateBtn').onclick = async () => {
         const runId = document.getElementById('runId').value;
         const delay = document.getElementById('delayMinutes').value;
@@ -173,7 +159,6 @@
             const data = await res.json();
             if (res.ok && data.success) {
                 resultDiv.innerHTML = `<div class="info" style="background:#e8f5e9;">✅ ${data.message}</div>`;
-                // Ricarica lo stato del treno dopo 1 secondo
                 setTimeout(() => searchAndPredict(), 1000);
             } else {
                 resultDiv.innerHTML = `<div class="error">❌ ${data.error || data.message || translations[currentLang].delay_error}</div>`;
@@ -185,7 +170,6 @@
         }
     };
 
-    // Carica stato iniziale
     searchAndPredict();
 </script>
 </body>

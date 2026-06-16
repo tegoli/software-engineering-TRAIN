@@ -4,13 +4,10 @@
     <meta charset="UTF-8">
     <title data-i18n="title">Acquisto biglietto</title>
     <link rel="icon" type="image/png" href="images/104okok.png">
-
     <style>
         * { box-sizing: border-box; font-family: system-ui; }
         body { background: #f0f2f5; padding: 20px; }
         .container { max-width: 1200px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
-        nav { display: flex; justify-content: flex-end; margin-bottom: 20px; }
-        .lang-selector select { padding: 5px 8px; border-radius: 20px; background: #e9ecef; border: 1px solid #ccc; cursor: pointer; width: auto; }
         .coach { background: #e9ecef; border-radius: 16px; margin-bottom: 20px; padding: 16px; position: relative; }
         .train-direction { position: absolute; top: -10px; right: 20px; background: #0066cc; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
         .seats-container { display: flex; flex-direction: column; gap: 20px; }
@@ -35,18 +32,11 @@
         .info { background: #e3f2fd; padding: 10px; border-radius: 8px; margin: 10px 0; }
         .delay-warning { background: #fff3e0; border-left: 4px solid #ff9800; padding: 8px; margin-bottom: 10px; }
     </style>
+    <link rel="stylesheet" href="/css/navbar.css">
 </head>
 <body>
 <div class="container">
-    <nav>
-        <div class="lang-selector">
-            <select id="langSelect">
-                <option value="it">🇮🇹 IT</option>
-                <option value="en">🇬🇧 EN</option>
-                <option value="de">🇩🇪 DE</option>
-            </select>
-        </div>
-    </nav>
+    <div id="navbar"></div>
     <h2 data-i18n="title"> Acquisto biglietti</h2>
     <div id="tripInfo" class="info"></div>
     <div id="delayInfo" class="delay-warning" style="display:none;"></div>
@@ -87,17 +77,75 @@
     <button id="rejectCookies" data-i18n="reject">Rifiuta</button>
 </div>
 
+<script src="/js/navbar.js"></script>
 <script>
-    // -------------------- TRADUZIONI --------------------
     const translations = {
-        it: { title: " Acquisto biglietti", points_available: " Punti disponibili:", use_points: "Usa punti (1 punto = 0.10 € sconto):", passengers_label: "Numero di passeggeri (incluso te):", apply_btn: "Applica", bike_label: " Posti bici (max 2 a persona):", luggage_label: " Bagaglio:", small: "Piccolo (5€)", medium: "Medio (8€)", large: "Grande (12€)", total_before: "Totale prima sconto:", discount_amount: "Sconto punti:", total_final: "Totale finale:", confirm_payment: "Conferma pagamento", cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.", accept: "Accetta", reject: "Rifiuta" },
-        en: { title: " Buy tickets", points_available: " Points available:", use_points: "Use points (1 point = 0.10 € discount):", passengers_label: "Number of passengers (including you):", apply_btn: "Apply", bike_label: " Bike spaces (max 2 per person):", luggage_label: " Luggage:", small: "Small (5€)", medium: "Medium (8€)", large: "Large (12€)", total_before: "Total before discount:", discount_amount: "Points discount:", total_final: "Final total:", confirm_payment: "Confirm payment", cookie_text: " This site uses cookies to improve your experience.", accept: "Accept", reject: "Reject" },
-        de: { title: " Tickets kaufen", points_available: " Verfügbare Punkte:", use_points: "Punkte verwenden (1 Punkt = 0,10 € Rabatt):", passengers_label: "Anzahl der Passagiere (inkl. Ihnen):", apply_btn: "Anwenden", bike_label: " Fahrradstellplätze (max 2 pro Person):", luggage_label: " Gepäck:", small: "Klein (5€)", medium: "Mittel (8€)", large: "Groß (12€)", total_before: "Gesamt vor Rabatt:", discount_amount: "Punkterabatt:", total_final: "Endsumme:", confirm_payment: "Zahlung bestätigen", cookie_text: " Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.", accept: "Akzeptieren", reject: "Ablehnen" }
+        it: {
+            title: " Acquisto biglietti",
+            points_available: " Punti disponibili:",
+            use_points: "Usa punti (1 punto = 0.10 € sconto):",
+            passengers_label: "Numero di passeggeri (incluso te):",
+            apply_btn: "Applica",
+            bike_label: " Posti bici (max 2 a persona):",
+            luggage_label: " Bagaglio:",
+            small: "Piccolo (5€)",
+            medium: "Medio (8€)",
+            large: "Grande (12€)",
+            total_before: "Totale prima sconto:",
+            discount_amount: "Sconto punti:",
+            total_final: "Totale finale:",
+            confirm_payment: "Conferma pagamento",
+            cookie_text: " Questo sito utilizza cookie per migliorare l'esperienza.",
+            accept: "Accetta",
+            reject: "Rifiuta",
+            logout: "Logout"
+        },
+        en: {
+            title: " Buy tickets",
+            points_available: " Points available:",
+            use_points: "Use points (1 point = 0.10 € discount):",
+            passengers_label: "Number of passengers (including you):",
+            apply_btn: "Apply",
+            bike_label: " Bike spaces (max 2 per person):",
+            luggage_label: " Luggage:",
+            small: "Small (5€)",
+            medium: "Medium (8€)",
+            large: "Large (12€)",
+            total_before: "Total before discount:",
+            discount_amount: "Points discount:",
+            total_final: "Final total:",
+            confirm_payment: "Confirm payment",
+            cookie_text: " This site uses cookies to improve your experience.",
+            accept: "Accept",
+            reject: "Reject",
+            logout: "Logout"
+        },
+        de: {
+            title: " Tickets kaufen",
+            points_available: " Verfügbare Punkte:",
+            use_points: "Punkte verwenden (1 Punkt = 0,10 € Rabatt):",
+            passengers_label: "Anzahl der Passagiere (inkl. Ihnen):",
+            apply_btn: "Anwenden",
+            bike_label: " Fahrradstellplätze (max 2 pro Person):",
+            luggage_label: " Gepäck:",
+            small: "Klein (5€)",
+            medium: "Mittel (8€)",
+            large: "Groß (12€)",
+            total_before: "Gesamt vor Rabatt:",
+            discount_amount: "Punkterabatt:",
+            total_final: "Endsumme:",
+            confirm_payment: "Zahlung bestätigen",
+            cookie_text: " Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.",
+            accept: "Akzeptieren",
+            reject: "Ablehnen",
+            logout: "Logout"
+        }
     };
 
     let currentLang = localStorage.getItem('lang') || 'it';
     function setLanguage(lang) {
-        currentLang = lang; localStorage.setItem('lang', lang);
+        currentLang = lang;
+        localStorage.setItem('lang', lang);
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (translations[lang] && translations[lang][key]) el.innerText = translations[lang][key];
@@ -111,7 +159,9 @@
         // Non chiamare updateTotal qui perché potrebbe non essere ancora definita
     }
 
-    // -------------------- VARIABILI GLOBALI --------------------
+    setLanguage(currentLang);
+    renderNavbar();
+
     const token = localStorage.getItem('token');
     if (!token) window.location.href = 'login.html';
     const runData = JSON.parse(localStorage.getItem('selectedRun'));
@@ -122,7 +172,6 @@
     let passengerSelections = [];
     let userPoints = 0;
 
-    // -------------------- CARICAMENTO INFORMAZIONI TRENO (incluso ritardo) --------------------
     async function loadTrainInfo() {
         try {
             const res = await fetch(`/api/train-status/${runData.runId}`);
@@ -137,7 +186,6 @@
         } catch (err) { console.warn('Errore caricamento ritardo:', err); }
     }
 
-    // -------------------- CARICAMENTO PUNTI --------------------
     async function loadUserPoints() {
         try {
             const res = await fetch('/api/user/points', { headers: { 'Authorization': `Bearer ${token}` } });
@@ -145,7 +193,6 @@
         } catch (err) { console.error('Errore recupero punti:', err); }
     }
 
-    // -------------------- MAPPA POSTI --------------------
     async function loadSeatMap() {
         try {
             const res = await fetch(`/api/seat-map/${runData.runId}`, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -260,7 +307,6 @@
 
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
 
-    // -------------------- EVENTI --------------------
     document.getElementById('applyCount').onclick = () => {
         let newCount = parseInt(document.getElementById('passengerCount').value);
         if (newCount < 1) newCount = 1;
@@ -271,22 +317,22 @@
 
     document.getElementById('buyBtn').onclick = async () => {
         const passengers = [];
-for (let i = 0; i < currentPassengers; i++) {
-    const name = document.getElementById(`name${i}`)?.value || 'Passeggero';
-    const surname = document.getElementById(`surname${i}`)?.value || '';
-    const seatNumber = passengerSelections[i]?.seatNumber;
-    if (!seatNumber) { alert(`Seleziona un posto per il passeggero ${i+1}`); return; }
-    passengers.push({
-        name, surname, seatNumber,
-        passengerType: 'adult',
-        travelClass: runData.travelClass,
-        price: runData.price,
-        fromStopOrder: 1, // o ricava dal runData
-        toStopOrder: 4,
-        fromStation: runData.from,   
-        toStation: runData.to        
-    });
-}
+        for (let i = 0; i < currentPassengers; i++) {
+            const name = document.getElementById(`name${i}`)?.value || 'Passeggero';
+            const surname = document.getElementById(`surname${i}`)?.value || '';
+            const seatNumber = passengerSelections[i]?.seatNumber;
+            if (!seatNumber) { alert(`Seleziona un posto per il passeggero ${i+1}`); return; }
+            passengers.push({
+                name, surname, seatNumber,
+                passengerType: 'adult',
+                travelClass: runData.travelClass,
+                price: runData.price,
+                fromStopOrder: 1,
+                toStopOrder: 4,
+                fromStation: runData.from,
+                toStation: runData.to
+            });
+        }
         const extras = [];
         const bikeCount = parseInt(document.getElementById('bikeCount').value) || 0;
         const luggageCount = parseInt(document.getElementById('luggageCount').value) || 0;
@@ -315,19 +361,12 @@ for (let i = 0; i < currentPassengers; i++) {
     document.getElementById('luggageCount').addEventListener('input', updateTotal);
     document.getElementById('usedPoints').addEventListener('input', updateTotal);
 
-    // -------------------- AVVIO --------------------
     document.getElementById('tripInfo').innerHTML = `<p><strong>${runData.from} → ${runData.to}</strong><br>Treno: ${runData.trainCode || '---'} (${runData.travelClass})<br>Prezzo base a persona: € ${runData.price.toFixed(2)}</p>`;
     
-    // Imposta lingua dopo che tutto è definito
-    document.getElementById('langSelect').value = currentLang;
-    setLanguage(currentLang);
-    document.getElementById('langSelect').addEventListener('change', e => setLanguage(e.target.value));
-
     loadTrainInfo();
     loadUserPoints();
     loadSeatMap();
 
-    // Cookie banner
     if (!localStorage.getItem('cookieChoice')) document.getElementById('cookieBanner').style.display = 'block';
     document.getElementById('acceptCookies').onclick = () => { localStorage.setItem('cookieChoice', 'accepted'); document.getElementById('cookieBanner').style.display = 'none'; alert(translations[currentLang]?.cookie_accept_msg || 'Grazie, i tuoi dati verranno usati per la ricerca del gruppo 104 in un server molto sicuro (quello di Matteo)'); };
     document.getElementById('rejectCookies').onclick = () => { localStorage.setItem('cookieChoice', 'rejected'); document.getElementById('cookieBanner').style.display = 'none'; alert(translations[currentLang]?.cookie_reject_msg || 'ok, chill va bene lo stesso :('); };

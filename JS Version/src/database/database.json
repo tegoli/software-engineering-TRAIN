@@ -8388,7 +8388,7 @@
       "actualDeparture": null,
       "actualArrival": null
     }
-    ],
+  ],
   "users": [
     {
       "userId": 1001,
@@ -8410,7 +8410,7 @@
       "passwordHash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
       "role": "passenger",
       "preferredLanguage": "it",
-      "loyaltyPoints": 245,
+      "loyaltyPoints": 687,
       "failedLoginAttempts": 0,
       "accountStatus": "active"
     },
@@ -9368,6 +9368,21 @@
       "status": "used",
       "purchaseDate": "2026-06-14T16:57:10.633Z",
       "qrCode": "QR50586c65k2"
+    },
+    {
+      "ticketId": 5059,
+      "ticketCode": "TKT-1002-5059",
+      "userId": 1002,
+      "runId": 321,
+      "fromStopOrder": 1,
+      "toStopOrder": 4,
+      "passengerType": "adult",
+      "seatNumber": "1B",
+      "class": "standard",
+      "price": 66.52,
+      "status": "active",
+      "purchaseDate": "2026-06-16T12:59:19.742Z",
+      "qrCode": "QR5059it753a"
     }
   ],
   "subscriptions": [
@@ -9447,6 +9462,17 @@
       "price": 33.26,
       "status": "active",
       "qrCode": "SUB2008qs3idu"
+    },
+    {
+      "subscriptionId": 2009,
+      "userId": 1002,
+      "routeId": 23,
+      "startDate": "2026-06-16",
+      "endDate": "2027-06-16",
+      "class": "business",
+      "price": 376.32,
+      "status": "active",
+      "qrCode": "SUB20096a9q1m"
     }
   ],
   "additionalReservations": [
@@ -10215,6 +10241,24 @@
       "paymentDate": "2026-06-15T09:04:39.631Z",
       "paymentMethod": "Carta di credito (simulata)",
       "status": "completed"
+    },
+    {
+      "paymentId": 4067,
+      "userId": 1002,
+      "ticketId": 5059,
+      "amount": 66.52,
+      "paymentDate": "2026-06-16T12:59:19.742Z",
+      "paymentMethod": "Simulated",
+      "status": "completed"
+    },
+    {
+      "paymentId": 4068,
+      "userId": 1002,
+      "subscriptionId": 2009,
+      "amount": 376.32,
+      "paymentDate": "2026-06-16T12:59:49.898Z",
+      "paymentMethod": "Carta di credito (simulata)",
+      "status": "completed"
     }
   ],
   "supportRequests": [
@@ -10897,6 +10941,20 @@
       "points": 33,
       "reason": "Acquisto abbonamento #2008",
       "date": "2026-06-15T09:04:39.631Z"
+    },
+    {
+      "transactionId": 9081,
+      "userId": 1002,
+      "points": 66,
+      "reason": "Acquisto biglietti #5059",
+      "date": "2026-06-16T12:59:19.742Z"
+    },
+    {
+      "transactionId": 9082,
+      "userId": 1002,
+      "points": 376,
+      "reason": "Acquisto abbonamento #2009",
+      "date": "2026-06-16T12:59:49.898Z"
     }
   ],
   "seatReservations": [
@@ -11378,6 +11436,13 @@
       "seatNumber": "10D",
       "ticketId": 5058,
       "status": "occupied"
+    },
+    {
+      "runId": 321,
+      "coachNumber": 1,
+      "seatNumber": "1B",
+      "ticketId": 5059,
+      "status": "reserved"
     }
   ],
   "travelClasses": [

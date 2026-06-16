@@ -7,8 +7,6 @@
     <style>
         body { font-family: system-ui; background: #f0f2f5; padding: 20px; }
         .container { max-width: 600px; margin: auto; background: white; border-radius: 24px; padding: 24px; }
-        nav { display: flex; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .lang-selector select { padding: 5px 8px; border-radius: 20px; background: #e9ecef; border: 1px solid #ccc; cursor: pointer; }
         select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; }
         button { background: #0066cc; color: white; border: none; cursor: pointer; font-weight: bold; }
         .info { background: #e3f2fd; padding: 12px; border-radius: 12px; margin: 15px 0; }
@@ -16,22 +14,11 @@
         .success { color: #2e7d32; background: #e8f5e9; padding: 12px; border-radius: 12px; }
         .price-display { font-size: 1.4rem; font-weight: bold; color: #1e3c72; text-align: center; margin: 15px 0; }
     </style>
+    <link rel="stylesheet" href="/css/navbar.css">
 </head>
 <body>
 <div class="container">
-    <nav>
-        <a href="index.html"> Home</a>
-        <a href="dashboard.html"> Dashboard</a>
-        <a href="train-status.html"> Stato treno</a>
-        <a href="admin.html"> Admin</a>
-        <div class="lang-selector">
-            <select id="langSelect">
-                <option value="it">🇮🇹 IT</option>
-                <option value="en">🇬🇧 EN</option>
-                <option value="de">🇩🇪 DE</option>
-            </select>
-        </div>
-    </nav>
+    <div id="navbar"></div>
     <h2 data-i18n="title"> Acquista Abbonamento</h2>
     <p data-i18n="subtitle">Scegli una tratta, durata e classe. Il pagamento sarà simulato.</p>
 
@@ -60,6 +47,7 @@
     <div id="result"></div>
 </div>
 
+<script src="/js/navbar.js"></script>
 <script>
     const translations = {
         it: {
@@ -67,26 +55,30 @@
             route_label: "Tratta", duration_label: "Durata", class_label: "Classe", buy: "Acquista abbonamento",
             one_month: "1 mese", three_months: "3 mesi", six_months: "6 mesi", twelve_months: "12 mesi",
             standard: "Standard", business: "Business", total_price: "Prezzo totale:",
-            success: "✅ Abbonamento acquistato con successo!", error: "❌ Errore durante l'acquisto"
+            success: "✅ Abbonamento acquistato con successo!", error: "❌ Errore durante l'acquisto",
+            logout: "Logout"
         },
         en: {
             title: " Buy Subscription", subtitle: "Choose a route, duration and class. Payment will be simulated.",
             route_label: "Route", duration_label: "Duration", class_label: "Class", buy: "Buy subscription",
             one_month: "1 month", three_months: "3 months", six_months: "6 months", twelve_months: "12 months",
             standard: "Standard", business: "Business", total_price: "Total price:",
-            success: "✅ Subscription purchased successfully!", error: "❌ Error during purchase"
+            success: "✅ Subscription purchased successfully!", error: "❌ Error during purchase",
+            logout: "Logout"
         },
         de: {
             title: " Abo kaufen", subtitle: "Wählen Sie eine Strecke, Dauer und Klasse. Die Zahlung wird simuliert.",
             route_label: "Strecke", duration_label: "Dauer", class_label: "Klasse", buy: "Abo kaufen",
             one_month: "1 Monat", three_months: "3 Monate", six_months: "6 Monate", twelve_months: "12 Monate",
             standard: "Standard", business: "Business", total_price: "Gesamtpreis:",
-            success: "✅ Abo erfolgreich gekauft!", error: "❌ Fehler beim Kauf"
+            success: "✅ Abo erfolgreich gekauft!", error: "❌ Fehler beim Kauf",
+            logout: "Logout"
         }
     };
     let currentLang = localStorage.getItem('lang') || 'it';
     function setLanguage(lang) {
-        currentLang = lang; localStorage.setItem('lang', lang);
+        currentLang = lang;
+        localStorage.setItem('lang', lang);
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (translations[lang] && translations[lang][key]) el.innerText = translations[lang][key];
@@ -95,12 +87,10 @@
             const key = opt.getAttribute('data-i18n');
             if (translations[lang] && translations[lang][key]) opt.innerText = translations[lang][key];
         });
-        // Aggiorna il prezzo se già selezionato
         if (document.getElementById('routeSelect').value) updatePrice();
     }
-    document.getElementById('langSelect').value = currentLang;
     setLanguage(currentLang);
-    document.getElementById('langSelect').addEventListener('change', e => setLanguage(e.target.value));
+    renderNavbar();
 
     const token = localStorage.getItem('token');
     if (!token) {
@@ -108,7 +98,6 @@
         window.location.href = 'login.html';
     }
 
-    // Funzione per aggiornare il prezzo dinamicamente
     async function updatePrice() {
         const routeId = document.getElementById('routeSelect').value;
         const durationMonths = parseInt(document.getElementById('duration').value);
@@ -130,7 +119,6 @@
         }
     }
 
-    // Carica le tratte (con autenticazione)
     async function loadRoutes() {
         try {
             const res = await fetch('/api/routes', {
@@ -146,18 +134,16 @@
                 option.textContent = `${route.fromStation} → ${route.toStation}`;
                 select.appendChild(option);
             });
-            // Event listeners per ricalcolare prezzo
             select.addEventListener('change', updatePrice);
             document.getElementById('duration').addEventListener('change', updatePrice);
             document.getElementById('travelClass').addEventListener('change', updatePrice);
-            updatePrice(); // prezzo iniziale
+            updatePrice();
         } catch (err) {
             console.error('Errore caricamento tratte:', err);
             document.getElementById('result').innerHTML = `<div class="error">Impossibile caricare le tratte. Verifica di essere loggato.</div>`;
         }
     }
 
-    // Acquisto
     document.getElementById('buyBtn').onclick = async () => {
         const routeId = document.getElementById('routeSelect').value;
         const durationMonths = parseInt(document.getElementById('duration').value);
