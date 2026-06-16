@@ -10476,14 +10476,304 @@
       "startingPlace": "Bologna"
     },
     {
-      "shiftId": 8003,
+      "shiftId": 8004,
       "staffId": 1003,
-      "date": "2026-06-14",
-      "startTime": "08:00",
-      "endTime": "17:00",
-      "trainRunId": null,
-      "assignedRoute": "Customer Support Desk",
-      "startingPlace": "Ufficio di Bologna"
+      "date": "2026-06-16",
+      "startTime": "05:30",
+      "endTime": "09:00",
+      "trainRunId": 325,
+      "assignedRoute": "Venezia - Milano",
+      "startingPlace": "Venezia"
+    },
+    {
+      "shiftId": 8005,
+      "staffId": 1003,
+      "date": "2026-06-16",
+      "startTime": "18:00",
+      "endTime": "21:32",
+      "trainRunId": 349,
+      "assignedRoute": "Milano - Venezia",
+      "startingPlace": "Milano"
+    },
+    {
+      "shiftId": 8006,
+      "staffId": 1003,
+      "date": "2026-06-17",
+      "startTime": "06:00",
+      "endTime": "09:15",
+      "trainRunId": 371,
+      "assignedRoute": "Bologna - Milano",
+      "startingPlace": "Bologna"
+    },
+    {
+      "shiftId": 8007,
+      "staffId": 1003,
+      "date": "2026-06-17",
+      "startTime": "17:30",
+      "endTime": "20:45",
+      "trainRunId": 395,
+      "assignedRoute": "Milano - Bologna",
+      "startingPlace": "Milano"
+    },
+    {
+      "shiftId": 8008,
+      "staffId": 1003,
+      "date": "2026-06-18",
+      "startTime": "06:30",
+      "endTime": "10:28",
+      "trainRunId": 417,
+      "assignedRoute": "Trento - Venezia Santa Lucia",
+      "startingPlace": "Trento"
+    },
+    {
+      "shiftId": 8009,
+      "staffId": 1003,
+      "date": "2026-06-18",
+      "startTime": "16:30",
+      "endTime": "20:28",
+      "trainRunId": 440,
+      "assignedRoute": "Venezia - Trento",
+      "startingPlace": "Venezia"
+    },
+    {
+      "shiftId": 8010,
+      "staffId": 1003,
+      "date": "2026-06-19",
+      "startTime": "06:30",
+      "endTime": "12:15",
+      "trainRunId": 462,
+      "assignedRoute": "Verona Porta Nuova - Innsbruck",
+      "startingPlace": "Verona"
+    },
+    {
+      "shiftId": 8011,
+      "staffId": 1003,
+      "date": "2026-06-19",
+      "startTime": "17:00",
+      "endTime": "22:45",
+      "trainRunId": 485,
+      "assignedRoute": "Innsbruck - Verona Porta Nuova",
+      "startingPlace": "Innsbruck"
+    },
+    {
+      "shiftId": 8012,
+      "staffId": 1003,
+      "date": "2026-06-20",
+      "startTime": "05:30",
+      "endTime": "09:20",
+      "trainRunId": 510,
+      "assignedRoute": "Bolzano - Bologna",
+      "startingPlace": "Bolzano"
+    },
+    {
+      "shiftId": 8013,
+      "staffId": 1003,
+      "date": "2026-06-20",
+      "startTime": "18:30",
+      "endTime": "22:20",
+      "trainRunId": 492,
+      "assignedRoute": "Bologna - Bolzano",
+      "startingPlace": "Bologna"
+    },
+    {
+      "shiftId": 8014,
+      "staffId": 1003,
+      "date": "2026-06-21",
+      "startTime": "06:00",
+      "endTime": "09:32",
+      "trainRunId": 556,
+      "assignedRoute": "Milano - Venezia",
+      "startingPlace": "Milano"
+    },
+    {
+      "shiftId": 8015,
+      "staffId": 1003,
+      "date": "2026-06-21",
+      "startTime": "17:30",
+      "endTime": "21:00",
+      "trainRunId": 538,
+      "assignedRoute": "Venezia - Milano",
+      "startingPlace": "Venezia"
+    },
+    {
+      "shiftId": 8016,
+      "staffId": 1003,
+      "date": "2026-06-22",
+      "startTime": "05:30",
+      "endTime": "08:45",
+      "trainRunId": 602,
+      "assignedRoute": "Milano - Bologna",
+      "startingPlace": "Milano"
+    },
+    {
+      "shiftId": 8017,
+      "staffId": 1003,
+      "date": "2026-06-22",
+      "startTime": "18:00",
+      "endTime": "21:15",
+      "trainRunId": 584,
+      "assignedRoute": "Bologna - Milano",
+      "startingPlace": "Bologna"
+    },
+    {
+      "shiftId": 8018,
+      "staffId": 1003,
+      "date": "2026-06-23",
+      "startTime": "06:30",
+      "endTime": "10:28",
+      "trainRunId": 648,
+      "assignedRoute": "Venezia - Trento",
+      "startingPlace": "Venezia"
+    },
+    {
+      "shiftId": 8019,
+      "staffId": 1003,
+      "date": "2026-06-23",
+      "startTime": "16:30",
+      "endTime": "20:28",
+      "trainRunId": 629,
+      "assignedRoute": "Trento - Venezia Santa Lucia",
+      "startingPlace": "Trento"
+    },
+    {
+      "shiftId": 8020,
+      "staffId": 1003,
+      "date": "2026-06-24",
+      "startTime": "06:30",
+      "endTime": "12:15",
+      "trainRunId": 693,
+      "assignedRoute": "Innsbruck - Verona Porta Nuova",
+      "startingPlace": "Innsbruck"
+    },
+    {
+      "shiftId": 8021,
+      "staffId": 1003,
+      "date": "2026-06-24",
+      "startTime": "17:00",
+      "endTime": "22:45",
+      "trainRunId": 674,
+      "assignedRoute": "Verona Porta Nuova - Innsbruck",
+      "startingPlace": "Verona"
+    },
+    {
+      "shiftId": 8022,
+      "staffId": 1003,
+      "date": "2026-06-25",
+      "startTime": "07:00",
+      "endTime": "10:50",
+      "trainRunId": 699,
+      "assignedRoute": "Bologna - Bolzano",
+      "startingPlace": "Bologna"
+    },
+    {
+      "shiftId": 8023,
+      "staffId": 1003,
+      "date": "2026-06-25",
+      "startTime": "18:00",
+      "endTime": "21:50",
+      "trainRunId": 723,
+      "assignedRoute": "Bolzano - Bologna",
+      "startingPlace": "Bolzano"
+    },
+    {
+      "shiftId": 8024,
+      "staffId": 1003,
+      "date": "2026-06-26",
+      "startTime": "05:30",
+      "endTime": "09:00",
+      "trainRunId": 745,
+      "assignedRoute": "Venezia - Milano",
+      "startingPlace": "Venezia"
+    },
+    {
+      "shiftId": 8025,
+      "staffId": 1003,
+      "date": "2026-06-26",
+      "startTime": "18:00",
+      "endTime": "21:32",
+      "trainRunId": 769,
+      "assignedRoute": "Milano - Venezia",
+      "startingPlace": "Milano"
+    },
+    {
+      "shiftId": 8026,
+      "staffId": 1003,
+      "date": "2026-06-27",
+      "startTime": "06:00",
+      "endTime": "09:15",
+      "trainRunId": 791,
+      "assignedRoute": "Bologna - Milano",
+      "startingPlace": "Bologna"
+    },
+    {
+      "shiftId": 8027,
+      "staffId": 1003,
+      "date": "2026-06-27",
+      "startTime": "17:30",
+      "endTime": "20:45",
+      "trainRunId": 815,
+      "assignedRoute": "Milano - Bologna",
+      "startingPlace": "Milano"
+    },
+    {
+      "shiftId": 8028,
+      "staffId": 1003,
+      "date": "2026-06-28",
+      "startTime": "06:30",
+      "endTime": "10:28",
+      "trainRunId": 837,
+      "assignedRoute": "Trento - Venezia Santa Lucia",
+      "startingPlace": "Trento"
+    },
+    {
+      "shiftId": 8029,
+      "staffId": 1003,
+      "date": "2026-06-28",
+      "startTime": "16:30",
+      "endTime": "20:28",
+      "trainRunId": 860,
+      "assignedRoute": "Venezia - Trento",
+      "startingPlace": "Venezia"
+    },
+    {
+      "shiftId": 8030,
+      "staffId": 1003,
+      "date": "2026-06-29",
+      "startTime": "06:30",
+      "endTime": "12:15",
+      "trainRunId": 882,
+      "assignedRoute": "Verona Porta Nuova - Innsbruck",
+      "startingPlace": "Verona"
+    },
+    {
+      "shiftId": 8031,
+      "staffId": 1003,
+      "date": "2026-06-29",
+      "startTime": "17:00",
+      "endTime": "22:45",
+      "trainRunId": 905,
+      "assignedRoute": "Innsbruck - Verona Porta Nuova",
+      "startingPlace": "Innsbruck"
+    },
+    {
+      "shiftId": 8032,
+      "staffId": 1003,
+      "date": "2026-06-30",
+      "startTime": "05:30",
+      "endTime": "09:20",
+      "trainRunId": 930,
+      "assignedRoute": "Bolzano - Bologna",
+      "startingPlace": "Bolzano"
+    },
+    {
+      "shiftId": 8033,
+      "staffId": 1003,
+      "date": "2026-06-30",
+      "startTime": "18:30",
+      "endTime": "22:20",
+      "trainRunId": 912,
+      "assignedRoute": "Bologna - Bolzano",
+      "startingPlace": "Bologna"
     }
   ],
   "loyaltyTransactions": [
