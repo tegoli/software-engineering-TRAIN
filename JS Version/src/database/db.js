@@ -4,8 +4,19 @@ import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/**
+ * @const {string} DB_PATH
+ * @brief The absolute path to the JSON database file.
+ */
 export const DB_PATH = path.join(__dirname, 'database.json');
 
+/**
+ * @brief Reads and parses the JSON database.
+ * @details Checks if the database file exists at DB_PATH. If it does not exist, 
+ * it initializes an empty database structure, writes it to disk, and returns it.
+ * @return {Object} The complete database object containing all tables/collections.
+ */
 export function readDB() {
     if (!fs.existsSync(DB_PATH)) {
         const empty = {
@@ -20,22 +31,49 @@ export function readDB() {
     return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
 }
 
+/**
+ * @brief Writes the provided data object back to the JSON database file.
+ * @param {Object} data - The complete database object to be serialized and saved.
+ * @return {void}
+ */
 export function writeDB(data) {
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
 }
 
+/**
+ * @brief Hashes a plain text password using the SHA-256 algorithm.
+ * @param {string} pwd - The plain text password to hash.
+ * @return {string} The resulting hexadecimal hash string.
+ */
 export function hashPassword(pwd) {
     return crypto.createHash('sha256').update(pwd).digest('hex');
 }
 
+/**
+ * @brief Retrieves all train stations stored in the database.
+ * @return {Array<Object>} An array of station objects.
+ */
 export function getStations() {
     return readDB().stations;
 }
 
+/**
+ * @brief Retrieves a specific user by their unique user ID.
+ * @param {number|string} userId - The unique identifier of the user.
+ * @return {Object|undefined} The user object if found, otherwise undefined.
+ */
 export function getUserById(userId) {
     return readDB().users.find(u => u.userId === userId);
 }
 
+/**
+ * @brief Creates a notification for a user and saves it.
+ * @details Generates an auto-incremented ID, sets the current time, read status to false.
+ * @param {number|string} userId - The ID of the user to notify.
+ * @param {string} message - The notification text.
+ * @param {string} type - The type of notification (e.g., alert, info).
+ * @return {void}
+ */
 export function createNotification(userId, message, type) {
     const db = readDB();
     const newId = Math.max(...db.notifications.map(n => n.notificationId), 0) + 1;
@@ -43,6 +81,12 @@ export function createNotification(userId, message, type) {
     writeDB(db);
 }
 
+/**
+ * @brief Initializes the database with mock seed data if collections are empty.
+ * @details Populates default records for stations, trains, routes, and upcoming train runs 
+ * if their respective arrays are currently empty.
+ * @return {void}
+ */
 export function initDatabase() {
     const db = readDB();
     let changed = false;
@@ -83,6 +127,12 @@ export function initDatabase() {
     if (changed) writeDB(db);
 }
 
+/**
+ * @brief Adds default test users and schedules to the database.
+ * @details Checks if admin, test user and inspector accounts exist.
+ * If missing, creates them with default passwords and mock shift schedules.
+ * @return {void}
+ */
 export function seedDefaultUsers() {
     const db = readDB();
     let changed = false;

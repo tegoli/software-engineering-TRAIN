@@ -1,7 +1,19 @@
 import { readDB, writeDB, createNotification } from '../database/db.js';
 import { calculatePrice } from '../utils/geo.js';
 
+/**
+ * @const SubscriptionController
+ * @brief Handles subscription purchases, route listing and price calculation.
+ * @details Manages the full subscription workflow: listing available routes,
+ * computing prices based on distance, and processing purchases with loyalty points.
+ */
 export const SubscriptionController = {
+    /**
+     * @brief Lists all available routes with their start and end stations.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @return {void}
+     */
     getRoutes(req, res) {
         const db = readDB();
         const routes = db.routes.map(route => ({
@@ -13,6 +25,14 @@ export const SubscriptionController = {
         res.json(routes);
     },
 
+    /**
+     * @brief Calculates the price of a subscription.
+     * @details Uses the Haversine distance to compute a monthly price,
+     * then multiplies by the number of months.
+     * @param {Object} req - Express request with routeId, months and class as query params.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 404 if the route is not found, otherwise the total price.
+     */
     getPrice(req, res) {
         const { routeId, months, class: travelClass } = req.query;
         const db = readDB();
@@ -25,6 +45,14 @@ export const SubscriptionController = {
         res.json({ price: totalPrice });
     },
 
+    /**
+     * @brief Buys a subscription for a route.
+     * @details Validates the user and route, calculates the price, creates the subscription
+     * with start/end dates, awards loyalty points, and logs a payment.
+     * @param {Object} req - Express request with routeId, durationMonths and travelClass.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 400 if validation fails, otherwise success with the subscription ID.
+     */
     purchase(req, res) {
         const { routeId, durationMonths, travelClass } = req.body;
         const userId = req.user.userId;

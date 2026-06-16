@@ -1,16 +1,41 @@
 /**
- * @file Abstract base class for all users.
+ * @file User.js
+ * @brief Base class with basic info and methods for all users.
+ * @details Defines the common fields (name, email, etc.) that
+ * Passenger, Conductor, and Admin all inherit.
  */
 export class User {
-    /** @type {number} */ userId;
-    /** @type {string} */ name;
-    /** @type {string} */ surname;
-    /** @type {string} */ email;
-    /** @type {string} */ preferredLanguage; // 'it', 'en', etc.
+    /** * @brief Unique database ID for this user.
+     * @type {number} 
+     */ 
+    userId;
+
+    /** * @brief The user's first name.
+     * @type {string} 
+     */ 
+    name;
+
+    /** * @brief The user's last name.
+     * @type {string} 
+     */ 
+    surname;
+
+    /** * @brief Email address used for login and notifications.
+     * @type {string} 
+     */ 
+    email;
+
+    /** * @brief Language code like 'it' or 'en'.
+     * @type {string} 
+     */ 
+    preferredLanguage; // 'it', 'en', etc.
 
     /**
-     * Changes the interface language.
-     * @param {string} lang - Language code.
+     * @brief Changes the user's preferred language.
+     * @details Updates the language setting which affects dates,
+     * templates, and notification messages.
+     * @param {string} lang - Two-letter language code.
+     * @return {void}
      */
     changeLanguage(lang) {
         this.preferredLanguage = lang;

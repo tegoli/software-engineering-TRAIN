@@ -1,6 +1,20 @@
 import { readDB, writeDB } from '../database/db.js';
 
+/**
+ * @const InspectorController
+ * @brief Handles ticket validation and shift schedules for inspectors.
+ * @details Validates tickets and subscriptions, marks tickets as used,
+ * and returns the inspector's work schedule for the day.
+ */
 export const InspectorController = {
+    /**
+     * @brief Validates a ticket or subscription by its ID.
+     * @details Tries to find the document among tickets first, then subscriptions.
+     * Marks tickets as used, but subscriptions stay active until their end date.
+     * @param {Object} req - Express request with ticketId in the body.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} JSON with valid flag and a message.
+     */
     validateTicket(req, res) {
         const { ticketId } = req.body;
         const db = readDB();
@@ -49,6 +63,14 @@ export const InspectorController = {
         res.json({ valid: true, message: 'Biglietto valido e marcato come utilizzato', type: 'ticket' });
     },
 
+    /**
+     * @brief Returns the shift schedule for an inspector.
+     * @details Checks that the requester is the inspector themselves or an admin.
+     * Enriches shifts with train and route info.
+     * @param {Object} req - Express request with inspectorId as a route parameter.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 403 if not authorized, otherwise the list of shifts.
+     */
     getSchedule(req, res) {
         const inspectorId = parseInt(req.params.inspectorId);
         // Verifica che l'utente autenticato sia l'ispettore stesso o un admin

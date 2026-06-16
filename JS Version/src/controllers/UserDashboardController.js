@@ -1,6 +1,17 @@
 import { readDB } from '../database/db.js';
 
+/**
+ * @const UserDashboardController
+ * @brief Builds dashboard data for a user.
+ * @details Returns active tickets, booking history and loyalty points for a given user.
+ */
 export const UserDashboardController = {
+    /**
+     * @brief Gets the dashboard for a user.
+     * @details Fetches the user's active tickets, booking history and loyalty points.
+     * @param {number} userId - The ID of the user.
+     * @return {Object} Dashboard data with activeTickets, history and loyaltyPoints, or an error.
+     */
     getDashboard(userId) {
         const db = readDB();
         const user = db.users.find(u => u.userId === userId);

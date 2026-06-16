@@ -1,6 +1,14 @@
 import { readDB } from '../database/db.js';
 import { calculatePrice } from '../utils/geo.js';
 
+/**
+ * @brief Predicts how late a train might be.
+ * @details Looks for historical delay data for this run. If there is none,
+ * returns a random number between 0 and 30 as a fallback.
+ * @param {number} runId - The ID of the train run.
+ * @param {Object} db - The database object.
+ * @return {number} The predicted delay in minutes.
+ */
 function getDelayPrediction(runId, db) {
     const predictions = db.delayPredictions || [];
     const historical = predictions.filter(dp => dp.runId === runId).map(dp => dp.predictedDelayMinutes);
@@ -10,7 +18,21 @@ function getDelayPrediction(runId, db) {
     return Math.floor(Math.random() * 31);
 }
 
+/**
+ * @const TrainSearchController
+ * @brief Handles train search, status checks and delay predictions.
+ * @details Searches for direct trains and routes with one transfer, gets live train status,
+ * and predicts delays based on historical data.
+ */
 export const TrainSearchController = {
+    /**
+     * @brief Searches for direct trains between two stations.
+     * @details Finds matching train runs for the given date and travel class,
+     * calculates duration, price, delay probability and crowding.
+     * @param {Object} req - Express request with departureStationName, arrivalStationName, date and travelClass.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} Returns the list of trains found, or an empty array.
+     */
     search(req, res) {
         const { departureStationName, arrivalStationName, date, travelClass } = req.body;
         const db = readDB();
@@ -38,7 +60,7 @@ export const TrainSearchController = {
             const arrivalDateTime = new Date(runDate);
             const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
             arrivalDateTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
-            if (arrivalDateTime < departureDateTime) arrivalDateTime.setDate(arrivalDateTime.getDate() + 1);
+            if (arrivalDateTime < departureDateTime) arrivalDateTime.setDate(arrivalDateTime.setDate() + 1);
             const durationMs = arrivalDateTime - departureDateTime;
             const durationMinutes = Math.round(durationMs / 60000);
             const price = calculatePrice(fromStation, toStation, travelClass, train.trainType);
@@ -69,8 +91,16 @@ export const TrainSearchController = {
         res.json({ trains: results });
     },
 
+    /**
+     * @brief Searches for trains including routes with one transfer.
+     * @details Finds direct trains first, then looks for routes with a change
+     * at an intermediate station. Requires a transfer window of 20 to 120 minutes.
+     * Results are sorted by departure time.
+     * @param {Object} req - Express request with departureStationName, arrivalStationName, date, travelClass and maxTransfers.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} Returns the list of trains found, or an empty array.
+     */
     searchAdvanced(req, res) {
-        // Copia esatta dal tuo app.js (ricerca con cambi)
         const { departureStationName, arrivalStationName, date, travelClass, maxTransfers = 1 } = req.body;
         const db = readDB();
 
@@ -103,7 +133,7 @@ export const TrainSearchController = {
             const arrivalDateTime = new Date(runDate);
             const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
             arrivalDateTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
-            if (arrivalDateTime < departureDateTime) arrivalDateTime.setDate(arrivalDateTime.getDate() + 1);
+            if (arrivalDateTime < departureDateTime) arrivalDateTime.setDate(arrivalDateTime.setDate() + 1);
 
             const durationMs = arrivalDateTime - departureDateTime;
             const durationMinutes = Math.round(durationMs / 60000);
@@ -257,6 +287,13 @@ export const TrainSearchController = {
         res.json({ trains: results });
     },
 
+    /**
+     * @brief Gets the current status of a train run.
+     * @details Returns the train code, delay, next station and scheduled arrival for a given runId.
+     * @param {Object} req - Express request with runId as a route parameter.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 404 if the run is not found, otherwise the status data.
+     */
     getTrainStatus(req, res) {
         const runId = parseInt(req.params.runId);
         const db = readDB();
@@ -275,6 +312,13 @@ export const TrainSearchController = {
         });
     },
 
+    /**
+     * @brief Predicts the delay for a given train run.
+     * @details Uses historical data or a random estimate to predict how late the train will be.
+     * @param {Object} req - Express request with runId as a route parameter.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 404 if the run is not found, otherwise the delay prediction.
+     */
     predictDelay(req, res) {
         const runId = parseInt(req.params.runId);
         const db = readDB();

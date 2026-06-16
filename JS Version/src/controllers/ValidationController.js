@@ -1,6 +1,20 @@
 import { readDB, writeDB } from '../database/db.js';
 
+/**
+ * @const ValidationController
+ * @brief Handles ticket validation for inspectors.
+ * @details Looks up a ticket by ID, checks if it is active, marks it as used,
+ * and updates the seat reservation to occupied.
+ */
 export const ValidationController = {
+    /**
+     * @brief Validates a ticket by its ID.
+     * @details Searches for the ticket, checks that it is active, marks it as used,
+     * and updates the corresponding seat to occupied.
+     * @param {Object} req - Express request with ticketId in the body.
+     * @param {Object} res - Express response object.
+     * @return {Object} JSON with valid flag and a message.
+     */
     validateTicket(req, res) {
         const { ticketId } = req.body;
         const db = readDB();

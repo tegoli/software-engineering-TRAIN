@@ -1,6 +1,19 @@
 import { readDB, writeDB, createNotification } from '../database/db.js';
 
+/**
+ * @const TicketPurchaseController
+ * @brief Handles seat map display and ticket purchase logic.
+ * @details Manages seat availability, subscription discounts, loyalty points,
+ * and extra services like bike and luggage reservations.
+ */
 export const TicketPurchaseController = {
+    /**
+     * @brief Returns the seat map for a given train run.
+     * @details Gets the train layout and marks which seats are already taken based on reservations.
+     * @param {Object} req - Express request with runId as a route parameter.
+     * @param {Object} res - Express response object.
+     * @return {void}
+     */
     getSeatMap(req, res) {
         const runId = parseInt(req.params.runId);
         const db = readDB();
@@ -49,6 +62,15 @@ export const TicketPurchaseController = {
         res.json({ runId, coaches });
     },
 
+    /**
+     * @brief Buys one or more tickets for a train run.
+     * @details Checks for active subscriptions to apply a discount, calculates
+     * extra costs for bike and luggage, applies loyalty points, reserves seats,
+     * and creates payment records.
+     * @param {Object} req - Express request with runId, passengers, extras, usedPoints etc.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 400 or 409 on error, otherwise the purchase details.
+     */
     purchase(req, res) {
         const { runId, passengers, extras, usedPoints = 0, bikeCount = 0, luggageCount = 0, luggageSize = 'small' } = req.body;
         const userId = req.user.userId;

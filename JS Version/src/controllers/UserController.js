@@ -1,12 +1,32 @@
 import { readDB, writeDB, createNotification, hashPassword } from '../database/db.js';
 
+/**
+ * @const UserController
+ * @brief Handles user dashboard, ticket modification, password change and account deletion.
+ * @details Manages user profile data, active tickets, booking history, loyalty points,
+ * and security operations like password changes and account removal.
+ */
 export const UserController = {
+    /**
+     * @brief Returns basic info about the authenticated user.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @return {void}
+     */
     getMe(req, res) {
         const db = readDB();
         const user = db.users.find(u => u.userId === req.user.userId);
         res.json({ id: user.userId, name: user.name, role: user.role });
     },
 
+    /**
+     * @brief Returns the dashboard data for a user: active tickets, history and subscriptions.
+     * @details Checks that the requester is either the target user or an admin.
+     * Includes remaining days for active subscriptions.
+     * @param {Object} req - Express request with userId as a route parameter.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 403 if not authorized, 404 if user not found, otherwise the dashboard data.
+     */
     getDashboard(req, res) {
         const targetId = parseInt(req.params.userId);
         if (req.user.userId !== targetId && req.user.role !== 'administrator') {
@@ -16,30 +36,30 @@ export const UserController = {
         const user = db.users.find(u => u.userId === targetId);
         if (!user) return res.status(404).json({ error: 'Utente non trovato' });
         const tickets = db.tickets.filter(t => t.userId === targetId);
+        
         // Sottoscrizioni attive dell'utente
-const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.status === 'active').map(s => {
-    const route = db.routes.find(r => r.routeId === s.routeId);
-    const fromStation = db.stations.find(st => st.stationId === route?.stops[0].stationId);
-    const toStation = db.stations.find(st => st.stationId === route?.stops[route.stops.length-1].stationId);
-    const startDate = new Date(s.startDate);
-    const endDate = new Date(s.endDate);
-    const today = new Date();
-    const remainingDays = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
-    return {
-        subscriptionId: s.subscriptionId,
-        routeName: route?.routeName || 'Sconosciuta',
-        from: fromStation?.name || '?',
-        to: toStation?.name || '?',
-        startDate: s.startDate,
-        endDate: s.endDate,
-        remainingDays,
-        class: s.class,
-        qrCode: s.qrCode,
-        price: s.price,
-        status: s.status
-    };
-});
-
+        const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.status === 'active').map(s => {
+            const route = db.routes.find(r => r.routeId === s.routeId);
+            const fromStation = db.stations.find(st => st.stationId === route?.stops[0].stationId);
+            const toStation = db.stations.find(st => st.stationId === route?.stops[route.stops.length-1].stationId);
+            const startDate = new Date(s.startDate);
+            const endDate = new Date(s.endDate);
+            const today = new Date();
+            const remainingDays = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
+            return {
+                subscriptionId: s.subscriptionId,
+                routeName: route?.routeName || 'Sconosciuta',
+                from: fromStation?.name || '?',
+                to: toStation?.name || '?',
+                startDate: s.startDate,
+                endDate: s.endDate,
+                remainingDays,
+                class: s.class,
+                qrCode: s.qrCode,
+                price: s.price,
+                status: s.status
+            };
+        });
 
         const activeTickets = tickets.filter(t => t.status === 'active').map(t => {
             const run = db.trainRuns.find(r => r.runId === t.runId);
@@ -77,7 +97,6 @@ const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.st
             };
         });
 
-        
         res.json({
             name: user.name,
             loyaltyPoints: user.loyaltyPoints,
@@ -87,6 +106,12 @@ const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.st
         });
     },
 
+    /**
+     * @brief Returns the loyalty points balance of the authenticated user.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 404 if user not found, otherwise the points count.
+     */
     getPoints(req, res) {
         const db = readDB();
         const user = db.users.find(u => u.userId === req.user.userId);
@@ -94,6 +119,14 @@ const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.st
         res.json({ points: user.loyaltyPoints || 0 });
     },
 
+    /**
+     * @brief Modifies a ticket's date or time.
+     * @details If more than 24h before departure, allows changing the date (full modification).
+     * If less than 24h, only allows changing the time.
+     * @param {Object} req - Express request with ticketId, newDate and newTime.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} Error if not authorized or invalid, otherwise success.
+     */
     modifyTicket(req, res) {
         const { ticketId, newDate, newTime } = req.body;
         const db = readDB();
@@ -128,6 +161,13 @@ const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.st
         res.json({ success: true, message: `Email di conferma inviata a ${user.email}` });
     },
 
+    /**
+     * @brief Changes the user's password.
+     * @details Verifies the old password first, then updates to the new one if it is at least 8 chars.
+     * @param {Object} req - Express request with oldPassword and newPassword.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 401 if old password is wrong, 400 if new is too short, otherwise success.
+     */
     changePassword(req, res) {
         const { oldPassword, newPassword } = req.body;
         const userId = req.user.userId;
@@ -143,6 +183,13 @@ const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.st
         res.json({ success: true, message: `Email di conferma inviata a ${user.email}` });
     },
 
+    /**
+     * @brief Logs out the current user.
+     * @details Currently just returns success; the client handles token removal.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @return {void}
+     */
     logout(req, res) {
         const auth = req.headers.authorization;
         if (auth && auth.startsWith('Bearer ')) {
@@ -153,6 +200,14 @@ const subscriptions = db.subscriptions.filter(s => s.userId === targetId && s.st
         res.json({ success: true });
     },
 
+    /**
+     * @brief Deletes the user's account.
+     * @details Only allows deletion if there are no active tickets.
+     * Removes the user from the database and anonymizes their ticket history.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 400 if there are active tickets, otherwise success.
+     */
     deleteAccount(req, res) {
         const userId = req.user.userId;
         const db = readDB();

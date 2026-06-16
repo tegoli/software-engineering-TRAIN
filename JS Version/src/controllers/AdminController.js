@@ -1,6 +1,19 @@
 import { readDB, writeDB, createNotification } from '../database/db.js';
 
+/**
+ * @const AdminController
+ * @brief Handles admin statistics and delay simulation.
+ * @details Computes revenue, booking counts, top routes and stations, subscription stats,
+ * and simulates train delays with notifications to affected users.
+ */
 export const AdminController = {
+    /**
+     * @brief Returns admin statistics: revenue, bookings, delayed trains, top routes, top stations.
+     * @details Computes totals from payments, tickets, train runs and subscriptions.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @return {void}
+     */
     getStats(req, res) {
         const db = readDB();
         const totalRevenue = db.payments.reduce((sum, p) => sum + (p.amount || 0), 0);
@@ -53,6 +66,14 @@ export const AdminController = {
         });
     },
 
+    /**
+     * @brief Simulates a delay for a train run.
+     * @details Sets the run status to delayed, notifies all passengers with active tickets,
+     * and prints a simulated email to the console.
+     * @param {Object} req - Express request with runId and delayMinutes in the body.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 404 if the run is not found, otherwise success.
+     */
     simulateDelay(req, res) {
         const { runId, delayMinutes } = req.body;
         const db = readDB();
