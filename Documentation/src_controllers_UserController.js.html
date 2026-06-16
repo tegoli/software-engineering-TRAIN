@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: app.js</title>
+    <title>JSDoc: Source: src/controllers/UserController.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: app.js</h1>
+    <h1 class="page-title">Source: src/controllers/UserController.js</h1>
 
     
 
@@ -26,239 +26,231 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { initDatabase, seedDefaultUsers, getStations, readDB } from './src/database/db.js';
-import { AuthController } from './src/controllers/AuthController.js';
-import { TrainSearchController } from './src/controllers/TrainSearchController.js';
-import { TicketPurchaseController } from './src/controllers/TicketPurchaseController.js';
-import { UserController } from './src/controllers/UserController.js';
-import { InspectorController } from './src/controllers/InspectorController.js';
-import { AdminController } from './src/controllers/AdminController.js';
-import { SupportController } from './src/controllers/SupportController.js';
-import { NotificationController } from './src/controllers/NotificationController.js';
-import { SubscriptionController } from './src/controllers/SubscriptionController.js';
-import { StationBoardController } from './src/controllers/StationBoardController.js';
+            <pre class="prettyprint source linenums"><code>import { readDB, writeDB, createNotification, hashPassword } from '../database/db.js';
 
 /**
- * @file app.js
- * @brief Main entry point for the Express server.
- * @details Sets up the app, loads the database, defines all API routes, and starts the server on port 3000.
+ * @const UserController
+ * @brief Handles user dashboard, ticket modification, password change and account deletion.
+ * @details Manages user profile data, active tickets, booking history, loyalty points,
+ * and security operations like password changes and account removal.
  */
+export const UserController = {
+    /**
+     * @brief Returns basic info about the authenticated user.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @return {void}
+     */
+    getMe(req, res) {
+        const db = readDB();
+        const user = db.users.find(u => u.userId === req.user.userId);
+        res.json({ id: user.userId, name: user.name, role: user.role });
+    },
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const app = express();
-const PORT = 3000;
+    /**
+     * @brief Returns the dashboard data for a user: active tickets, history and subscriptions.
+     * @details Checks that the requester is either the target user or an admin.
+     * Includes remaining days for active subscriptions.
+     * @param {Object} req - Express request with userId as a route parameter.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 403 if not authorized, 404 if user not found, otherwise the dashboard data.
+     */
+    getDashboard(req, res) {
+        const targetId = parseInt(req.params.userId);
+        if (req.user.userId !== targetId &amp;&amp; req.user.role !== 'administrator') {
+            return res.status(403).json({ error: 'Accesso negato' });
+        }
+        const db = readDB();
+        const user = db.users.find(u => u.userId === targetId);
+        if (!user) return res.status(404).json({ error: 'Utente non trovato' });
+        const tickets = db.tickets.filter(t => t.userId === targetId);
+        
+        // Sottoscrizioni attive dell'utente
+        const subscriptions = db.subscriptions.filter(s => s.userId === targetId &amp;&amp; s.status === 'active').map(s => {
+            const route = db.routes.find(r => r.routeId === s.routeId);
+            const fromStation = db.stations.find(st => st.stationId === route?.stops[0].stationId);
+            const toStation = db.stations.find(st => st.stationId === route?.stops[route.stops.length-1].stationId);
+            const startDate = new Date(s.startDate);
+            const endDate = new Date(s.endDate);
+            const today = new Date();
+            const remainingDays = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
+            return {
+                subscriptionId: s.subscriptionId,
+                routeName: route?.routeName || 'Sconosciuta',
+                from: fromStation?.name || '?',
+                to: toStation?.name || '?',
+                startDate: s.startDate,
+                endDate: s.endDate,
+                remainingDays,
+                class: s.class,
+                qrCode: s.qrCode,
+                price: s.price,
+                status: s.status
+            };
+        });
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+        const activeTickets = tickets.filter(t => t.status === 'active').map(t => {
+            const run = db.trainRuns.find(r => r.runId === t.runId);
+            if (!run) return { ticketId: t.ticketId, from: '?', to: '?', departureTime: '---', price: t.price, seatNumber: t.seatNumber };
+            const route = db.routes.find(r => r.routeId === run.routeId);
+            const fromStop = route?.stops.find(s => s.stopOrder === t.fromStopOrder);
+            const toStop = route?.stops.find(s => s.stopOrder === t.toStopOrder);
+            const fromStation = db.stations.find(s => s.stationId === fromStop?.stationId);
+            const toStation = db.stations.find(s => s.stationId === toStop?.stationId);
+            return {
+                ticketId: t.ticketId,
+                from: fromStation?.name || 'Sconosciuta',
+                to: toStation?.name || 'Sconosciuta',
+                departureTime: fromStop?.scheduledDeparture || '---',
+                price: t.price,
+                seatNumber: t.seatNumber
+            };
+        });
 
-initDatabase();
-seedDefaultUsers();
+        const history = tickets.filter(t => t.status !== 'active').map(t => {
+            const run = db.trainRuns.find(r => r.runId === t.runId);
+            if (!run) return { ticketId: t.ticketId, from: '?', to: '?', date: t.purchaseDate, price: t.price, status: t.status };
+            const route = db.routes.find(r => r.routeId === run.routeId);
+            const fromStop = route?.stops.find(s => s.stopOrder === t.fromStopOrder);
+            const toStop = route?.stops.find(s => s.stopOrder === t.toStopOrder);
+            const fromStation = db.stations.find(s => s.stationId === fromStop?.stationId);
+            const toStation = db.stations.find(s => s.stationId === toStop?.stationId);
+            return {
+                ticketId: t.ticketId,
+                from: fromStation?.name || 'Sconosciuta',
+                to: toStation?.name || 'Sconosciuta',
+                date: t.purchaseDate,
+                price: t.price,
+                status: t.status
+            };
+        });
 
-// ROTTE PUBBLICHE 
+        res.json({
+            name: user.name,
+            loyaltyPoints: user.loyaltyPoints,
+            activeTickets,
+            history,
+            subscriptions   // ← nuova proprietà
+        });
+    },
 
-/**
- * @route GET /api/stations
- * @brief Returns all stations.
- */
-app.get('/api/stations', (req, res) => {
-    res.json(getStations());
-});
+    /**
+     * @brief Returns the loyalty points balance of the authenticated user.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 404 if user not found, otherwise the points count.
+     */
+    getPoints(req, res) {
+        const db = readDB();
+        const user = db.users.find(u => u.userId === req.user.userId);
+        if (!user) return res.status(404).json({ error: 'Utente non trovato' });
+        res.json({ points: user.loyaltyPoints || 0 });
+    },
 
-/**
- * @route POST /api/language
- * @brief Changes the language setting.
- */
-app.post('/api/language', AuthController.setLanguage);
+    /**
+     * @brief Modifies a ticket's date or time.
+     * @details If more than 24h before departure, allows changing the date (full modification).
+     * If less than 24h, only allows changing the time.
+     * @param {Object} req - Express request with ticketId, newDate and newTime.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} Error if not authorized or invalid, otherwise success.
+     */
+    modifyTicket(req, res) {
+        const { ticketId, newDate, newTime } = req.body;
+        const db = readDB();
+        const ticket = db.tickets.find(t => t.ticketId === ticketId);
+        if (!ticket) return res.status(404).json({ success: false, message: 'Biglietto non trovato' });
+        if (ticket.userId !== req.user.userId &amp;&amp; req.user.role !== 'administrator')
+            return res.status(403).json({ success: false, message: 'Non autorizzato' });
+        const run = db.trainRuns.find(r => r.runId === ticket.runId);
+        if (!run) return res.status(404).json({ success: false, message: 'Corsa non trovata' });
+        const originalDeparture = new Date(run.departureDateTime);
+        const now = new Date();
+        const hoursDiff = (originalDeparture - now) / (1000 * 3600);
+        if (hoursDiff &lt;= 0) return res.status(400).json({ success: false, message: 'Treno già partito' });
+        if (hoursDiff > 24) {
+            if (!newDate) return res.status(400).json({ success: false, message: 'Nuova data richiesta' });
+            const newRun = db.trainRuns.find(r => r.routeId === run.routeId &amp;&amp; r.departureDateTime.startsWith(newDate));
+            if (!newRun) return res.status(404).json({ success: false, message: 'Nessuna corsa nella nuova data' });
+            ticket.runId = newRun.runId;
+        } else if (hoursDiff &lt;= 24 &amp;&amp; hoursDiff > 0) {
+            if (!newTime) return res.status(400).json({ success: false, message: 'Nuovo orario richiesto' });
+            const [hour, minute] = newTime.split(':');
+            const newDepDateTime = new Date(run.departureDateTime);
+            newDepDateTime.setHours(parseInt(hour), parseInt(minute), 0);
+            if (newDepDateTime &lt; now) return res.status(400).json({ success: false, message: 'Nuovo orario già passato' });
+            run.departureDateTime = newDepDateTime.toISOString();
+        } else {
+            return res.status(400).json({ success: false, message: 'Modifica non consentita' });
+        }
+        const user = db.users.find(u => u.userId === ticket.userId);
+        createNotification(ticket.userId, `Biglietto #${ticketId} modificato con successo. Nuovi dettagli: ${newTime}${newDate ? ' data '+newDate : ''}`, 'info');
+        writeDB(db);
+        res.json({ success: true, message: `Email di conferma inviata a ${user.email}` });
+    },
 
-/**
- * @route POST /api/login
- * @brief Logs in a user.
- */
-app.post('/api/login', AuthController.login);
+    /**
+     * @brief Changes the user's password.
+     * @details Verifies the old password first, then updates to the new one if it is at least 8 chars.
+     * @param {Object} req - Express request with oldPassword and newPassword.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 401 if old password is wrong, 400 if new is too short, otherwise success.
+     */
+    changePassword(req, res) {
+        const { oldPassword, newPassword } = req.body;
+        const userId = req.user.userId;
+        const db = readDB();
+        const user = db.users.find(u => u.userId === userId);
+        if (!user || user.passwordHash !== hashPassword(oldPassword))
+            return res.status(401).json({ success: false, message: 'Password attuale errata' });
+        if (newPassword.length &lt; 8)
+            return res.status(400).json({ success: false, message: 'Minimo 8 caratteri' });
+        user.passwordHash = hashPassword(newPassword);
+        createNotification(userId, 'Password modificata con successo.', 'security');
+        writeDB(db);
+        res.json({ success: true, message: `Email di conferma inviata a ${user.email}` });
+    },
 
-/**
- * @route POST /api/register
- * @brief Creates a new account.
- */
-app.post('/api/register', AuthController.register);
+    /**
+     * @brief Logs out the current user.
+     * @details Currently just returns success; the client handles token removal.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @return {void}
+     */
+    logout(req, res) {
+        const auth = req.headers.authorization;
+        if (auth &amp;&amp; auth.startsWith('Bearer ')) {
+            const token = auth.slice(7);
+            // La sessione è gestita da AuthController, ma possiamo invalidare qui
+            // Per semplicità lasciamo che scada naturalmente; il client cancellerà il token.
+        }
+        res.json({ success: true });
+    },
 
-/**
- * @route POST /api/search
- * @brief Searches for train trips.
- */
-app.post('/api/search', TrainSearchController.search);
-
-/**
- * @route POST /api/search-advanced
- * @brief Searches with advanced options.
- */
-app.post('/api/search-advanced', TrainSearchController.searchAdvanced);
-
-/**
- * @route GET /api/train-status/:runId
- * @brief Gets the live status of a train.
- */
-app.get('/api/train-status/:runId', TrainSearchController.getTrainStatus);
-
-/**
- * @route GET /api/predict-delay/:runId
- * @brief Predicts how late a train will be.
- */
-app.get('/api/predict-delay/:runId', TrainSearchController.predictDelay);
-
-/**
- * @route GET /api/departures/:stationId
- * @brief Gets departures for a station.
- */
-app.get('/api/departures/:stationId', StationBoardController.getDepartures);
-
-/**
- * @route POST /api/recover-password
- * @brief Sends a password recovery email.
- */
-app.post('/api/recover-password', AuthController.recoverPassword);
-
-// ROTTE PROTETTE
-
-/**
- * @brief Verifies the auth token.
- * @details All routes below this point need a valid token.
- */
-app.use(AuthController.authenticate); // da qui in avanti serve token
-
-/**
- * @route GET /api/me
- * @brief Gets the current user's info.
- */
-app.get('/api/me', UserController.getMe);
-
-/**
- * @route GET /api/user/dashboard/:userId
- * @brief Gets the user dashboard.
- */
-app.get('/api/user/dashboard/:userId', UserController.getDashboard);
-
-/**
- * @route GET /api/user/points
- * @brief Gets the user's loyalty points.
- */
-app.get('/api/user/points', UserController.getPoints);
-
-/**
- * @route GET /api/seat-map/:runId
- * @brief Gets the seat map for a train.
- */
-app.get('/api/seat-map/:runId', TicketPurchaseController.getSeatMap);
-
-/**
- * @route POST /api/purchase
- * @brief Buys a ticket.
- */
-app.post('/api/purchase', TicketPurchaseController.purchase);
-
-/**
- * @route PUT /api/ticket
- * @brief Changes an existing ticket.
- */
-app.put('/api/ticket', UserController.modifyTicket);
-
-/**
- * @route POST /api/change-password
- * @brief Changes the user's password.
- */
-app.post('/api/change-password', UserController.changePassword);
-
-/**
- * @route POST /api/logout
- * @brief Logs out the user.
- */
-app.post('/api/logout', UserController.logout);
-
-/**
- * @route DELETE /api/account
- * @brief Deletes the user's account.
- */
-app.delete('/api/account', UserController.deleteAccount);
-
-/**
- * @route POST /api/validate
- * @brief Validates a ticket (marks it as used).
- */
-app.post('/api/validate', InspectorController.validateTicket);
-
-/**
- * @route GET /api/inspector/schedule/:inspectorId
- * @brief Gets an inspector's work schedule.
- */
-app.get('/api/inspector/schedule/:inspectorId', InspectorController.getSchedule);
-
-/**
- * @route GET /api/admin/stats
- * @brief Returns admin statistics.
- */
-app.get('/api/admin/stats', AdminController.getStats);
-
-/**
- * @route POST /api/support
- * @brief Submits a support request.
- */
-app.post('/api/support', SupportController.submit);
-
-/**
- * @route GET /api/notifications
- * @brief Gets the user's notifications.
- */
-app.get('/api/notifications', NotificationController.getNotifications);
-
-/**
- * @route PUT /api/notifications/:id/read
- * @brief Marks a notification as read.
- */
-app.put('/api/notifications/:id/read', NotificationController.markAsRead);
-
-/**
- * @route POST /api/subscription
- * @brief Buys a subscription pass.
- */
-app.post('/api/subscription', SubscriptionController.purchase);
-
-/**
- * @route POST /api/simulate-delay
- * @brief Simulates a train delay (admin).
- */
-app.post('/api/simulate-delay', AdminController.simulateDelay);
-
-/**
- * @route GET /api/routes
- * @brief Returns the list of available routes.
- */
-app.get('/api/routes', SubscriptionController.getRoutes);
-
-/**
- * @route GET /api/debug
- * @brief Debug: shows DB stats and active sessions.
- */
-app.get('/api/debug', (req, res) => {
-    const db = readDB();
-    res.json({ stationsCount: db.stations.length, sessionsCount: AuthController.sessionCount() });
-});
-
-/**
- * @route GET /api/subscription-price
- * @brief Gets the price for a subscription.
- */
-app.get('/api/subscription-price', SubscriptionController.getPrice);
-
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`Admin: matteo.golinelli-1@studenti.unitn.it  / password`);
-    console.log(`- User: virginia.ancora@studenti.unitn.it / password`);
-    console.log(`- User: caterina.alessi@studenti.unitn.it / password`);
-    console.log(`- Inspector: robin.bertolini@studenti.unitn.it / password`);
-});</code></pre>
+    /**
+     * @brief Deletes the user's account.
+     * @details Only allows deletion if there are no active tickets.
+     * Removes the user from the database and anonymizes their ticket history.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 400 if there are active tickets, otherwise success.
+     */
+    deleteAccount(req, res) {
+        const userId = req.user.userId;
+        const db = readDB();
+        const user = db.users.find(u => u.userId === userId);
+        if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
+        const activeTickets = db.tickets.some(t => t.userId === userId &amp;&amp; t.status === 'active');
+        if (activeTickets) {
+            return res.status(400).json({ success: false, message: 'Non puoi eliminare l\'account con biglietti attivi.' });
+        }
+        db.users = db.users.filter(u => u.userId !== userId);
+        db.tickets.filter(t => t.userId === userId).forEach(t => t.userId = null);
+        writeDB(db);
+        res.json({ success: true, message: 'Account eliminato.' });
+    }
+};</code></pre>
         </article>
     </section>
 

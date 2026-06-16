@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: app.js</title>
+    <title>JSDoc: Source: src/controllers/AuthController.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: app.js</h1>
+    <h1 class="page-title">Source: src/controllers/AuthController.js</h1>
 
     
 
@@ -26,239 +26,160 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { initDatabase, seedDefaultUsers, getStations, readDB } from './src/database/db.js';
-import { AuthController } from './src/controllers/AuthController.js';
-import { TrainSearchController } from './src/controllers/TrainSearchController.js';
-import { TicketPurchaseController } from './src/controllers/TicketPurchaseController.js';
-import { UserController } from './src/controllers/UserController.js';
-import { InspectorController } from './src/controllers/InspectorController.js';
-import { AdminController } from './src/controllers/AdminController.js';
-import { SupportController } from './src/controllers/SupportController.js';
-import { NotificationController } from './src/controllers/NotificationController.js';
-import { SubscriptionController } from './src/controllers/SubscriptionController.js';
-import { StationBoardController } from './src/controllers/StationBoardController.js';
+            <pre class="prettyprint source linenums"><code>import { readDB, writeDB, hashPassword, createNotification } from '../database/db.js';
+import { generateToken } from '../utils/crypto.js';
 
 /**
- * @file app.js
- * @brief Main entry point for the Express server.
- * @details Sets up the app, loads the database, defines all API routes, and starts the server on port 3000.
+ * @const {Map} sessions
+ * @brief Stores active sessions, mapping tokens to user data.
  */
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const app = express();
-const PORT = 3000;
-
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-initDatabase();
-seedDefaultUsers();
-
-// ROTTE PUBBLICHE 
+const sessions = new Map();
 
 /**
- * @route GET /api/stations
- * @brief Returns all stations.
+ * @const AuthController
+ * @brief Handles login, registration, password recovery and auth middleware.
+ * @details Manages session tokens, login attempts blocking, and user registration.
  */
-app.get('/api/stations', (req, res) => {
-    res.json(getStations());
-});
+export const AuthController = {
+    /**
+     * @brief Checks if the request has a valid Bearer token.
+     * @details Reads the Authorization header, looks up the token in the sessions map,
+     * and attaches the user to the request if valid.
+     * @param {Object} req - Express request object.
+     * @param {Object} res - Express response object.
+     * @param {Function} next - Callback to pass control to the next handler.
+     * @return {Object|void} 401 if the token is missing or invalid, otherwise calls next().
+     */
+    authenticate(req, res, next) {
+        const auth = req.headers.authorization;
+        if (!auth || !auth.startsWith('Bearer ')) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        const token = auth.slice(7);
+        const session = sessions.get(token);
+        if (!session) {
+            return res.status(401).json({ error: 'Invalid token' });
+        }
+        req.user = session;
+        next();
+    },
 
-/**
- * @route POST /api/language
- * @brief Changes the language setting.
- */
-app.post('/api/language', AuthController.setLanguage);
+    /**
+     * @brief Logs a user in by checking email and password.
+     * @details Finds the user by email, checks the password hash, and blocks the account
+     * after 5 failed attempts. Creates a session token on success.
+     * @param {Object} req - Express request with email and password in the body.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} Error message on failure, or user data with a token on success.
+     */
+    login(req, res) {
+        const { email, password } = req.body;
+        const db = readDB();
+        const user = db.users.find(u => u.email === email);
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Credenziali errate' });
+        }
+        if (user.accountStatus === 'blocked') {
+            return res.status(401).json({ success: false, message: 'Account bloccato per troppi tentativi falliti. Contatta il supporto.' });
+        }
+        if (user.passwordHash !== hashPassword(password)) {
+            user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+            if (user.failedLoginAttempts >= 5) {
+                user.accountStatus = 'blocked';
+                writeDB(db);
+                return res.status(401).json({ success: false, message: 'Account bloccato per troppi tentativi falliti.' });
+            }
+            writeDB(db);
+            return res.status(401).json({ success: false, message: 'Credenziali errate' });
+        }
+        user.failedLoginAttempts = 0;
+        writeDB(db);
+        const token = generateToken();
+        sessions.set(token, { userId: user.userId, role: user.role });
+        res.json({ success: true, token, user: { id: user.userId, name: user.name, role: user.role } });
+    },
 
-/**
- * @route POST /api/login
- * @brief Logs in a user.
- */
-app.post('/api/login', AuthController.login);
+    /**
+     * @brief Creates a new passenger account.
+     * @details Checks that the email is not already taken and the password is at least 8 chars.
+     * Adds the user to the database and sends a welcome notification.
+     * @param {Object} req - Express request with name, surname, email and password.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 400 if validation fails, otherwise a success message.
+     */
+    register(req, res) {
+        const { name, surname, email, password } = req.body;
+        const db = readDB();
+        if (db.users.find(u => u.email === email)) {
+            return res.status(400).json({ success: false, message: 'Email già registrata' });
+        }
+        if (!password || password.length &lt; 8) {
+            return res.status(400).json({ success: false, message: 'Password minima 8 caratteri' });
+        }
+        const newId = Math.max(...db.users.map(u => u.userId), 0) + 1;
+        db.users.push({
+            userId: newId, name, surname, email,
+            passwordHash: hashPassword(password), role: 'passenger',
+            preferredLanguage: 'it', loyaltyPoints: 0, failedLoginAttempts: 0,
+            accountStatus: 'active'
+        });
+        createNotification(newId, 'Benvenuto! Grazie per esserti registrato.', 'info');
+        writeDB(db);
+        res.json({ success: true, message: 'Registrazione completata' });
+    },
 
-/**
- * @route POST /api/register
- * @brief Creates a new account.
- */
-app.post('/api/register', AuthController.register);
+    /**
+     * @brief Changes the language preference for the current user.
+     * @details If the user is logged in, saves the language to the database.
+     * If not logged in, the frontend handles it via localStorage.
+     * @param {Object} req - Express request with language in the body.
+     * @param {Object} res - Express response object.
+     * @return {void}
+     */
+    setLanguage(req, res) {
+        const { language } = req.body;
+        // Se non c'è utente autenticato, salva la lingua solo in localStorage (client side)
+        // Ma il client manda comunque la richiesta con token se loggato.
+        // Controlliamo se req.user esiste (autenticazione opzionale)
+        if (req.user &amp;&amp; req.user.userId) {
+            const db = readDB();
+            const user = db.users.find(u => u.userId === req.user.userId);
+            if (user) {
+                user.preferredLanguage = language;
+                writeDB(db);
+            }
+        }
+        // Anche se non loggato, rispondiamo successo (il client gestisce)
+        res.json({ success: true });
+    },
 
-/**
- * @route POST /api/search
- * @brief Searches for train trips.
- */
-app.post('/api/search', TrainSearchController.search);
+    /**
+     * @brief Starts the password recovery process for a given email.
+     * @details If the email is registered, creates a notification and simulates sending a reset email.
+     * @param {Object} req - Express request with email in the body.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 404 if the email is not found, otherwise a confirmation message.
+     */
+    recoverPassword(req, res) {
+        const { email } = req.body;
+        const db = readDB();
+        const user = db.users.find(u => u.email === email);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Email non registrata' });
+        }
+        createNotification(user.userId, 'È stata richiesta la procedura di recupero password. Segui il link inviato via email.', 'security');
+        writeDB(db);
+        res.json({ success: true, message: `Email di reset inviata a ${email}` });
+    },
 
-/**
- * @route POST /api/search-advanced
- * @brief Searches with advanced options.
- */
-app.post('/api/search-advanced', TrainSearchController.searchAdvanced);
-
-/**
- * @route GET /api/train-status/:runId
- * @brief Gets the live status of a train.
- */
-app.get('/api/train-status/:runId', TrainSearchController.getTrainStatus);
-
-/**
- * @route GET /api/predict-delay/:runId
- * @brief Predicts how late a train will be.
- */
-app.get('/api/predict-delay/:runId', TrainSearchController.predictDelay);
-
-/**
- * @route GET /api/departures/:stationId
- * @brief Gets departures for a station.
- */
-app.get('/api/departures/:stationId', StationBoardController.getDepartures);
-
-/**
- * @route POST /api/recover-password
- * @brief Sends a password recovery email.
- */
-app.post('/api/recover-password', AuthController.recoverPassword);
-
-// ROTTE PROTETTE
-
-/**
- * @brief Verifies the auth token.
- * @details All routes below this point need a valid token.
- */
-app.use(AuthController.authenticate); // da qui in avanti serve token
-
-/**
- * @route GET /api/me
- * @brief Gets the current user's info.
- */
-app.get('/api/me', UserController.getMe);
-
-/**
- * @route GET /api/user/dashboard/:userId
- * @brief Gets the user dashboard.
- */
-app.get('/api/user/dashboard/:userId', UserController.getDashboard);
-
-/**
- * @route GET /api/user/points
- * @brief Gets the user's loyalty points.
- */
-app.get('/api/user/points', UserController.getPoints);
-
-/**
- * @route GET /api/seat-map/:runId
- * @brief Gets the seat map for a train.
- */
-app.get('/api/seat-map/:runId', TicketPurchaseController.getSeatMap);
-
-/**
- * @route POST /api/purchase
- * @brief Buys a ticket.
- */
-app.post('/api/purchase', TicketPurchaseController.purchase);
-
-/**
- * @route PUT /api/ticket
- * @brief Changes an existing ticket.
- */
-app.put('/api/ticket', UserController.modifyTicket);
-
-/**
- * @route POST /api/change-password
- * @brief Changes the user's password.
- */
-app.post('/api/change-password', UserController.changePassword);
-
-/**
- * @route POST /api/logout
- * @brief Logs out the user.
- */
-app.post('/api/logout', UserController.logout);
-
-/**
- * @route DELETE /api/account
- * @brief Deletes the user's account.
- */
-app.delete('/api/account', UserController.deleteAccount);
-
-/**
- * @route POST /api/validate
- * @brief Validates a ticket (marks it as used).
- */
-app.post('/api/validate', InspectorController.validateTicket);
-
-/**
- * @route GET /api/inspector/schedule/:inspectorId
- * @brief Gets an inspector's work schedule.
- */
-app.get('/api/inspector/schedule/:inspectorId', InspectorController.getSchedule);
-
-/**
- * @route GET /api/admin/stats
- * @brief Returns admin statistics.
- */
-app.get('/api/admin/stats', AdminController.getStats);
-
-/**
- * @route POST /api/support
- * @brief Submits a support request.
- */
-app.post('/api/support', SupportController.submit);
-
-/**
- * @route GET /api/notifications
- * @brief Gets the user's notifications.
- */
-app.get('/api/notifications', NotificationController.getNotifications);
-
-/**
- * @route PUT /api/notifications/:id/read
- * @brief Marks a notification as read.
- */
-app.put('/api/notifications/:id/read', NotificationController.markAsRead);
-
-/**
- * @route POST /api/subscription
- * @brief Buys a subscription pass.
- */
-app.post('/api/subscription', SubscriptionController.purchase);
-
-/**
- * @route POST /api/simulate-delay
- * @brief Simulates a train delay (admin).
- */
-app.post('/api/simulate-delay', AdminController.simulateDelay);
-
-/**
- * @route GET /api/routes
- * @brief Returns the list of available routes.
- */
-app.get('/api/routes', SubscriptionController.getRoutes);
-
-/**
- * @route GET /api/debug
- * @brief Debug: shows DB stats and active sessions.
- */
-app.get('/api/debug', (req, res) => {
-    const db = readDB();
-    res.json({ stationsCount: db.stations.length, sessionsCount: AuthController.sessionCount() });
-});
-
-/**
- * @route GET /api/subscription-price
- * @brief Gets the price for a subscription.
- */
-app.get('/api/subscription-price', SubscriptionController.getPrice);
-
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`Admin: matteo.golinelli-1@studenti.unitn.it  / password`);
-    console.log(`- User: virginia.ancora@studenti.unitn.it / password`);
-    console.log(`- User: caterina.alessi@studenti.unitn.it / password`);
-    console.log(`- Inspector: robin.bertolini@studenti.unitn.it / password`);
-});</code></pre>
+    /**
+     * @brief Returns the number of active sessions.
+     * @return {number} The number of sessions currently stored.
+     */
+    sessionCount() {
+        return sessions.size;
+    }
+};</code></pre>
         </article>
     </section>
 

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: src/controllers/TrainSearchController.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: src/controllers/TrainSearchController.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { readDB } from '../database/db.js';
+import { calculatePrice } from '../utils/geo.js';
+
+/**
+ * @brief Predicts how late a train might be.
+ * @details Looks for historical delay data for this run. If there is none,
+ * returns a random number between 0 and 30 as a fallback.
+ * @param {number} runId - The ID of the train run.
+ * @param {Object} db - The database object.
+ * @return {number} The predicted delay in minutes.
+ */
+function getDelayPrediction(runId, db) {
+    const predictions = db.delayPredictions || [];
+    const historical = predictions.filter(dp => dp.runId === runId).map(dp => dp.predictedDelayMinutes);
+    if (historical.length) {
+        return historical[Math.floor(Math.random() * historical.length)];
+    }
+    return Math.floor(Math.random() * 31);
+}
+
+/**
+ * @const TrainSearchController
+ * @brief Handles train search, status checks and delay predictions.
+ * @details Searches for direct trains and routes with one transfer, gets live train status,
+ * and predicts delays based on historical data.
+ */
+export const TrainSearchController = {
+    /**
+     * @brief Searches for direct trains between two stations.
+     * @details Finds matching train runs for the given date and travel class,
+     * calculates duration, price, delay probability and crowding.
+     * @param {Object} req - Express request with departureStationName, arrivalStationName, date and travelClass.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} Returns the list of trains found, or an empty array.
+     */
+    search(req, res) {
+        const { departureStationName, arrivalStationName, date, travelClass } = req.body;
+        const db = readDB();
+        const fromStation = db.stations.find(s => s.name.toLowerCase() === departureStationName.toLowerCase());
+        const toStation = db.stations.find(s => s.name.toLowerCase() === arrivalStationName.toLowerCase());
+        if (!fromStation || !toStation) return res.json({ trains: [] });
+        const searchDate = new Date(date);
+        const results = [];
+        for (const run of db.trainRuns) {
+            const route = db.routes.find(r => r.routeId === run.routeId);
+            if (!route) continue;
+            const fromStop = route.stops.find(stop => stop.stationId === fromStation.stationId);
+            const toStop = route.stops.find(stop => stop.stationId === toStation.stationId);
+            if (!fromStop || !toStop || fromStop.stopOrder >= toStop.stopOrder) continue;
+            const runDate = new Date(run.departureDateTime);
+            if (runDate.toDateString() !== searchDate.toDateString()) continue;
+            if (run.status === 'cancelled') continue;
+            const train = db.trains.find(t => t.trainId === run.trainId);
+            if (!train) continue;
+            if (!train.serviceClasses.includes(travelClass)) continue;
+
+            const departureDateTime = new Date(runDate);
+            const [depHour, depMin] = fromStop.scheduledDeparture.split(':');
+            departureDateTime.setHours(parseInt(depHour), parseInt(depMin), 0);
+            const arrivalDateTime = new Date(runDate);
+            const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
+            arrivalDateTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
+            if (arrivalDateTime &lt; departureDateTime) arrivalDateTime.setDate(arrivalDateTime.setDate() + 1);
+            const durationMs = arrivalDateTime - departureDateTime;
+            const durationMinutes = Math.round(durationMs / 60000);
+            const price = calculatePrice(fromStation, toStation, travelClass, train.trainType);
+            const currentDelay = run.currentDelayMinutes || 0;
+            const predictedDelay = getDelayPrediction(run.runId, db);
+            // Calcolo probabilità ritardo e affollamento (semplificato)
+            let totalSeats = 0;
+            if (train.coaches &amp;&amp; train.coaches.length) {
+                totalSeats = train.coaches.reduce((sum, c) => sum + (c.totalSeats || 0), 0);
+            } else {
+                totalSeats = 60;
+            }
+            const occupancySnapshots = db.occupancySnapshots ? db.occupancySnapshots.filter(o => o.runId === run.runId) : [];
+            const occupiedSeats = occupancySnapshots.reduce((sum, o) => sum + (o.occupiedSeats || 0), 0);
+            const crowdingProbability = totalSeats > 0 ? Math.min(100, Math.round((occupiedSeats / totalSeats) * 100)) : 0;
+            const delayProbability = run.status === 'delayed' ? Math.min(80, 20 + (run.currentDelayMinutes || 0)) : Math.max(0, 5 - (run.currentDelayMinutes || 0));
+
+            results.push({
+                id: run.runId, from: fromStation.name, to: toStation.name,
+                departureTime: departureDateTime.toISOString(),
+                arrivalTime: arrivalDateTime.toISOString(),
+                duration: `${Math.floor(durationMinutes/60)}h ${durationMinutes%60}m`,
+                price, trainType: train.trainType, trainCode: train.trainCode, travelClass,
+                delayProbability, crowdingProbability, currentDelay,
+                predictedDelay
+            });
+        }
+        res.json({ trains: results });
+    },
+
+    /**
+     * @brief Searches for trains including routes with one transfer.
+     * @details Finds direct trains first, then looks for routes with a change
+     * at an intermediate station. Requires a transfer window of 20 to 120 minutes.
+     * Results are sorted by departure time.
+     * @param {Object} req - Express request with departureStationName, arrivalStationName, date, travelClass and maxTransfers.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} Returns the list of trains found, or an empty array.
+     */
+    searchAdvanced(req, res) {
+        const { departureStationName, arrivalStationName, date, travelClass, maxTransfers = 1 } = req.body;
+        const db = readDB();
+
+        const fromStation = db.stations.find(s => s.name.toLowerCase() === departureStationName.toLowerCase());
+        const toStation = db.stations.find(s => s.name.toLowerCase() === arrivalStationName.toLowerCase());
+        if (!fromStation || !toStation) return res.json({ trains: [] });
+
+        const searchDate = new Date(date);
+        if (isNaN(searchDate)) return res.json({ trains: [] });
+
+        const results = [];
+
+        // Tratte dirette
+        for (const run of db.trainRuns) {
+            const route = db.routes.find(r => r.routeId === run.routeId);
+            if (!route) continue;
+            const fromStop = route.stops.find(stop => stop.stationId === fromStation.stationId);
+            const toStop = route.stops.find(stop => stop.stationId === toStation.stationId);
+            if (!fromStop || !toStop || fromStop.stopOrder >= toStop.stopOrder) continue;
+            const runDate = new Date(run.departureDateTime);
+            if (runDate.toDateString() !== searchDate.toDateString()) continue;
+            if (run.status === 'cancelled') continue;
+            const train = db.trains.find(t => t.trainId === run.trainId);
+            if (!train) continue;
+            if (!train.serviceClasses.includes(travelClass)) continue;
+
+            const departureDateTime = new Date(runDate);
+            const [depHour, depMin] = fromStop.scheduledDeparture.split(':');
+            departureDateTime.setHours(parseInt(depHour), parseInt(depMin), 0);
+            const arrivalDateTime = new Date(runDate);
+            const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
+            arrivalDateTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
+            if (arrivalDateTime &lt; departureDateTime) arrivalDateTime.setDate(arrivalDateTime.setDate() + 1);
+
+            const durationMs = arrivalDateTime - departureDateTime;
+            const durationMinutes = Math.round(durationMs / 60000);
+            const price = calculatePrice(fromStation, toStation, travelClass, train.trainType);
+
+            let totalSeats = 0;
+            if (train.coaches &amp;&amp; train.coaches.length) {
+                totalSeats = train.coaches.reduce((sum, c) => sum + (c.totalSeats || 0), 0);
+            } else {
+                totalSeats = 60;
+            }
+            const occupancySnapshots = db.occupancySnapshots ? db.occupancySnapshots.filter(o => o.runId === run.runId) : [];
+            const occupiedSeats = occupancySnapshots.reduce((sum, o) => sum + (o.occupiedSeats || 0), 0);
+            const crowdingProbability = totalSeats > 0 ? Math.min(100, Math.round((occupiedSeats / totalSeats) * 100)) : 0;
+            const delayProbability = run.status === 'delayed' ? Math.min(80, 20 + (run.currentDelayMinutes || 0)) : Math.max(0, 5 - (run.currentDelayMinutes || 0));
+
+            results.push({
+                id: run.runId, from: fromStation.name, to: toStation.name,
+                departureTime: departureDateTime.toISOString(),
+                arrivalTime: arrivalDateTime.toISOString(),
+                durationMinutes, duration: `${Math.floor(durationMinutes/60)}h ${durationMinutes%60}m`,
+                price, trainCode: train.trainCode, trainType: train.trainType, travelClass,
+                transfers: 0, transferStation: null, transferDuration: null,
+                delayProbability, crowdingProbability,
+                segments: [{
+                    runId: run.runId, trainCode: train.trainCode,
+                    from: fromStation.name, to: toStation.name,
+                    departureTime: departureDateTime.toISOString(),
+                    arrivalTime: arrivalDateTime.toISOString(),
+                    durationMinutes,
+                    delayProbability, crowdingProbability
+                }]
+            });
+        }
+
+        // Con cambio (max 1)
+        if (maxTransfers >= 1) {
+            for (const intermediate of db.stations) {
+                if (intermediate.stationId === fromStation.stationId || intermediate.stationId === toStation.stationId) continue;
+                const leg1Options = [];
+                for (const run of db.trainRuns) {
+                    const route = db.routes.find(r => r.routeId === run.routeId);
+                    if (!route) continue;
+                    const fromStop = route.stops.find(s => s.stationId === fromStation.stationId);
+                    const toStop = route.stops.find(s => s.stationId === intermediate.stationId);
+                    if (!fromStop || !toStop || fromStop.stopOrder >= toStop.stopOrder) continue;
+                    const runDate = new Date(run.departureDateTime);
+                    if (runDate.toDateString() !== searchDate.toDateString()) continue;
+                    if (run.status === 'cancelled') continue;
+                    const train = db.trains.find(t => t.trainId === run.trainId);
+                    if (!train) continue;
+                    if (!train.serviceClasses.includes(travelClass)) continue;
+                    const depTime = new Date(runDate);
+                    const [depHour, depMin] = fromStop.scheduledDeparture.split(':');
+                    depTime.setHours(parseInt(depHour), parseInt(depMin), 0);
+                    const arrTime = new Date(runDate);
+                    const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
+                    arrTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
+                    if (arrTime &lt; depTime) arrTime.setDate(arrTime.getDate() + 1);
+                    const duration = (arrTime - depTime) / 60000;
+                    const price = calculatePrice(fromStation, intermediate, travelClass, train.trainType);
+                    let totalSeats = 0;
+                    if (train.coaches &amp;&amp; train.coaches.length) {
+                        totalSeats = train.coaches.reduce((sum, c) => sum + (c.totalSeats || 0), 0);
+                    } else {
+                        totalSeats = 60;
+                    }
+                    const occupancySnapshots = db.occupancySnapshots ? db.occupancySnapshots.filter(o => o.runId === run.runId) : [];
+                    const occupiedSeats = occupancySnapshots.reduce((sum, o) => sum + (o.occupiedSeats || 0), 0);
+                    const crowding = totalSeats > 0 ? Math.min(100, Math.round((occupiedSeats / totalSeats) * 100)) : 0;
+                    const delay = run.status === 'delayed' ? Math.min(80, 20 + (run.currentDelayMinutes || 0)) : Math.max(0, 5 - (run.currentDelayMinutes || 0));
+                    leg1Options.push({
+                        runId: run.runId, trainCode: train.trainCode,
+                        from: fromStation.name, to: intermediate.name,
+                        departureTime: depTime, arrivalTime: arrTime,
+                        durationMinutes: duration, price,
+                        delayProbability: delay, crowdingProbability: crowding
+                    });
+                }
+                const leg2Options = [];
+                for (const run of db.trainRuns) {
+                    const route = db.routes.find(r => r.routeId === run.routeId);
+                    if (!route) continue;
+                    const fromStop = route.stops.find(s => s.stationId === intermediate.stationId);
+                    const toStop = route.stops.find(s => s.stationId === toStation.stationId);
+                    if (!fromStop || !toStop || fromStop.stopOrder >= toStop.stopOrder) continue;
+                    const runDate = new Date(run.departureDateTime);
+                    if (runDate.toDateString() !== searchDate.toDateString()) continue;
+                    if (run.status === 'cancelled') continue;
+                    const train = db.trains.find(t => t.trainId === run.trainId);
+                    if (!train) continue;
+                    if (!train.serviceClasses.includes(travelClass)) continue;
+                    const depTime = new Date(runDate);
+                    const [depHour, depMin] = fromStop.scheduledDeparture.split(':');
+                    depTime.setHours(parseInt(depHour), parseInt(depMin), 0);
+                    const arrTime = new Date(runDate);
+                    const [arrHour, arrMin] = toStop.scheduledArrival.split(':');
+                    arrTime.setHours(parseInt(arrHour), parseInt(arrMin), 0);
+                    if (arrTime &lt; depTime) arrTime.setDate(arrTime.getDate() + 1);
+                    const duration = (arrTime - depTime) / 60000;
+                    const price = calculatePrice(intermediate, toStation, travelClass, train.trainType);
+                    let totalSeats = 0;
+                    if (train.coaches &amp;&amp; train.coaches.length) {
+                        totalSeats = train.coaches.reduce((sum, c) => sum + (c.totalSeats || 0), 0);
+                    } else {
+                        totalSeats = 60;
+                    }
+                    const occupancySnapshots = db.occupancySnapshots ? db.occupancySnapshots.filter(o => o.runId === run.runId) : [];
+                    const occupiedSeats = occupancySnapshots.reduce((sum, o) => sum + (o.occupiedSeats || 0), 0);
+                    const crowding = totalSeats > 0 ? Math.min(100, Math.round((occupiedSeats / totalSeats) * 100)) : 0;
+                    const delay = run.status === 'delayed' ? Math.min(80, 20 + (run.currentDelayMinutes || 0)) : Math.max(0, 5 - (run.currentDelayMinutes || 0));
+                    leg2Options.push({
+                        runId: run.runId, trainCode: train.trainCode,
+                        from: intermediate.name, to: toStation.name,
+                        departureTime: depTime, arrivalTime: arrTime,
+                        durationMinutes: duration, price,
+                        delayProbability: delay, crowdingProbability: crowding
+                    });
+                }
+                for (const leg1 of leg1Options) {
+                    for (const leg2 of leg2Options) {
+                        const transferWait = (leg2.departureTime - leg1.arrivalTime) / 60000;
+                        if (transferWait >= 20 &amp;&amp; transferWait &lt;= 120) {
+                            const totalDuration = leg1.durationMinutes + leg2.durationMinutes + transferWait;
+                            const totalPrice = leg1.price + leg2.price;
+                            const delayProbability = Math.max(leg1.delayProbability || 0, leg2.delayProbability || 0);
+                            const crowdingProbability = Math.max(leg1.crowdingProbability || 0, leg2.crowdingProbability || 0);
+                            results.push({
+                                id: null, from: fromStation.name, to: toStation.name,
+                                departureTime: leg1.departureTime.toISOString(),
+                                arrivalTime: leg2.arrivalTime.toISOString(),
+                                durationMinutes: totalDuration,
+                                duration: `${Math.floor(totalDuration/60)}h ${totalDuration%60}m`,
+                                price: totalPrice,
+                                trainCode: `${leg1.trainCode} → ${leg2.trainCode}`,
+                                trainType: 'Con cambio',
+                                travelClass: travelClass,
+                                transfers: 1,
+                                transferStation: intermediate.name,
+                                transferDuration: Math.round(transferWait),
+                                segments: [leg1, leg2],
+                                delayProbability,
+                                crowdingProbability
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        results.sort((a,b) => new Date(a.departureTime) - new Date(b.departureTime));
+        res.json({ trains: results });
+    },
+
+    /**
+     * @brief Gets the current status of a train run.
+     * @details Returns the train code, delay, next station and scheduled arrival for a given runId.
+     * @param {Object} req - Express request with runId as a route parameter.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 404 if the run is not found, otherwise the status data.
+     */
+    getTrainStatus(req, res) {
+        const runId = parseInt(req.params.runId);
+        const db = readDB();
+        const run = db.trainRuns.find(r => r.runId === runId);
+        if (!run) return res.status(404).json({ error: 'Treno non trovato' });
+        const train = db.trains.find(t => t.trainId === run.trainId);
+        if (!train) return res.status(404).json({ error: 'Train not found' });
+        const route = db.routes.find(r => r.routeId === run.routeId);
+        const currentStopIndex = run.actualDeparture ? 1 : 0;
+        const nextStop = route?.stops[currentStopIndex];
+        const nextStation = nextStop ? db.stations.find(s => s.stationId === nextStop.stationId) : null;
+        res.json({
+            runId: run.runId, trainCode: train.trainCode, status: run.status,
+            currentDelay: run.currentDelayMinutes, lastUpdate: new Date().toISOString(),
+            nextStation: nextStation?.name || 'Termine', scheduledArrival: nextStop?.scheduledArrival || '--:--'
+        });
+    },
+
+    /**
+     * @brief Predicts the delay for a given train run.
+     * @details Uses historical data or a random estimate to predict how late the train will be.
+     * @param {Object} req - Express request with runId as a route parameter.
+     * @param {Object} res - Express response object.
+     * @return {Object|void} 404 if the run is not found, otherwise the delay prediction.
+     */
+    predictDelay(req, res) {
+        const runId = parseInt(req.params.runId);
+        const db = readDB();
+        const run = db.trainRuns.find(r => r.runId === runId);
+        if (!run) return res.status(404).json({ error: 'Run non trovato' });
+        const predictedDelay = getDelayPrediction(runId, db);
+        res.json({
+            runId: run.runId,
+            trainCode: db.trains.find(t => t.trainId === run.trainId)?.trainCode,
+            predictedDelayMinutes: predictedDelay,
+            confidence: 0.7 + Math.random() * 0.25,
+            basedOn: 'dati limitati'
+        });
+    }
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdditionalReservation.html">AdditionalReservation</a></li><li><a href="AnonymousUser.html">AnonymousUser</a></li><li><a href="ApplicationInterface.html">ApplicationInterface</a></li><li><a href="Coach.html">Coach</a></li><li><a href="ContentDisposition.html">ContentDisposition</a></li><li><a href="CustomerSupportAgent.html">CustomerSupportAgent</a></li><li><a href="Location.html">Location</a></li><li><a href="Location_Location.html">Location</a></li><li><a href="LoginAPI.html">LoginAPI</a></li><li><a href="MappingAPI.html">MappingAPI</a></li><li><a href="Notification.html">Notification</a></li><li><a href="Passenger.html">Passenger</a></li><li><a href="PaymentDetails.html">PaymentDetails</a></li><li><a href="PaymentDetails_PaymentDetails.html">PaymentDetails</a></li><li><a href="PaymentGatewayAPI.html">PaymentGatewayAPI</a></li><li><a href="PaymentResult.html">PaymentResult</a></li><li><a href="PaymentResult_PaymentResult.html">PaymentResult</a></li><li><a href="PaymentTransaction.html">PaymentTransaction</a></li><li><a href="PredictionSystem.html">PredictionSystem</a></li><li><a href="RailwayAdministrator.html">RailwayAdministrator</a></li><li><a href="RegisteredUser.html">RegisteredUser</a></li><li><a href="global.html#Route">Route</a></li><li><a href="Route_Route.html">Route</a></li><li><a href="SearchCriteria.html">SearchCriteria</a></li><li><a href="SearchCriteria_SearchCriteria.html">SearchCriteria</a></li><li><a href="Seat.html">Seat</a></li><li><a href="SessionToken.html">SessionToken</a></li><li><a href="SessionToken_SessionToken.html">SessionToken</a></li><li><a href="StationBoard.html">StationBoard</a></li><li><a href="StatisticsFilter.html">StatisticsFilter</a></li><li><a href="StatisticsFilter_StatisticsFilter.html">StatisticsFilter</a></li><li><a href="Subscription.html">Subscription</a></li><li><a href="SupportRequest.html">SupportRequest</a></li><li><a href="Ticket.html">Ticket</a></li><li><a href="TicketChangeRequest.html">TicketChangeRequest</a></li><li><a href="TicketChangeRequest_TicketChangeRequest.html">TicketChangeRequest</a></li><li><a href="TicketDatabase.html">TicketDatabase</a></li><li><a href="TicketInspector.html">TicketInspector</a></li><li><a href="Train.html">Train</a></li><li><a href="TrainDatabase.html">TrainDatabase</a></li><li><a href="TrainRun.html">TrainRun</a></li><li><a href="TrainStatus.html">TrainStatus</a></li><li><a href="TravelDocument.html">TravelDocument</a></li><li><a href="TravelDocumentSummary.html">TravelDocumentSummary</a></li><li><a href="UserDatabase.html">UserDatabase</a></li><li><a href="UserProfile.html">UserProfile</a></li><li><a href="ValidationPanel.html">ValidationPanel</a></li><li><a href="ValidationResult.html">ValidationResult</a></li><li><a href="ValidationResult_ValidationResult.html">ValidationResult</a></li></ul><h3>Global</h3><ul><li><a href="global.html"></a></li><li><a href="global.html#$defineProperty">$defineProperty</a></li><li><a href="global.html#$gOPD">$gOPD</a></li><li><a href="global.html#$indexOf">$indexOf</a></li><li><a href="global.html#$mapDelete">$mapDelete</a></li><li><a href="global.html#$mapGet">$mapGet</a></li><li><a href="global.html#$mapHas">$mapHas</a></li><li><a href="global.html#$mapSet">$mapSet</a></li><li><a href="global.html#$mapSize">$mapSize</a></li><li><a href="global.html#$weakMapDelete">$weakMapDelete</a></li><li><a href="global.html#$weakMapGet">$weakMapGet</a></li><li><a href="global.html#$weakMapHas">$weakMapHas</a></li><li><a href="global.html#$weakMapSet">$weakMapSet</a></li><li><a href="global.html#Accepts">Accepts</a></li><li><a href="global.html#AccountController">AccountController</a></li><li><a href="global.html#AdminController">AdminController</a></li><li><a href="global.html#AuthController">AuthController</a></li><li><a href="global.html#Buffer">Buffer</a></li><li><a href="global.html#DB_PATH">DB_PATH</a></li><li><a href="global.html#DeprecationError">DeprecationError</a></li><li><a href="global.html#FIELD_NAME_REGEXP">FIELD_NAME_REGEXP</a></li><li><a href="global.html#FIRST_CHAR_REGEXP">FIRST_CHAR_REGEXP</a></li><li><a href="global.html#InspectorController">InspectorController</a></li><li><a href="global.html#LanguageController">LanguageController</a></li><li><a href="global.html#MATCHING_GROUP_REGEXP">MATCHING_GROUP_REGEXP</a></li><li><a href="global.html#Negotiator">Negotiator</a></li><li><a href="global.html#NotificationController">NotificationController</a></li><li><a href="global.html#PARAM_REGEXP">PARAM_REGEXP</a></li><li><a href="global.html#QESC_REGEXP">QESC_REGEXP</a></li><li><a href="global.html#QUOTE_REGEXP">QUOTE_REGEXP</a></li><li><a href="global.html#ScheduleController">ScheduleController</a></li><li><a href="global.html#StationBoardController">StationBoardController</a></li><li><a href="global.html#StatisticsController">StatisticsController</a></li><li><a href="global.html#SubscriptionController">SubscriptionController</a></li><li><a href="global.html#SupportController">SupportController</a></li><li><a href="global.html#TYPE_REGEXP">TYPE_REGEXP</a></li><li><a href="global.html#TicketManagementController">TicketManagementController</a></li><li><a href="global.html#TicketPurchaseController">TicketPurchaseController</a></li><li><a href="global.html#TrainSearchController">TrainSearchController</a></li><li><a href="global.html#UserController">UserController</a></li><li><a href="global.html#UserDashboardController">UserDashboardController</a></li><li><a href="global.html#ValidationController">ValidationController</a></li><li><a href="global.html#View">View</a></li><li><a href="global.html#acceptParams">acceptParams</a></li><li><a href="global.html#alladdrs">alladdrs</a></li><li><a href="global.html#app">app</a></li><li><a href="global.html#append">append</a></li><li><a href="global.html#application">application</a></li><li><a href="global.html#arrayFlatten">arrayFlatten</a></li><li><a href="global.html#basePath">basePath</a></li><li><a href="global.html#bodyParser">bodyParser</a></li><li><a href="global.html#bytes">bytes</a></li><li><a href="global.html#calculatePrice">calculatePrice</a></li><li><a href="global.html#callSiteLocation">callSiteLocation</a></li><li><a href="global.html#charset">charset</a></li><li><a href="global.html#coerce">coerce</a></li><li><a href="global.html#colors">colors</a></li><li><a href="global.html#compileETag">compileETag</a></li><li><a href="global.html#compileQueryParser">compileQueryParser</a></li><li><a href="global.html#compileTrust">compileTrust</a></li><li><a href="global.html#containsDotFile">containsDotFile</a></li><li><a href="global.html#containsNamespace">containsNamespace</a></li><li><a href="global.html#contentDisposition">contentDisposition</a></li><li><a href="global.html#contentRange">contentRange</a></li><li><a href="global.html#contentType">contentType</a></li><li><a href="global.html#contentstream">contentstream</a></li><li><a href="global.html#convertDataDescriptorToAccessor">convertDataDescriptorToAccessor</a></li><li><a href="global.html#cookieNameRegExp">cookieNameRegExp</a></li><li><a href="global.html#cookieValueRegExp">cookieValueRegExp</a></li><li><a href="global.html#createApplication">createApplication</a></li><li><a href="global.html#createArgumentsString">createArgumentsString</a></li><li><a href="global.html#createDebug">createDebug</a></li><li><a href="global.html#createError">createError</a></li><li><a href="global.html#createNotification">createNotification</a></li><li><a href="global.html#createStackString">createStackString</a></li><li><a href="global.html#createWritableStdioStream">createWritableStdioStream</a></li><li><a href="global.html#crypto">crypto</a></li><li><a href="global.html#decode">decode</a></li><li><a href="global.html#defaultMessage">defaultMessage</a></li><li><a href="global.html#depd">depd</a></li><li><a href="global.html#destroy">destroy</a></li><li><a href="global.html#disable">disable</a></li><li><a href="global.html#domainValueRegExp">domainValueRegExp</a></li><li><a href="global.html#dump">dump</a></li><li><a href="global.html#enable">enable</a></li><li><a href="global.html#enabled">enabled</a></li><li><a href="global.html#encodeUrl">encodeUrl</a></li><li><a href="global.html#escapeHtml">escapeHtml</a></li><li><a href="global.html#etag">etag</a></li><li><a href="global.html#extendedparser">extendedparser</a></li><li><a href="global.html#extension">extension</a></li><li><a href="global.html#fd">fd</a></li><li><a href="global.html#finalhandler">finalhandler</a></li><li><a href="global.html#first">first</a></li><li><a href="global.html#flatten">flatten</a></li><li><a href="global.html#flattenForever">flattenForever</a></li><li><a href="global.html#flattenWithDepth">flattenWithDepth</a></li><li><a href="global.html#fmtLong">fmtLong</a></li><li><a href="global.html#fmtShort">fmtShort</a></li><li><a href="global.html#format">format</a></li><li><a href="global.html#formatArgs">formatArgs</a></li><li><a href="global.html#formatColor">formatColor</a></li><li><a href="global.html#formatLocation">formatLocation</a></li><li><a href="global.html#formatPlain">formatPlain</a></li><li><a href="global.html#formatters">formatters</a></li><li><a href="global.html#forwarded">forwarded</a></li><li><a href="global.html#fresh">fresh</a></li><li><a href="global.html#generateToken">generateToken</a></li><li><a href="global.html#getCharset">getCharset</a></li><li><a href="global.html#getDelayPrediction">getDelayPrediction</a></li><li><a href="global.html#getRawBody">getRawBody</a></li><li><a href="global.html#getStack">getStack</a></li><li><a href="global.html#getStations">getStations</a></li><li><a href="global.html#getUserById">getUserById</a></li><li><a href="global.html#getcontenttype">getcontenttype</a></li><li><a href="global.html#hasbody">hasbody</a></li><li><a href="global.html#hashPassword">hashPassword</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#initDatabase">initDatabase</a></li><li><a href="global.html#inspectOpts">inspectOpts</a></li><li><a href="global.html#inspectorLog">inspectorLog</a></li><li><a href="global.html#isAbsolute">isAbsolute</a></li><li><a href="global.html#isFinished">isFinished</a></li><li><a href="global.html#isignored">isignored</a></li><li><a href="global.html#isstats">isstats</a></li><li><a href="global.html#istraced">istraced</a></li><li><a href="global.html#json">json</a></li><li><a href="global.html#listDelete">listDelete</a></li><li><a href="global.html#listGet">listGet</a></li><li><a href="global.html#listGetNode">listGetNode</a></li><li><a href="global.html#listHas">listHas</a></li><li><a href="global.html#listSet">listSet</a></li><li><a href="global.html#load">load</a></li><li><a href="global.html#localstorage">localstorage</a></li><li><a href="global.html#log">log</a></li><li><a href="global.html#lookup">lookup</a></li><li><a href="global.html#merge">merge</a></li><li><a href="global.html#mime">mime</a></li><li><a href="global.html#names">names</a></li><li><a href="global.html#newObject">newObject</a></li><li><a href="global.html#normalizeJsonSyntaxError">normalizeJsonSyntaxError</a></li><li><a href="global.html#normalizeType">normalizeType</a></li><li><a href="global.html#normalizeTypes">normalizeTypes</a></li><li><a href="global.html#obj">obj</a></li><li><a href="global.html#onFinished">onFinished</a></li><li><a href="global.html#originalurl">originalurl</a></li><li><a href="global.html#paramRegExp">paramRegExp</a></li><li><a href="global.html#parameterCount">parameterCount</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parser">parser</a></li><li><a href="global.html#parsers">parsers</a></li><li><a href="global.html#parseurl">parseurl</a></li><li><a href="global.html#pathToRegexp">pathToRegexp</a></li><li><a href="global.html#pathValueRegExp">pathValueRegExp</a></li><li><a href="global.html#plural">plural</a></li><li><a href="global.html#preferredCharsets">preferredCharsets</a></li><li><a href="global.html#preferredEncodings">preferredEncodings</a></li><li><a href="global.html#preferredLanguages">preferredLanguages</a></li><li><a href="global.html#preferredMediaTypes">preferredMediaTypes</a></li><li><a href="global.html#prepareObjectStackTrace">prepareObjectStackTrace</a></li><li><a href="global.html#prevTime">prevTime</a></li><li><a href="global.html#proto">proto</a></li><li><a href="global.html#proxyaddr">proxyaddr</a></li><li><a href="global.html#qescRegExp">qescRegExp</a></li><li><a href="global.html#qstring">qstring</a></li><li><a href="global.html#quoteRegExp">quoteRegExp</a></li><li><a href="global.html#rangeParser">rangeParser</a></li><li><a href="global.html#raw">raw</a></li><li><a href="global.html#readDB">readDB</a></li><li><a href="global.html#readStream">readStream</a></li><li><a href="global.html#relative">relative</a></li><li><a href="global.html#removedMiddlewares">removedMiddlewares</a></li><li><a href="global.html#req">req</a></li><li><a href="global.html#res">res</a></li><li><a href="global.html#s">s</a></li><li><a href="global.html#save">save</a></li><li><a href="global.html#seedDefaultUsers">seedDefaultUsers</a></li><li><a href="global.html#selectColor">selectColor</a></li><li><a href="global.html#send">send</a></li><li><a href="global.html#serialize">serialize</a></li><li><a href="global.html#serveStatic">serveStatic</a></li><li><a href="global.html#sessions">sessions</a></li><li><a href="global.html#setCharset">setCharset</a></li><li><a href="global.html#sha1">sha1</a></li><li><a href="global.html#sign">sign</a></li><li><a href="global.html#simpleparser">simpleparser</a></li><li><a href="global.html#splitType">splitType</a></li><li><a href="global.html#status">status</a></li><li><a href="global.html#stringToPath">stringToPath</a></li><li><a href="global.html#subtypeNameRegExp">subtypeNameRegExp</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#toIdentifier">toIdentifier</a></li><li><a href="global.html#tty">tty</a></li><li><a href="global.html#typeChecker">typeChecker</a></li><li><a href="global.html#typeis">typeis</a></li><li><a href="global.html#typeofrequest">typeofrequest</a></li><li><a href="global.html#unpipe">unpipe</a></li><li><a href="global.html#unsign">unsign</a></li><li><a href="global.html#urlencoded">urlencoded</a></li><li><a href="global.html#useColors">useColors</a></li><li><a href="global.html#vary">vary</a></li><li><a href="global.html#wetag">wetag</a></li><li><a href="global.html#wrapfunction">wrapfunction</a></li><li><a href="global.html#wrapproperty">wrapproperty</a></li><li><a href="global.html#writeDB">writeDB</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Jun 16 2026 18:48:15 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
