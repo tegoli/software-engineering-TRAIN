@@ -139,7 +139,7 @@ JS Version/
 
 1. **Clone the repository** (or download the source code):
    ```bash
-   git clone https://github.com/your-repo/train-webapp.git
+   git clone https://github.com/tegoli/software-engineering-TRAIN.git
    cd train-webapp/JS\ Version
 2. **Install dependencies** (only express is needed for production):
     ```bash
